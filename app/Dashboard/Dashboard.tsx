@@ -1,771 +1,32 @@
-// import mqtt from "mqtt";
-// import { useEffect, useRef, useState } from "react";
-// import { Animated, Button, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
-
-// import { Buffer } from "buffer";
-// global.Buffer = Buffer;
-
-// import process from "process";
-// global.process = process;
-
-// export default function Index() {
-//   const clientRef = useRef<any>(null);
-//   const [status, setStatus] = useState("Disconnected");
-//   const [sensorData, setSensorData] = useState<any>(null); // Changed from gas to sensorData
-//   const [topicInfo, setTopicInfo] = useState("");
-
-//   // Animation values
-//   const pulseAnim = useRef(new Animated.Value(1)).current;
-//   const fadeAnim = useRef(new Animated.Value(0)).current;
-
-//   const topic = "house/+/room/+/sensor/+";
-
-//   const startPulseAnimation = () => {
-//     Animated.loop(
-//       Animated.sequence([
-//         Animated.timing(pulseAnim, {
-//           toValue: 1.1,
-//           duration: 1000,
-//           useNativeDriver: true,
-//         }),
-//         Animated.timing(pulseAnim, {
-//           toValue: 1,
-//           duration: 1000,
-//           useNativeDriver: true,
-//         }),
-//       ])
-//     ).start();
-//   };
-
-//   const stopPulseAnimation = () => {
-//     pulseAnim.stopAnimation();
-//     Animated.timing(pulseAnim, {
-//       toValue: 1,
-//       duration: 300,
-//       useNativeDriver: true,
-//     }).start();
-//   };
-
-//   const connectAndSubscribe = () => {
-//     const brokerUrl = "ws://192.168.18.28:9001";
-
-//     console.log(" Connecting to MQTT broker:", brokerUrl);
-//     console.log(" Subscribing topic pattern:", topic);
-
-//     const client = mqtt.connect(brokerUrl, {
-//       clientId: "expo_" + Math.random().toString(16).slice(2),
-//       clean: true,
-//       reconnectPeriod: 10000,
-//       connectTimeout: 50000,
-//     });
-
-//     clientRef.current = client;
-
-//     client.on("connect", (connack) => {
-//       console.log(" MQTT CONNECTED");
-//       console.log(" Connack:", connack);
-
-//       setStatus("Connected");
-//       startPulseAnimation();
-//       Animated.timing(fadeAnim, {
-//         toValue: 1,
-//         duration: 500,
-//         useNativeDriver: true,
-//       }).start();
-
-//       client.subscribe(topic, (err, granted) => {
-//         if (err) {
-//           console.log(" SUBSCRIBE ERROR:", err);
-//         } else {
-//           console.log(" SUBSCRIBED:", granted);
-//         }
-//       });
-//     });
-
-//     client.on("message", (topic, payload, packet) => {
-//       console.log(" MQTT MESSAGE RECEIVED");
-//       console.log(" Topic:", topic);
-//       console.log(" Payload (string):", payload.toString());
-
-//       try {
-//         // Parse the payload
-//         const payloadStr = payload.toString();
-        
-//         // Try to parse as JSON first
-//         let data;
-//         try {
-//           data = JSON.parse(payloadStr);
-//         } catch (e) {
-//           // If not JSON, treat as raw value
-//           data = payloadStr;
-//         }
-        
-//         console.log(" Parsed data:", data);
-        
-//         // Extract sensor type from topic (last part after '/')
-//         const topicParts = topic.split('/');
-//         const sensorType = topicParts[topicParts.length - 1];
-        
-//         setSensorData({
-//           value: data,
-//           sensorType: sensorType,
-//           rawTopic: topic,
-//           timestamp: new Date().toISOString()
-//         });
-//         setTopicInfo(topic);
-        
-//       } catch (error) {
-//         console.error("Error processing message:", error);
-//       }
-//     });
-
-//     client.on("reconnect", () => {
-//       console.log(" MQTT RECONNECTING...");
-//       setStatus("Reconnecting");
-//     });
-
-//     client.on("offline", () => {
-//       console.log(" MQTT OFFLINE");
-//       setStatus("Offline");
-//       stopPulseAnimation();
-//     });
-
-//     client.on("close", () => {
-//       console.log(" MQTT CONNECTION CLOSED");
-//       setStatus("Closed");
-//       stopPulseAnimation();
-//       Animated.timing(fadeAnim, {
-//         toValue: 0,
-//         duration: 300,
-//         useNativeDriver: true,
-//       }).start();
-//     });
-
-//     client.on("error", (err) => {
-//       console.log(" MQTT ERROR:", err);
-//       setStatus("Error");
-//       stopPulseAnimation();
-//       //  DO NOT end the client here
-//     });
-//   };
-
-//   /* ---------------- UNSUBSCRIBE (NEW) ---------------- */
-//   const unsubscribe = () => {
-//     const client = clientRef.current;
-//     if (!client) return;
-
-//     console.log(" Unsubscribing from topic:", topic);
-
-//     client.unsubscribe(topic, (err: any) => {
-//       if (err) {
-//         console.log(" UNSUBSCRIBE ERROR:", err);
-//       } else {
-//         console.log(" UNSUBSCRIBED");
-//         setStatus("Unsubscribed");
-//         setSensorData(null); // Changed from setGas(null)
-//         setTopicInfo("");
-//         stopPulseAnimation();
-//         Animated.timing(fadeAnim, {
-//           toValue: 0,
-//           duration: 300,
-//           useNativeDriver: true,
-//         }).start();
-//       }
-//     });
-//   };
-
-//   useEffect(() => {
-//     return () => {
-//       console.log(" Cleaning up MQTT connection");
-//       clientRef.current?.end(true);
-//     };
-//   }, []);
-
-//   const getStatusColor = () => {
-//     switch (status) {
-//       case "Connected":
-//         return "#10B981";
-//       case "Disconnected":
-//         return "#6B7280";
-//       case "Reconnecting":
-//         return "#F59E0B";
-//       case "Error":
-//         return "#EF4444";
-//       case "Offline":
-//       case "Closed":
-//         return "#6B7280";
-//       default:
-//         return "#6B7280";
-//     }
-//   };
-
-//   const getStatusEmoji = () => {
-//     switch (status) {
-//       case "Connected":
-//         return "✅";
-//       case "Disconnected":
-//         return "🔌";
-//       case "Reconnecting":
-//         return "🔄";
-//       case "Error":
-//         return "❌";
-//       case "Offline":
-//         return "📴";
-//       case "Closed":
-//         return "🔒";
-//       default:
-//         return "⚡";
-//     }
-//   };
-
-//   // Helper function to get sensor display info
-//   const getSensorInfo = () => {
-//     if (!sensorData) return null;
-    
-//     // const sensorType = sensorData.sensorType?.toLowerCase() || '';
-//     const sensorType = (sensorData.sensorType?.toLowerCase() || '') as keyof typeof sensorConfigs;
-//     const value = sensorData.value;
-    
-//     // Common sensor types and their configurations
-//     const sensorConfigs = {
-//       gas: {
-//         label: "Gas Level",
-//         unit: "ppm",
-//         safeThreshold: 400,
-//         warningThreshold: 300,
-//         color: "#10B981",
-//         alertColor: "#EF4444",
-//         warningColor: "#F59E0B",
-//         emoji: "💨"
-//       },
-//       humidity: {
-//         label: "Humidity",
-//         unit: "%",
-//         safeThreshold: 80,
-//         warningThreshold: 70,
-//         color: "#3B82F6",
-//         alertColor: "#EF4444",
-//         warningColor: "#F59E0B",
-//         emoji: "💧"
-//       },
-//       temperature: {
-//         label: "Temperature",
-//         unit: "°C",
-//         safeThreshold: 35,
-//         warningThreshold: 30,
-//         color: "#EF4444",
-//         alertColor: "#DC2626",
-//         warningColor: "#F59E0B",
-//         emoji: "🌡️"
-//       },
-//       smoke: {
-//         label: "Smoke Level",
-//         unit: "ppm",
-//         safeThreshold: 100,
-//         warningThreshold: 50,
-//         color: "#6B7280",
-//         alertColor: "#DC2626",
-//         warningColor: "#F59E0B",
-//         emoji: "🔥"
-//       },
-//       motion: {
-//         label: "Motion",
-//         unit: "",
-//         safeThreshold: 1,
-//         warningThreshold: 0.5,
-//         color: "#8B5CF6",
-//         alertColor: "#DC2626",
-//         warningColor: "#F59E0B",
-//         emoji: "🚶"
-//       },
-//       pressure: {
-//         label: "Pressure",
-//         unit: "hPa",
-//         safeThreshold: 1100,
-//         warningThreshold: 1050,
-//         color: "#10B981",
-//         alertColor: "#DC2626",
-//         warningColor: "#F59E0B",
-//         emoji: "📊"
-//       },
-//       // Add more sensor types as needed
-//     };
-
-//     // Find matching config or use default
-//     const config = sensorConfigs[sensorType] || {
-//       label: sensorType.charAt(0).toUpperCase() + sensorType.slice(1),
-//       unit: "",
-//       safeThreshold: Infinity,
-//       warningThreshold: Infinity,
-//       color: "#6B7280",
-//       alertColor: "#EF4444",
-//       warningColor: "#F59E0B",
-//       emoji: "📡"
-//     };
-
-//     // Convert value to number if possible
-//     const numericValue = typeof value === 'number' ? value : 
-//                         !isNaN(Number(value)) ? Number(value) : value;
-
-//     // Determine status
-//     let status = "safe";
-//     let statusColor = config.color;
-    
-//     if (typeof numericValue === 'number') {
-//       if (numericValue > config.safeThreshold) {
-//         status = "alert";
-//         statusColor = config.alertColor;
-//       } else if (numericValue > config.warningThreshold) {
-//         status = "warning";
-//         statusColor = config.warningColor;
-//       }
-//     }
-
-//     return {
-//       label: config.label,
-//       value: numericValue,
-//       unit: config.unit,
-//       type: sensorType,
-//       emoji: config.emoji,
-//       status,
-//       statusColor,
-//       config
-//     };
-//   };
-
-//   const sensorInfo = getSensorInfo();
-
-//   return (
-//     <SafeAreaView style={styles.container}>
-//       <ScrollView contentContainerStyle={styles.scrollContent}>
-//         <View style={styles.header}>
-//           <Text style={styles.title}>MQTT Sensor Monitor</Text>
-//           <Text style={styles.subtitle}>Real-time Multi-Sensor Dashboard</Text>
-//         </View>
-
-//         <View style={styles.statusCard}>
-//           <View style={styles.statusHeader}>
-//             <Text style={styles.statusTitle}>Connection Status</Text>
-//             <View style={[styles.statusIndicator, { backgroundColor: getStatusColor() }]} />
-//           </View>
-//           <View style={styles.statusContent}>
-//             <Text style={styles.statusText}>
-//               {getStatusEmoji()} {status}
-//             </Text>
-//             <Animated.View
-//               style={[
-//                 styles.pulseCircle,
-//                 {
-//                   backgroundColor: getStatusColor(),
-//                   opacity: fadeAnim,
-//                   transform: [{ scale: pulseAnim }],
-//                 },
-//               ]}
-//             />
-//           </View>
-//         </View>
-
-//         <View style={styles.controlCard}>
-//           <Text style={styles.cardTitle}>Connection Controls</Text>
-//           <View style={styles.buttonContainer}>
-//             <Button
-//               title="Subscribe to Sensors"
-//               onPress={connectAndSubscribe}
-//               color="#3B82F6"
-//             />
-//             <View style={styles.buttonSpacer} />
-//             <Button
-//               title="Unsubscribe"
-//               onPress={unsubscribe}
-//               color="#F59E0B"
-//             />
-//           </View>
-//           <Text style={styles.topicText}>Topic Pattern: {topic}</Text>
-//         </View>
-
-//         <Animated.View
-//           style={[
-//             styles.dataCard,
-//             {
-//               opacity: fadeAnim,
-//               transform: [{
-//                 translateY: fadeAnim.interpolate({
-//                   inputRange: [0, 1],
-//                   outputRange: [20, 0]
-//                 })
-//               }],
-//             },
-//           ]}
-//         >
-//           <Text style={styles.cardTitle}>Sensor Data</Text>
-          
-//           {sensorData ? (
-//             <>
-//               <View style={styles.dataRow}>
-//                 <Text style={styles.dataLabel}>Sensor Type:</Text>
-//                 <Text style={styles.dataValue}>
-//                   {sensorInfo?.emoji} {sensorInfo?.label}
-//                 </Text>
-//               </View>
-
-//               <View style={styles.dataRow}>
-//                 <Text style={styles.dataLabel}>Topic:</Text>
-//                 <Text style={styles.dataValue} numberOfLines={1} ellipsizeMode="middle">
-//                   {topicInfo}
-//                 </Text>
-//               </View>
-              
-//               <View style={styles.gasValueContainer}>
-//                 <Text style={styles.gasLabel}>Current Value:</Text>
-//                 <View style={[styles.gasValueBox, { backgroundColor: sensorInfo?.statusColor + '20' }]}>
-//                   <Text style={[
-//                     styles.gasValue,
-//                     { color: sensorInfo?.statusColor }
-//                   ]}>
-//                     {typeof sensorInfo?.value === 'number' 
-//                       ? `${sensorInfo.value} ${sensorInfo.unit}` 
-//                       : String(sensorInfo?.value)}
-//                   </Text>
-//                 </View>
-//               </View>
-
-//               {sensorInfo?.status === "alert" && (
-//                 <View style={styles.alertContainer}>
-//                   <Text style={styles.alertText}>
-//                     🚨 {sensorInfo.label} ALERT!
-//                   </Text>
-//                   <Text style={styles.alertSubtext}>
-//                     Value exceeds safe threshold ({sensorInfo.config.safeThreshold} {sensorInfo.unit})
-//                   </Text>
-//                 </View>
-//               )}
-
-//               {sensorInfo?.status === "warning" && (
-//                 <View style={styles.warningContainer}>
-//                   <Text style={styles.warningText}>
-//                     ⚠️ Elevated {sensorInfo.label}
-//                   </Text>
-//                   <Text style={styles.warningSubtext}>
-//                     Monitor closely - approaching threshold
-//                   </Text>
-//                 </View>
-//               )}
-
-//               {sensorInfo?.status === "safe" && (
-//                 <View style={styles.safeContainer}>
-//                   <Text style={styles.safeText}>
-//                     ✅ {sensorInfo.label} Normal
-//                   </Text>
-//                   <Text style={styles.safeSubtext}>
-//                     Within safe operating range
-//                   </Text>
-//                 </View>
-//               )}
-
-//               <View style={styles.timestampContainer}>
-//                 <Text style={styles.timestampText}>
-//                   Last updated: {new Date(sensorData.timestamp).toLocaleTimeString()}
-//                 </Text>
-//               </View>
-//             </>
-//           ) : (
-//             <View style={styles.noDataContainer}>
-//               <Text style={styles.noDataText}>No sensor data available</Text>
-//               <Text style={styles.noDataSubtext}>Subscribe to start receiving data</Text>
-//               <Text style={styles.sensorListText}>
-//                 Supported sensors: Gas, Humidity, Temperature, Smoke, Motion, Pressure
-//               </Text>
-//             </View>
-//           )}
-//         </Animated.View>
-
-//         <View style={styles.footer}>
-//           <Text style={styles.footerText}>MQTT Broker: 192.168.18.28:9001</Text>
-//           <Text style={styles.footerText}>Topic Pattern: house/+/room/+/sensor/+</Text>
-//           <Text style={styles.footerText}>Client ID: expo_****</Text>
-//         </View>
-//       </ScrollView>
-//     </SafeAreaView>
-//   );
-// }
-
-// // Styles remain exactly the same as previous version
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#F9FAFB",
-//   },
-//   scrollContent: {
-//     padding: 20,
-//     paddingBottom: 40,
-//   },
-//   header: {
-//     alignItems: "center",
-//     marginBottom: 30,
-//     marginTop: 10,
-//   },
-//   title: {
-//     fontSize: 28,
-//     fontWeight: "bold",
-//     color: "#1F2937",
-//     marginBottom: 5,
-//   },
-//   subtitle: {
-//     fontSize: 16,
-//     color: "#6B7280",
-//   },
-//   statusCard: {
-//     backgroundColor: "white",
-//     borderRadius: 16,
-//     padding: 20,
-//     marginBottom: 20,
-//     shadowColor: "#000",
-//     shadowOffset: { width: 0, height: 2 },
-//     shadowOpacity: 0.05,
-//     shadowRadius: 8,
-//     elevation: 2,
-//   },
-//   statusHeader: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     alignItems: "center",
-//     marginBottom: 15,
-//   },
-//   statusTitle: {
-//     fontSize: 18,
-//     fontWeight: "600",
-//     color: "#374151",
-//   },
-//   statusIndicator: {
-//     width: 12,
-//     height: 12,
-//     borderRadius: 6,
-//   },
-//   statusContent: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     justifyContent: "space-between",
-//   },
-//   statusText: {
-//     fontSize: 24,
-//     fontWeight: "600",
-//     color: "#1F2937",
-//   },
-//   pulseCircle: {
-//     width: 20,
-//     height: 20,
-//     borderRadius: 10,
-//   },
-//   controlCard: {
-//     backgroundColor: "white",
-//     borderRadius: 16,
-//     padding: 20,
-//     marginBottom: 20,
-//     shadowColor: "#000",
-//     shadowOffset: { width: 0, height: 2 },
-//     shadowOpacity: 0.05,
-//     shadowRadius: 8,
-//     elevation: 2,
-//   },
-//   cardTitle: {
-//     fontSize: 18,
-//     fontWeight: "600",
-//     color: "#374151",
-//     marginBottom: 15,
-//   },
-//   buttonContainer: {
-//     marginBottom: 15,
-//   },
-//   buttonSpacer: {
-//     height: 10,
-//   },
-//   topicText: {
-//     fontSize: 14,
-//     color: "#6B7280",
-//     fontFamily: "monospace",
-//     backgroundColor: "#F3F4F6",
-//     padding: 10,
-//     borderRadius: 8,
-//     marginTop: 10,
-//   },
-//   dataCard: {
-//     backgroundColor: "white",
-//     borderRadius: 16,
-//     padding: 20,
-//     marginBottom: 20,
-//     shadowColor: "#000",
-//     shadowOffset: { width: 0, height: 4 },
-//     shadowOpacity: 0.1,
-//     shadowRadius: 12,
-//     elevation: 4,
-//   },
-//   dataRow: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     alignItems: "center",
-//     marginBottom: 15,
-//     paddingBottom: 15,
-//     borderBottomWidth: 1,
-//     borderBottomColor: "#F3F4F6",
-//   },
-//   dataLabel: {
-//     fontSize: 16,
-//     color: "#6B7280",
-//     fontWeight: "500",
-//   },
-//   dataValue: {
-//     fontSize: 14,
-//     color: "#374151",
-//     fontFamily: "monospace",
-//     flex: 1,
-//     marginLeft: 10,
-//     textAlign: "right",
-//   },
-//   gasValueContainer: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     alignItems: "center",
-//     marginBottom: 20,
-//     marginTop: 10,
-//   },
-//   gasLabel: {
-//     fontSize: 18,
-//     color: "#374151",
-//     fontWeight: "600",
-//   },
-//   gasValueBox: {
-//     paddingHorizontal: 20,
-//     paddingVertical: 10,
-//     borderRadius: 12,
-//     minWidth: 120,
-//     alignItems: "center",
-//   },
-//   gasValue: {
-//     fontSize: 24,
-//     fontWeight: "bold",
-//   },
-//   alertContainer: {
-//     backgroundColor: "#FEE2E2",
-//     padding: 15,
-//     borderRadius: 12,
-//     borderWidth: 2,
-//     borderColor: "#EF4444",
-//     alignItems: "center",
-//     marginTop: 10,
-//   },
-//   alertText: {
-//     fontSize: 18,
-//     fontWeight: "bold",
-//     color: "#DC2626",
-//     marginBottom: 5,
-//   },
-//   alertSubtext: {
-//     fontSize: 14,
-//     color: "#DC2626",
-//     opacity: 0.8,
-//     textAlign: "center",
-//   },
-//   warningContainer: {
-//     backgroundColor: "#FEF3C7",
-//     padding: 15,
-//     borderRadius: 12,
-//     borderWidth: 2,
-//     borderColor: "#F59E0B",
-//     alignItems: "center",
-//     marginTop: 10,
-//   },
-//   warningText: {
-//     fontSize: 18,
-//     fontWeight: "bold",
-//     color: "#D97706",
-//     marginBottom: 5,
-//   },
-//   warningSubtext: {
-//     fontSize: 14,
-//     color: "#D97706",
-//     opacity: 0.8,
-//     textAlign: "center",
-//   },
-//   safeContainer: {
-//     backgroundColor: "#D1FAE5",
-//     padding: 15,
-//     borderRadius: 12,
-//     borderWidth: 2,
-//     borderColor: "#10B981",
-//     alignItems: "center",
-//     marginTop: 10,
-//   },
-//   safeText: {
-//     fontSize: 18,
-//     fontWeight: "bold",
-//     color: "#059669",
-//     marginBottom: 5,
-//   },
-//   safeSubtext: {
-//     fontSize: 14,
-//     color: "#059669",
-//     opacity: 0.8,
-//     textAlign: "center",
-//   },
-//   noDataContainer: {
-//     padding: 30,
-//     alignItems: "center",
-//     justifyContent: "center",
-//   },
-//   noDataText: {
-//     fontSize: 18,
-//     color: "#6B7280",
-//     marginBottom: 8,
-//     fontWeight: "500",
-//   },
-//   noDataSubtext: {
-//     fontSize: 14,
-//     color: "#9CA3AF",
-//     marginBottom: 15,
-//   },
-//   sensorListText: {
-//     fontSize: 12,
-//     color: "#9CA3AF",
-//     textAlign: "center",
-//     fontStyle: "italic",
-//   },
-//   timestampContainer: {
-//     marginTop: 15,
-//     paddingTop: 15,
-//     borderTopWidth: 1,
-//     borderTopColor: "#F3F4F6",
-//     alignItems: "center",
-//   },
-//   timestampText: {
-//     fontSize: 12,
-//     color: "#9CA3AF",
-//     fontStyle: "italic",
-//   },
-//   footer: {
-//     marginTop: 10,
-//     padding: 15,
-//     backgroundColor: "#F3F4F6",
-//     borderRadius: 12,
-//   },
-//   footerText: {
-//     fontSize: 12,
-//     color: "#6B7280",
-//     fontFamily: "monospace",
-//     marginBottom: 4,
-//   },
-// });
-
-
-/////////////////// NEW IMPLEMENTATION //////////////////////////////////
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 import CustomerSidebar from '../component/sidebarlayout';
+import urls from '../urls/urls';
+import CaptivePortalScreen from './Captive_portal';
+
 
 export default function CustomerDashboardScreen() {
   const [loggedInUser, setLoggedInUser] = useState<any>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [cameraVisible, setCameraVisible] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
+  const [scanned, setScanned] = useState(false);
+  const [portalVisible, setPortalVisible] = useState(false);
+  const [portalData, setPortalData] = useState<any>(null);
+
+
 
   useEffect(() => {
     const loadAuthData = async () => {
@@ -792,19 +53,155 @@ export default function CustomerDashboardScreen() {
     loadAuthData();
   }, []);
 
-  // Mock data for customer dashboard
-  const recentOrders = [
-    { id: 1, orderNo: 'ORD-001', date: '2024-01-15', amount: '$49.99', status: 'Delivered' },
-    { id: 2, orderNo: 'ORD-002', date: '2024-01-10', amount: '$89.99', status: 'Processing' },
-    { id: 3, orderNo: 'ORD-003', date: '2024-01-05', amount: '$29.99', status: 'Shipped' },
-  ];
+  // Mock function for scanning QR code
+  // const handleScanQRCode = async () => {
+  //   try {
+  //     // TODO: Replace with actual QR scanner implementation
+  //     // Example using expo-camera or react-native-vision-camera
+  //     Alert.alert(
+  //       "Scan QR Code",
+  //       "This would open the camera for QR code scanning.\n\nImplement using:\n• expo-camera with expo-barcode-scanner\n• react-native-vision-camera\n• react-native-qrcode-scanner",
+  //       [
+  //         { text: "Cancel", style: "cancel" },
+  //         {
+  //           text: "Simulate Scan",
+  //           onPress: () => {
+  //             // Simulate a successful scan
+  //             Alert.alert(
+  //               "QR Code Scanned!",
+  //               "Device Linked Successfully!\n\nDevice ID: DEV-789XYZ\nStatus: Connected",
+  //               [{ text: "OK" }]
+  //             );
+  //           }
+  //         }
+  //       ]
+  //     );
+  //   } catch (error) {
+  //     console.error("Failed to scan QR code:", error);
+  //     Alert.alert("Error", "Failed to open scanner. Please try again.");
+  //   }
+  // };
 
-  const recommendedProducts = [
-    { id: 1, name: 'Wireless Headphones', price: '$99.99', rating: 4.5 },
-    { id: 2, name: 'Smart Watch', price: '$199.99', rating: 4.7 },
-    { id: 3, name: 'Laptop Stand', price: '$39.99', rating: 4.3 },
-    { id: 4, name: 'Phone Case', price: '$24.99', rating: 4.2 },
-  ];
+  const handleScanQRCode = async () => {
+    if (!permission?.granted) {
+      const result = await requestPermission();
+      if (!result.granted) {
+        Alert.alert("Permission Required", "Camera permission is required to scan QR codes.");
+        return;
+      }
+    }
+
+    setScanned(false);
+    setCameraVisible(true);
+  };
+
+  //   const handleBarCodeScanned = ({ data, type }: { data: string; type: string }) => {
+  //   if (scanned) return;
+
+  //   console.log(" QR SCAN TRIGGERED");
+  //   console.log(" Raw QR Data:", data);
+  //   console.log(" QR Code Type:", type);
+  //   console.log(" Data Length:", data.length);
+  //   console.log(" Scan Time:", new Date().toISOString());
+
+  //   // Try to detect JSON payload
+  //   try {
+  //     const parsedData = JSON.parse(data);
+  //     console.log(" Parsed QR JSON:", parsedData);
+  //     console.log(" QR Keys:", Object.keys(parsedData));
+  //   } catch (e) {
+  //     console.log(" QR data is NOT JSON");
+  //   }
+
+  //   setScanned(true);
+  //   setCameraVisible(false);
+
+  //   Alert.alert(
+  //     "QR Code Scanned!",
+  //     `Scanned Data:\n\n${data}`,
+  //     [{ text: "OK" }]
+  //   );
+  // };
+
+
+  const handleBarCodeScanned = async (
+    { data, type }: { data: string; type: string }
+  ) => {
+    if (scanned) return;
+    const url = urls.configure_device
+
+    console.log("📸 QR SCAN TRIGGERED");
+    console.log("📦 Raw QR Data:", data);
+    console.log("🏷️ QR Code Type:", type);
+    console.log("📏 Data Length:", data.length);
+    console.log("🕒 Scan Time:", new Date().toISOString());
+
+    // Try to parse JSON (optional, just for logs)
+    try {
+      const parsedData = JSON.parse(data);
+      console.log("🧩 Parsed QR JSON:", parsedData);
+      console.log("🔑 QR Keys:", Object.keys(parsedData));
+    } catch {
+      console.log("⚠️ QR data is NOT JSON");
+    }
+
+    setScanned(true);
+    setCameraVisible(false);
+
+    // ================= API CALL =================
+    try {
+      console.log("🚀 Sending QR data to API...");
+      console.log("🌐 API URL:", url);
+      console.log("📤 Request Body:", { qr_token: data });
+      console.log("🔐 Access Token:", accessToken);
+
+      const response = await axios.post(
+        url,
+        {
+          qr_token: data,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("✅ API SUCCESS");
+      console.log("📥 Status:", response.status);
+      console.log("📥 Response Data:", response.data);
+      console.log("📥 Response Headers:", response.headers);
+      console.log(JSON.stringify(response.data.payload))
+
+      Alert.alert(
+        "QR Code Scanned!",
+        "QR code processed successfully.",
+        [{ text: "OK" }]
+      );
+      setPortalData(response.data);
+      setPortalVisible(true);
+
+    } catch (error: any) {
+      console.log("❌ API ERROR");
+
+      if (error.response) {
+        console.log("🔴 Status:", error.response.status);
+        console.log("🔴 Data:", error.response.data);
+        console.log("🔴 Headers:", error.response.headers);
+      } else if (error.request) {
+        console.log("🟠 No response received:", error.request);
+      } else {
+        console.log("🟡 Error message:", error.message);
+      }
+
+      Alert.alert(
+        "Error",
+        "Failed to process QR code. Check logs for details."
+      );
+    }
+  };
+
 
   return (
     <CustomerSidebar activeTab="Dashboard" userData={loggedInUser}>
@@ -842,85 +239,101 @@ export default function CustomerDashboardScreen() {
           </View>
         </View>
 
-        {/* Recent Orders Section */}
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Orders</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAllText}>View All</Text>
-            </TouchableOpacity>
+        {/* Scan Device Section */}
+        <View style={styles.scanSection}>
+          <View style={styles.scanSectionHeader}>
+            <MaterialIcons name="qr-code-scanner" size={24} color="#2196F3" />
+            <Text style={styles.scanSectionTitle}>Quick Actions</Text>
           </View>
-          {recentOrders.map((order) => (
-            <View key={order.id} style={styles.orderCard}>
-              <View style={styles.orderInfo}>
-                <Text style={styles.orderNumber}>{order.orderNo}</Text>
-                <Text style={styles.orderDate}>{order.date}</Text>
-              </View>
-              <View style={styles.orderDetails}>
-                <Text style={styles.orderAmount}>{order.amount}</Text>
-                <View style={[
-                  styles.statusBadge,
-                  { backgroundColor: order.status === 'Delivered' ? '#4CAF50' : 
-                    order.status === 'Processing' ? '#FF9800' : '#2196F3' }
-                ]}>
-                  <Text style={styles.statusText}>{order.status}</Text>
+
+          <TouchableOpacity
+            style={styles.scanButton}
+            onPress={handleScanQRCode}
+            activeOpacity={0.8}
+          >
+            <View style={styles.scanButtonContent}>
+              <View style={styles.scanIconContainer}>
+                <MaterialIcons name="camera-alt" size={32} color="#fff" />
+                <View style={styles.qrCodeIcon}>
+                  <MaterialIcons name="qr-code-2" size={16} color="#2196F3" />
                 </View>
+              </View>
+              <View style={styles.scanButtonTextContainer}>
+                <Text style={styles.scanButtonTitle}>Scan Device QR Code</Text>
+                <Text style={styles.scanButtonSubtitle}>
+                  Link new devices to your account instantly
+                </Text>
+              </View>
+              <MaterialIcons
+                name="chevron-right"
+                size={24}
+                color="#2196F3"
+                style={styles.chevronIcon}
+              />
+            </View>
+
+            {/* Decorative background elements */}
+            <View style={styles.scanButtonDecoration}>
+              <View style={[styles.decorationCircle, styles.decorationCircle1]} />
+              <View style={[styles.decorationCircle, styles.decorationCircle2]} />
+            </View>
+          </TouchableOpacity>
+
+          <View style={styles.scanTipsContainer}>
+            <Text style={styles.scanTipsTitle}>How to scan:</Text>
+            <View style={styles.scanTips}>
+              <View style={styles.tipItem}>
+                <MaterialIcons name="check-circle" size={16} color="#4CAF50" />
+                <Text style={styles.tipText}>Ensure good lighting</Text>
+              </View>
+              <View style={styles.tipItem}>
+                <MaterialIcons name="check-circle" size={16} color="#4CAF50" />
+                <Text style={styles.tipText}>Hold steady 6-12 inches away</Text>
+              </View>
+              <View style={styles.tipItem}>
+                <MaterialIcons name="check-circle" size={16} color="#4CAF50" />
+                <Text style={styles.tipText}>Align QR code within frame</Text>
               </View>
             </View>
-          ))}
-        </View>
-
-        {/* Recommended Products */}
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recommended For You</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAllText}>See All</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {recommendedProducts.map((product) => (
-              <View key={product.id} style={styles.productCard}>
-                <View style={styles.productImage}>
-                  <MaterialIcons name="shopping-bag" size={40} color="#666" />
-                </View>
-                <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
-                <View style={styles.productRating}>
-                  <MaterialIcons name="star" size={16} color="#FF9800" />
-                  <Text style={styles.ratingText}>{product.rating}</Text>
-                </View>
-                <Text style={styles.productPrice}>{product.price}</Text>
-                <TouchableOpacity style={styles.addToCartButton}>
-                  <Text style={styles.addToCartText}>Add to Cart</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Quick Actions */}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <View style={styles.quickActionsContainer}>
-            <TouchableOpacity style={styles.quickActionButton}>
-              <MaterialIcons name="support-agent" size={24} color="#4CAF50" />
-              <Text style={styles.quickActionText}>Support</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.quickActionButton}>
-              <MaterialIcons name="history" size={24} color="#2196F3" />
-              <Text style={styles.quickActionText}>Order History</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.quickActionButton}>
-              <MaterialIcons name="local-offer" size={24} color="#FF9800" />
-              <Text style={styles.quickActionText}>Offers</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.quickActionButton}>
-              <MaterialIcons name="location-on" size={24} color="#9C27B0" />
-              <Text style={styles.quickActionText}>Track Order</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
+      <Modal visible={cameraVisible} animationType="slide">
+        <CameraView
+          style={{ flex: 1 }}
+          facing="back"
+          barcodeScannerSettings={{
+            barcodeTypes: ['qr'],
+          }}
+          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+        />
+
+        <TouchableOpacity
+          onPress={() => setCameraVisible(false)}
+          style={{
+            position: 'absolute',
+            bottom: 40,
+            alignSelf: 'center',
+            backgroundColor: '#000',
+            paddingHorizontal: 20,
+            paddingVertical: 10,
+            borderRadius: 8,
+          }}
+        >
+          <Text style={{ color: '#fff', fontSize: 16 }}>Close Scanner</Text>
+        </TouchableOpacity>
+      </Modal>
+      <CaptivePortalScreen
+        visible={portalVisible}
+        data={portalData}
+        onClose={() => setPortalVisible(false)}
+        onSubmit={(data) => {
+          console.log("✅ Final Captive Portal Data:", data);
+          setPortalVisible(false);
+        }}
+      />
+
+
     </CustomerSidebar>
   );
 }
@@ -971,136 +384,128 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.9)',
     textAlign: 'center',
   },
-  sectionContainer: {
+  // Scan Section Styles
+  scanSection: {
     backgroundColor: '#fff',
-    marginTop: 10,
+    margin: 20,
+    borderRadius: 16,
     padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  sectionHeader: {
+  scanSectionHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 20,
   },
-  sectionTitle: {
+  scanSectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-  },
-  viewAllText: {
-    fontSize: 14,
-    color: '#4CAF50',
-    fontWeight: '500',
-  },
-  orderCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  orderInfo: {
-    flex: 1,
-  },
-  orderNumber: {
-    fontSize: 16,
     fontWeight: '600',
     color: '#333',
+    marginLeft: 10,
   },
-  orderDate: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 2,
+  scanButton: {
+    backgroundColor: '#F0F8FF',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1.5,
+    borderColor: '#E3F2FD',
+    position: 'relative',
+    overflow: 'hidden',
   },
-  orderDetails: {
-    alignItems: 'flex-end',
-  },
-  orderAmount: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    marginTop: 4,
-  },
-  statusText: {
-    fontSize: 10,
-    color: '#fff',
-    fontWeight: '500',
-  },
-  productCard: {
-    width: 140,
-    marginRight: 15,
-    padding: 12,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
+  scanButtonContent: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  productImage: {
-    width: 80,
-    height: 80,
-    backgroundColor: '#fff',
-    borderRadius: 8,
+  scanIconContainer: {
+    position: 'relative',
+    width: 60,
+    height: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
   },
-  productName: {
+  qrCodeIcon: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  scanButtonTextContainer: {
+    flex: 1,
+    marginHorizontal: 16,
+  },
+  scanButtonTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2196F3',
+    marginBottom: 4,
+  },
+  scanButtonSubtitle: {
+    fontSize: 12,
+    color: '#666',
+    lineHeight: 16,
+  },
+  chevronIcon: {
+    opacity: 0.8,
+  },
+  scanButtonDecoration: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: -1,
+  },
+  decorationCircle: {
+    position: 'absolute',
+    borderRadius: 100,
+    backgroundColor: 'rgba(33, 150, 243, 0.05)',
+  },
+  decorationCircle1: {
+    width: 100,
+    height: 100,
+    top: -40,
+    right: -40,
+  },
+  decorationCircle2: {
+    width: 80,
+    height: 80,
+    bottom: -30,
+    left: -30,
+  },
+  scanTipsContainer: {
+    backgroundColor: '#F9F9F9',
+    borderRadius: 12,
+    padding: 16,
+  },
+  scanTipsTitle: {
     fontSize: 14,
     fontWeight: '600',
     color: '#333',
-    textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: 12,
   },
-  productRating: {
+  scanTips: {
+    gap: 8,
+  },
+  tipItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
   },
-  ratingText: {
+  tipText: {
     fontSize: 12,
-    color: '#666',
-    marginLeft: 4,
-  },
-  productPrice: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#4CAF50',
-    marginBottom: 8,
-  },
-  addToCartButton: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 4,
-    width: '100%',
-  },
-  addToCartText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  quickActionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  quickActionButton: {
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    width: '23%',
-  },
-  quickActionText: {
-    fontSize: 12,
-    color: '#333',
-    marginTop: 8,
-    textAlign: 'center',
+    color: '#555',
+    marginLeft: 8,
   },
 });

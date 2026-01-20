@@ -467,9 +467,9 @@ const LoginScreen: React.FC = () => {
   const passwordAnim = useRef(new Animated.Value(0)).current;
 
   // const handleLogin = () => {
-  //   if (email && password) {
+  //   // if (email && password) {
   //     router.replace("/Dashboard/Dashboard");
-  //   }
+  //   // }
   // };
 
   const handleLogin = async () => {
@@ -504,7 +504,7 @@ const LoginScreen: React.FC = () => {
       await AsyncStorage.setItem("userData", JSON.stringify(user));
 
       //  Role-based navigation
-      if (user.role === "client") {
+      if (user.role === "customer") {
         router.replace("/Dashboard/Dashboard");
       }
 
@@ -520,6 +520,7 @@ const LoginScreen: React.FC = () => {
       setLoading(false);
     }
   };
+  
   const handleSignUp = () => {
     console.log('Navigate to sign up');
   };

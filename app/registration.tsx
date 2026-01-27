@@ -1,6 +1,9 @@
 // // SignUpScreen.tsx
+// import axios from "axios";
 // import { router } from "expo-router";
 // import React, { useRef, useState } from 'react';
+// import urls from "./urls/urls";
+
 // import {
 //   Animated,
 //   Image,
@@ -19,49 +22,131 @@
 // const SignUpScreen: React.FC = () => {
 //   const [firstName, setFirstName] = useState('');
 //   const [lastName, setLastName] = useState('');
+//   const [username, setUsername] = useState('');
 //   const [email, setEmail] = useState('');
+//   const [phoneNumber, setPhoneNumber] = useState('');
+//   const [address, setAddress] = useState('');
+//   const [clientCode, setClientCode] = useState('');
 //   const [password, setPassword] = useState('');
 //   const [confirmPassword, setConfirmPassword] = useState('');
 //   const [agreeToTerms, setAgreeToTerms] = useState(false);
 //   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signup');
 
-//   // Animation values
+//   // Animation values for all fields
 //   const firstNameAnim = useRef(new Animated.Value(0)).current;
 //   const lastNameAnim = useRef(new Animated.Value(0)).current;
+//   const usernameAnim = useRef(new Animated.Value(0)).current;
 //   const emailAnim = useRef(new Animated.Value(0)).current;
+//   const phoneNumberAnim = useRef(new Animated.Value(0)).current;
+//   const addressAnim = useRef(new Animated.Value(0)).current;
+//   const clientCodeAnim = useRef(new Animated.Value(0)).current;
 //   const passwordAnim = useRef(new Animated.Value(0)).current;
 //   const confirmPasswordAnim = useRef(new Animated.Value(0)).current;
 
-//   // Focus states
+//   // Focus states for all fields
 //   const [isFocusedFirstName, setIsFocusedFirstName] = useState(false);
 //   const [isFocusedLastName, setIsFocusedLastName] = useState(false);
+//   const [isFocusedUsername, setIsFocusedUsername] = useState(false);
 //   const [isFocusedEmail, setIsFocusedEmail] = useState(false);
+//   const [isFocusedPhoneNumber, setIsFocusedPhoneNumber] = useState(false);
+//   const [isFocusedAddress, setIsFocusedAddress] = useState(false);
+//   const [isFocusedClientCode, setIsFocusedClientCode] = useState(false);
 //   const [isFocusedPassword, setIsFocusedPassword] = useState(false);
 //   const [isFocusedConfirmPassword, setIsFocusedConfirmPassword] = useState(false);
 
-//   const handleSignUp = () => {
+//   // const handleSignUp = () => {
+//   //   // Basic validation
+//   //   if (!firstName || !lastName || !username || !email || !phoneNumber || !address || !clientCode || !password || !confirmPassword) {
+//   //     console.log('Please fill all fields');
+//   //     return;
+//   //   }
+
+//   //   if (password !== confirmPassword) {
+//   //     console.log('Passwords do not match');
+//   //     return;
+//   //   }
+
+//   //   if (!agreeToTerms) {
+//   //     console.log('Please agree to terms and conditions');
+//   //     return;
+//   //   }
+
+//   //   // Here you would typically make an API call to register the user
+//   //   console.log('Registration data:', { 
+//   //     firstName, 
+//   //     lastName, 
+//   //     username, 
+//   //     email, 
+//   //     phoneNumber, 
+//   //     address, 
+//   //     clientCode, 
+//   //     password 
+//   //   });
+
+//   //   // After successful registration, navigate to dashboard
+//   //   router.replace("/Dashboard/Dashboard");
+//   // };
+//   const handleSignUp = async () => {
+//     const url = urls.customer_register;
 //     // Basic validation
-//     if (!firstName || !lastName || !email || !password || !confirmPassword) {
-//       console.log('Please fill all fields');
+//     if (
+//       !firstName ||
+//       !lastName ||
+//       !username ||
+//       !email ||
+//       !phoneNumber ||
+//       !address ||
+//       !clientCode ||
+//       !password ||
+//       !confirmPassword
+//     ) {
+//       console.log("Please fill all fields");
 //       return;
 //     }
 
 //     if (password !== confirmPassword) {
-//       console.log('Passwords do not match');
+//       console.log("Passwords do not match");
 //       return;
 //     }
 
 //     if (!agreeToTerms) {
-//       console.log('Please agree to terms and conditions');
+//       console.log("Please agree to terms and conditions");
 //       return;
 //     }
 
-//     // Here you would typically make an API call to register the user
-//     console.log('Registration data:', { firstName, lastName, email, password });
+//     try {
+//       const payload = {
+//         first_name: firstName,
+//         last_name: lastName,
+//         username,
+//         email,
+//         phone_number: phoneNumber,
+//         address,
+//         client_code: clientCode,
+//         password,
+//         image:null,
+//       };
 
-//     // After successful registration, navigate to dashboard
-//     router.replace("/Dashboard/Dashboard");
+//       const response = await axios.post(url, payload, {
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       });
+
+//       console.log("Registration success:", response.data);
+
+//       // Navigate after success
+//       router.replace("/Dashboard/Dashboard");
+
+//     } catch (error: any) {
+//       if (error.response) {
+//         console.log("API Error:", error.response.data);
+//       } else {
+//         console.log("Network Error:", error.message);
+//       }
+//     }
 //   };
+
 
 //   const handleLogin = () => {
 //     router.back(); // Or router.replace("/Login");
@@ -133,7 +218,11 @@
 //     const fields = [
 //       { value: firstName, anim: firstNameAnim },
 //       { value: lastName, anim: lastNameAnim },
+//       { value: username, anim: usernameAnim },
 //       { value: email, anim: emailAnim },
+//       { value: phoneNumber, anim: phoneNumberAnim },
+//       { value: address, anim: addressAnim },
+//       { value: clientCode, anim: clientCodeAnim },
 //       { value: password, anim: passwordAnim },
 //       { value: confirmPassword, anim: confirmPasswordAnim },
 //     ];
@@ -244,6 +333,46 @@
 //                 </View>
 //               </View>
 
+//               {/* Two-column layout for Username and Client Code */}
+//               <View style={styles.row}>
+//                 <View style={[styles.inputContainer, styles.halfWidth, { marginRight: 8 }]}>
+//                   <Animated.Text style={createLabelAnimation(usernameAnim, isFocusedUsername)}>
+//                     Username
+//                   </Animated.Text>
+//                   <TextInput
+//                     style={[
+//                       styles.input,
+//                       isFocusedUsername && styles.inputFocused
+//                     ]}
+//                     placeholder=""
+//                     placeholderTextColor="transparent"
+//                     value={username}
+//                     onChangeText={setUsername}
+//                     {...createFocusHandlers(usernameAnim, setIsFocusedUsername, username)}
+//                     autoCapitalize="none"
+//                     autoCorrect={false}
+//                   />
+//                 </View>
+
+//                 <View style={[styles.inputContainer, styles.halfWidth, { marginLeft: 8 }]}>
+//                   <Animated.Text style={createLabelAnimation(clientCodeAnim, isFocusedClientCode)}>
+//                     Client Code
+//                   </Animated.Text>
+//                   <TextInput
+//                     style={[
+//                       styles.input,
+//                       isFocusedClientCode && styles.inputFocused
+//                     ]}
+//                     placeholder=""
+//                     placeholderTextColor="transparent"
+//                     value={clientCode}
+//                     onChangeText={setClientCode}
+//                     {...createFocusHandlers(clientCodeAnim, setIsFocusedClientCode, clientCode)}
+//                     autoCapitalize="characters"
+//                   />
+//                 </View>
+//               </View>
+
 //               {/* Email Input */}
 //               <View style={styles.inputContainer}>
 //                 <Animated.Text style={createLabelAnimation(emailAnim, isFocusedEmail)}>
@@ -261,6 +390,47 @@
 //                   {...createFocusHandlers(emailAnim, setIsFocusedEmail, email)}
 //                   keyboardType="email-address"
 //                   autoCapitalize="none"
+//                 />
+//               </View>
+
+//               {/* Phone Number Input */}
+//               <View style={styles.inputContainer}>
+//                 <Animated.Text style={createLabelAnimation(phoneNumberAnim, isFocusedPhoneNumber)}>
+//                   Phone Number
+//                 </Animated.Text>
+//                 <TextInput
+//                   style={[
+//                     styles.input,
+//                     isFocusedPhoneNumber && styles.inputFocused
+//                   ]}
+//                   placeholder=""
+//                   placeholderTextColor="transparent"
+//                   value={phoneNumber}
+//                   onChangeText={setPhoneNumber}
+//                   {...createFocusHandlers(phoneNumberAnim, setIsFocusedPhoneNumber, phoneNumber)}
+//                   keyboardType="phone-pad"
+//                 />
+//               </View>
+
+//               {/* Address Input */}
+//               <View style={styles.inputContainer}>
+//                 <Animated.Text style={createLabelAnimation(addressAnim, isFocusedAddress)}>
+//                   Address
+//                 </Animated.Text>
+//                 <TextInput
+//                   style={[
+//                     styles.input,
+//                     styles.addressInput,
+//                     isFocusedAddress && styles.inputFocused
+//                   ]}
+//                   placeholder=""
+//                   placeholderTextColor="transparent"
+//                   value={address}
+//                   onChangeText={setAddress}
+//                   {...createFocusHandlers(addressAnim, setIsFocusedAddress, address)}
+//                   multiline
+//                   numberOfLines={3}
+//                   textAlignVertical="top"
 //                 />
 //               </View>
 
@@ -324,13 +494,13 @@
 //               </View>
 
 //               {/* Sign Up Button */}
-//               <TouchableOpacity 
+//               <TouchableOpacity
 //                 style={[
 //                   styles.signUpButton,
-//                   (!agreeToTerms || !firstName || !lastName || !email || !password || !confirmPassword) && styles.signUpButtonDisabled
-//                 ]} 
+//                   (!agreeToTerms || !firstName || !lastName || !username || !email || !phoneNumber || !address || !clientCode || !password || !confirmPassword) && styles.signUpButtonDisabled
+//                 ]}
 //                 onPress={handleSignUp}
-//                 disabled={!agreeToTerms || !firstName || !lastName || !email || !password || !confirmPassword}
+//                 disabled={!agreeToTerms || !firstName || !lastName || !username || !email || !phoneNumber || !address || !clientCode || !password || !confirmPassword}
 //               >
 //                 <Text style={styles.signUpButtonText}>Create Account</Text>
 //               </TouchableOpacity>
@@ -343,31 +513,22 @@
 //                 </TouchableOpacity>
 //               </View>
 
-//               {/* Divider with OR */}
+//               {/* Social Sign Up (Commented out) */}
 //               {/* <View style={styles.orContainer}>
 //                 <View style={styles.orLine} />
 //                 <Text style={styles.orText}>OR</Text>
 //                 <View style={styles.orLine} />
-//               </View> */}
+//               </View>
 
-//               {/* Social Sign Up */}
-//               {/* <View style={styles.socialContainer}>
+//               <View style={styles.socialContainer}>
 //                 <TouchableOpacity style={styles.socialButton}>
 //                   <Image
 //                     source={require('../assets/images/google-icon.png')}
 //                     style={styles.socialIcon}
 //                   />
 //                   <Text style={styles.socialButtonText}>Continue with Google</Text>
-//                 </TouchableOpacity> */}
-
-//                 {/* <TouchableOpacity style={[styles.socialButton, styles.appleButton]}>
-//                   <Image
-//                     source={require('../assets/images/apple-icon.png')}
-//                     style={styles.socialIcon}
-//                   />
-//                   <Text style={[styles.socialButtonText, styles.appleButtonText]}>Continue with Apple</Text>
-//                 </TouchableOpacity> */}
-//               {/* </View> */}
+//                 </TouchableOpacity>
+//               </View> */}
 //             </View>
 //           </View>
 //         </ScrollView>
@@ -480,6 +641,11 @@
 //     borderWidth: 1,
 //     borderColor: '#FFFFFF',
 //     height: 52,
+//   },
+//   addressInput: {
+//     height: 80,
+//     paddingTop: 14,
+//     textAlignVertical: 'top',
 //   },
 //   inputFocused: {
 //     borderColor: '#FFFFFF',
@@ -608,9 +774,6 @@
 
 // export default SignUpScreen;
 
-
-
-// SignUpScreen.tsx
 import axios from "axios";
 import { router } from "expo-router";
 import React, { useRef, useState } from 'react';
@@ -638,9 +801,10 @@ const SignUpScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
-  const [clientCode, setClientCode] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [clientCode, setClientCode] = useState<string[]>(["", "", "", "", "", ""]);
+  const [activeInputIndex, setActiveInputIndex] = useState<number>(0);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signup');
 
@@ -651,7 +815,6 @@ const SignUpScreen: React.FC = () => {
   const emailAnim = useRef(new Animated.Value(0)).current;
   const phoneNumberAnim = useRef(new Animated.Value(0)).current;
   const addressAnim = useRef(new Animated.Value(0)).current;
-  const clientCodeAnim = useRef(new Animated.Value(0)).current;
   const passwordAnim = useRef(new Animated.Value(0)).current;
   const confirmPasswordAnim = useRef(new Animated.Value(0)).current;
 
@@ -662,44 +825,25 @@ const SignUpScreen: React.FC = () => {
   const [isFocusedEmail, setIsFocusedEmail] = useState(false);
   const [isFocusedPhoneNumber, setIsFocusedPhoneNumber] = useState(false);
   const [isFocusedAddress, setIsFocusedAddress] = useState(false);
-  const [isFocusedClientCode, setIsFocusedClientCode] = useState(false);
   const [isFocusedPassword, setIsFocusedPassword] = useState(false);
   const [isFocusedConfirmPassword, setIsFocusedConfirmPassword] = useState(false);
 
-  // const handleSignUp = () => {
-  //   // Basic validation
-  //   if (!firstName || !lastName || !username || !email || !phoneNumber || !address || !clientCode || !password || !confirmPassword) {
-  //     console.log('Please fill all fields');
-  //     return;
-  //   }
+  // Refs for OTP inputs
+  const inputRefs = [
+    useRef<TextInput>(null),
+    useRef<TextInput>(null),
+    useRef<TextInput>(null),
+    useRef<TextInput>(null),
+    useRef<TextInput>(null),
+    useRef<TextInput>(null),
+  ];
 
-  //   if (password !== confirmPassword) {
-  //     console.log('Passwords do not match');
-  //     return;
-  //   }
-
-  //   if (!agreeToTerms) {
-  //     console.log('Please agree to terms and conditions');
-  //     return;
-  //   }
-
-  //   // Here you would typically make an API call to register the user
-  //   console.log('Registration data:', { 
-  //     firstName, 
-  //     lastName, 
-  //     username, 
-  //     email, 
-  //     phoneNumber, 
-  //     address, 
-  //     clientCode, 
-  //     password 
-  //   });
-
-  //   // After successful registration, navigate to dashboard
-  //   router.replace("/Dashboard/Dashboard");
-  // };
   const handleSignUp = async () => {
     const url = urls.customer_register;
+    
+    // Combine OTP digits
+    const clientCodeString = clientCode.join('');
+    
     // Basic validation
     if (
       !firstName ||
@@ -708,7 +852,7 @@ const SignUpScreen: React.FC = () => {
       !email ||
       !phoneNumber ||
       !address ||
-      !clientCode ||
+      !clientCodeString ||
       !password ||
       !confirmPassword
     ) {
@@ -734,9 +878,9 @@ const SignUpScreen: React.FC = () => {
         email,
         phone_number: phoneNumber,
         address,
-        client_code: clientCode,
+        client_code: clientCodeString,
         password,
-        image:null,
+        image: null,
       };
 
       const response = await axios.post(url, payload, {
@@ -759,7 +903,6 @@ const SignUpScreen: React.FC = () => {
     }
   };
 
-
   const handleLogin = () => {
     router.back(); // Or router.replace("/Login");
   };
@@ -772,32 +915,39 @@ const SignUpScreen: React.FC = () => {
     }
   };
 
-  // Helper function for animated labels
-  const createLabelAnimation = (animValue: Animated.Value, isFocused: boolean) => ({
-    position: 'absolute' as 'absolute',
-    left: 16,
-    top: animValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [14, -12]
-    }),
-    fontSize: animValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [16, 12]
-    }),
-    color: animValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['#E0E0E0', '#FFFFFF']
-    }),
-    backgroundColor: animValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['transparent', '#007CBA']
-    }),
-    paddingHorizontal: animValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, 4]
-    }),
-    zIndex: 1,
-  });
+  // Handle OTP input change
+  const handleClientCodeChange = (text: string, index: number) => {
+    // Only allow single digit
+    const digit = text.slice(0, 1);
+    
+    // Update the array
+    const newCode = [...clientCode];
+    newCode[index] = digit;
+    setClientCode(newCode);
+
+    // Auto-focus next input if a digit was entered
+    if (digit && index < 5) {
+      inputRefs[index + 1].current?.focus();
+      setActiveInputIndex(index + 1);
+    }
+  };
+
+  // Handle backspace
+  const handleKeyPress = (e: any, index: number) => {
+    if (e.nativeEvent.key === 'Backspace') {
+      const newCode = [...clientCode];
+      
+      // If current field is empty, go to previous field
+      if (!clientCode[index] && index > 0) {
+        inputRefs[index - 1].current?.focus();
+        setActiveInputIndex(index - 1);
+      } else {
+        // Clear current field
+        newCode[index] = "";
+        setClientCode(newCode);
+      }
+    }
+  };
 
   // Focus handlers for each field
   const createFocusHandlers = (
@@ -834,7 +984,6 @@ const SignUpScreen: React.FC = () => {
       { value: email, anim: emailAnim },
       { value: phoneNumber, anim: phoneNumberAnim },
       { value: address, anim: addressAnim },
-      { value: clientCode, anim: clientCodeAnim },
       { value: password, anim: passwordAnim },
       { value: confirmPassword, anim: confirmPasswordAnim },
     ];
@@ -845,6 +994,33 @@ const SignUpScreen: React.FC = () => {
       }
     });
   }, []);
+
+  // Helper function for animated labels
+  const createLabelAnimation = (animValue: Animated.Value, isFocused: boolean) => ({
+    position: 'absolute' as 'absolute',
+    left: 16,
+    top: animValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [14, -12]
+    }),
+    fontSize: animValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [16, 12]
+    }),
+    color: animValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['#E0E0E0', '#FFFFFF']
+    }),
+    backgroundColor: animValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['transparent', '#007CBA']
+    }),
+    paddingHorizontal: animValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 4]
+    }),
+    zIndex: 1,
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -945,44 +1121,24 @@ const SignUpScreen: React.FC = () => {
                 </View>
               </View>
 
-              {/* Two-column layout for Username and Client Code */}
-              <View style={styles.row}>
-                <View style={[styles.inputContainer, styles.halfWidth, { marginRight: 8 }]}>
-                  <Animated.Text style={createLabelAnimation(usernameAnim, isFocusedUsername)}>
-                    Username
-                  </Animated.Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      isFocusedUsername && styles.inputFocused
-                    ]}
-                    placeholder=""
-                    placeholderTextColor="transparent"
-                    value={username}
-                    onChangeText={setUsername}
-                    {...createFocusHandlers(usernameAnim, setIsFocusedUsername, username)}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
-                </View>
-
-                <View style={[styles.inputContainer, styles.halfWidth, { marginLeft: 8 }]}>
-                  <Animated.Text style={createLabelAnimation(clientCodeAnim, isFocusedClientCode)}>
-                    Client Code
-                  </Animated.Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      isFocusedClientCode && styles.inputFocused
-                    ]}
-                    placeholder=""
-                    placeholderTextColor="transparent"
-                    value={clientCode}
-                    onChangeText={setClientCode}
-                    {...createFocusHandlers(clientCodeAnim, setIsFocusedClientCode, clientCode)}
-                    autoCapitalize="characters"
-                  />
-                </View>
+              {/* Username Input */}
+              <View style={styles.inputContainer}>
+                <Animated.Text style={createLabelAnimation(usernameAnim, isFocusedUsername)}>
+                  Username
+                </Animated.Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    isFocusedUsername && styles.inputFocused
+                  ]}
+                  placeholder=""
+                  placeholderTextColor="transparent"
+                  value={username}
+                  onChangeText={setUsername}
+                  {...createFocusHandlers(usernameAnim, setIsFocusedUsername, username)}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
               </View>
 
               {/* Email Input */}
@@ -1085,6 +1241,42 @@ const SignUpScreen: React.FC = () => {
                 />
               </View>
 
+              {/* Client Code OTP Input - MOVED HERE */}
+              <View style={styles.clientCodeContainer}>
+                <Text style={styles.clientCodeLabel}>Client Code</Text>
+                <Text style={styles.clientCodeHint}>Enter 6-digit client code</Text>
+                
+                <View style={styles.otpContainer}>
+                  {clientCode.map((digit, index) => (
+                    <View 
+                      key={index} 
+                      style={[
+                        styles.otpBox,
+                        index === activeInputIndex && styles.otpBoxActive,
+                        digit && styles.otpBoxFilled
+                      ]}
+                    >
+                      <TextInput
+                        ref={inputRefs[index]}
+                        style={styles.otpInput}
+                        value={digit}
+                        onChangeText={(text) => handleClientCodeChange(text, index)}
+                        onKeyPress={(e) => handleKeyPress(e, index)}
+                        onFocus={() => setActiveInputIndex(index)}
+                        keyboardType="number-pad"
+                        maxLength={1}
+                        selectTextOnFocus
+                      />
+                      {digit ? (
+                        <Text style={styles.otpText}>{digit}</Text>
+                      ) : (
+                        <View style={styles.otpPlaceholder} />
+                      )}
+                    </View>
+                  ))}
+                </View>
+              </View>
+
               {/* Terms and Conditions */}
               <View style={styles.termsContainer}>
                 <TouchableOpacity
@@ -1109,10 +1301,10 @@ const SignUpScreen: React.FC = () => {
               <TouchableOpacity
                 style={[
                   styles.signUpButton,
-                  (!agreeToTerms || !firstName || !lastName || !username || !email || !phoneNumber || !address || !clientCode || !password || !confirmPassword) && styles.signUpButtonDisabled
+                  (!agreeToTerms || !firstName || !lastName || !username || !email || !phoneNumber || !address || !clientCode.join('') || !password || !confirmPassword) && styles.signUpButtonDisabled
                 ]}
                 onPress={handleSignUp}
-                disabled={!agreeToTerms || !firstName || !lastName || !username || !email || !phoneNumber || !address || !clientCode || !password || !confirmPassword}
+                disabled={!agreeToTerms || !firstName || !lastName || !username || !email || !phoneNumber || !address || !clientCode.join('') || !password || !confirmPassword}
               >
                 <Text style={styles.signUpButtonText}>Create Account</Text>
               </TouchableOpacity>
@@ -1124,23 +1316,6 @@ const SignUpScreen: React.FC = () => {
                   <Text style={styles.loginLink}> Sign in</Text>
                 </TouchableOpacity>
               </View>
-
-              {/* Social Sign Up (Commented out) */}
-              {/* <View style={styles.orContainer}>
-                <View style={styles.orLine} />
-                <Text style={styles.orText}>OR</Text>
-                <View style={styles.orLine} />
-              </View>
-
-              <View style={styles.socialContainer}>
-                <TouchableOpacity style={styles.socialButton}>
-                  <Image
-                    source={require('../assets/images/google-icon.png')}
-                    style={styles.socialIcon}
-                  />
-                  <Text style={styles.socialButtonText}>Continue with Google</Text>
-                </TouchableOpacity>
-              </View> */}
             </View>
           </View>
         </ScrollView>
@@ -1269,6 +1444,61 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginLeft: 16,
   },
+  clientCodeContainer: {
+    marginBottom: 24,
+  },
+  clientCodeLabel: {
+    fontSize: 16,
+    color: '#E0E0E0',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  clientCodeHint: {
+    fontSize: 12,
+    color: '#B0B0B0',
+    marginBottom: 16,
+  },
+  otpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  otpBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: '#1E8FCC',
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  otpBoxActive: {
+    borderColor: '#FFFFFF',
+    borderWidth: 2,
+    backgroundColor: '#2A9BD6',
+  },
+  otpBoxFilled: {
+    backgroundColor: '#2A9BD6',
+  },
+  otpInput: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    fontSize: 1, //if want to Hide the actual text font size 0
+    color: 'transparent',
+  },
+  otpText: {
+    fontSize: 20,
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  otpPlaceholder: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#E0E0E0',
+  },
   termsContainer: {
     marginBottom: 24,
   },
@@ -1334,53 +1564,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFFFFF',
     fontWeight: '600',
-  },
-  orContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  orLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E8E8E8',
-  },
-  orText: {
-    marginHorizontal: 16,
-    color: '#E0E0E0',
-    fontSize: 14,
-  },
-  socialContainer: {
-    marginBottom: 24,
-  },
-  socialButton: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-  },
-  appleButton: {
-    backgroundColor: '#000000',
-    borderColor: '#000000',
-  },
-  socialIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 12,
-  },
-  socialButtonText: {
-    color: '#007CBA',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  appleButtonText: {
-    color: '#FFFFFF',
   },
 });
 

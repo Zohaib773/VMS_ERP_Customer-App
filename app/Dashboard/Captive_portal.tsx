@@ -58,24 +58,11 @@
 // }: Props) {
 //     const [formData, setFormData] = useState<any>(EMPTY_PORTAL_DATA);
 //     const [activeSection, setActiveSection] = useState<string>("wifi");
-//     // const [mapVisible, setMapVisible] = useState(false);
-//     // const [selectedLocation, setSelectedLocation] = useState({
-//     //     latitude: formData.location.latitude || 24.8607,
-//     //     longitude: formData.location.longitude || 67.0011,
-//     // });
 //     const [mapVisible, setMapVisible] = useState(false);
 //     const [tempLocation, setTempLocation] = useState<{ latitude: number; longitude: number }>({
 //         latitude: 0,
 //         longitude: 0,
 //     });
-
-
-//     // const [tempLocation, setTempLocation] = useState({
-//     //     latitude: formData.location.latitude || 24.8607,
-//     //     longitude: formData.location.longitude || 67.0011,
-//     // });
-
-
 
 //     useEffect(() => {
 //         if (data) {
@@ -89,37 +76,6 @@
 
 //     if (!visible) return null;
 
-//     // const openMapPicker = async () => {
-//     //     const { status } = await Location.requestForegroundPermissionsAsync();
-//     //     if (status !== "granted") {
-//     //         alert("Location permission is required");
-//     //         return;
-//     //     }
-
-//     //     const current = await Location.getCurrentPositionAsync({});
-//     //     setSelectedLocation({
-//     //         latitude: current.coords.latitude,
-//     //         longitude: current.coords.longitude,
-//     //     });
-
-//     //     setMapVisible(true);
-//     // };
-
-//     // const onMapPress = (event: MapPressEvent) => {
-//     //     const { latitude, longitude } = event.nativeEvent.coordinate;
-
-//     //     console.log("📍 Location Selected:", latitude, longitude);
-
-//     //     setSelectedLocation({ latitude, longitude });
-
-//     //     setFormData({
-//     //         ...formData,
-//     //         location: { latitude, longitude },
-//     //     });
-
-//     //     setMapVisible(false);
-//     // };
-
 //     const openMapPicker = async () => {
 //         try {
 //             const { status } = await Location.requestForegroundPermissionsAsync();
@@ -128,7 +84,7 @@
 //                 return;
 //             }
 
-//             // Get device’s current location
+//             // Get device's current location
 //             const current = await Location.getCurrentPositionAsync({});
 //             setTempLocation({
 //                 latitude: current.coords.latitude,
@@ -149,8 +105,6 @@
 
 //         setTempLocation({ latitude, longitude });
 //     };
-
-
 
 //     const renderSectionHeader = (title: string, icon: string, sectionKey: string) => (
 //         <TouchableOpacity
@@ -242,44 +196,12 @@
 //                     )}
 
 //                     {/* Location Section */}
-//                     {/* {(activeSection === "location" || activeSection === "") && (
-//                         <View style={styles.sectionCard}>
-//                             {renderSectionHeader("Location Settings", "location-on", "location")}
-//                             {activeSection === "location" && (
-//                                 <View style={styles.sectionContent}>
-//                                     <View style={styles.row}>
-//                                         <View style={styles.halfInput}>
-//                                             {renderInputField("Latitude", String(formData.location.latitude), (v) =>
-//                                                 setFormData({
-//                                                     ...formData,
-//                                                     location: { ...formData.location, latitude: Number(v) },
-//                                                 }),
-//                                                 { keyboardType: "numeric" }
-//                                             )}
-//                                         </View>
-//                                         <View style={styles.halfInput}>
-//                                             {renderInputField("Longitude", String(formData.location.longitude), (v) =>
-//                                                 setFormData({
-//                                                     ...formData,
-//                                                     location: { ...formData.location, longitude: Number(v) },
-//                                                 }),
-//                                                 { keyboardType: "numeric" }
-//                                             )}
-//                                         </View>
-//                                     </View>
-//                                 </View>
-//                             )}
-//                         </View>
-//                     )} */}
-
-//                     {/* Location Section */}
 //                     {(activeSection === "location" || activeSection === "") && (
 //                         <View style={styles.sectionCard}>
 //                             {renderSectionHeader("Location Settings", "location-on", "location")}
 
 //                             {activeSection === "location" && (
 //                                 <View style={styles.sectionContent}>
-
 //                                     <TouchableOpacity
 //                                         style={styles.mapBtn}
 //                                         onPress={openMapPicker}
@@ -305,7 +227,6 @@
 //                                             )}
 //                                         </View>
 //                                     </View>
-
 //                                 </View>
 //                             )}
 //                         </View>
@@ -542,72 +463,31 @@
 //                                             )}
 //                                         </View>
 //                                     </View>
+
+//                                     {/* Save Configuration Button - ONLY in System section */}
+//                                     <TouchableOpacity
+//                                         style={styles.saveButton}
+//                                         onPress={() => {
+//                                             console.log("📤 Captive Portal Final Payload:", formData);
+//                                             onSubmit(formData);
+//                                         }}
+//                                     >
+//                                         <MaterialIcons name="save" size={20} color="#fff" />
+//                                         <Text style={styles.saveButtonText}>Save Configuration</Text>
+//                                     </TouchableOpacity>
+
+//                                     <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+//                                         <Text style={styles.cancelButtonText}>Cancel</Text>
+//                                     </TouchableOpacity>
 //                                 </View>
 //                             )}
 //                         </View>
 //                     )}
-
-//                     {/* Action Buttons */}
-//                     <View style={styles.actionButtons}>
-//                         <TouchableOpacity
-//                             style={styles.saveButton}
-//                             onPress={() => {
-//                                 console.log("📤 Captive Portal Final Payload:", formData);
-//                                 onSubmit(formData);
-//                             }}
-//                         >
-//                             <MaterialIcons name="save" size={20} color="#fff" />
-//                             <Text style={styles.saveButtonText}>Save Configuration</Text>
-//                         </TouchableOpacity>
-
-//                         <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-//                             <Text style={styles.cancelButtonText}>Cancel</Text>
-//                         </TouchableOpacity>
-//                     </View>
 //                 </ScrollView>
 //             </SafeAreaView>
-//             {/* <Modal visible={mapVisible} animationType="slide">
-//                 <MapView
-//                     style={{ flex: 1 }}
-//                     initialRegion={{
-//                         latitude: selectedLocation.latitude,
-//                         longitude: selectedLocation.longitude,
-//                         latitudeDelta: 0.01,
-//                         longitudeDelta: 0.01,
-//                     }}
-//                     onPress={onMapPress}
-//                 >
-//                     <Marker coordinate={selectedLocation} />
-//                 </MapView>
 
-//                 <TouchableOpacity
-//                     onPress={() => setMapVisible(false)}
-//                     style={{
-//                         position: "absolute",
-//                         bottom: 40,
-//                         alignSelf: "center",
-//                         backgroundColor: "#000",
-//                         padding: 12,
-//                         borderRadius: 8,
-//                     }}
-//                 >
-//                     <Text style={{ color: "#fff" }}>Cancel</Text>
-//                 </TouchableOpacity>
-//             </Modal> */}
-
+//             {/* Map Modal */}
 //             <Modal visible={mapVisible} animationType="slide">
-//                 {/* <MapView
-//                     style={{ flex: 1 }}
-//                     initialRegion={{
-//                         latitude: tempLocation.latitude,
-//                         longitude: tempLocation.longitude,
-//                         latitudeDelta: 0.01,
-//                         longitudeDelta: 0.01,
-//                     }}
-//                     onPress={onMapPress}
-//                 >
-//                     <Marker coordinate={tempLocation} />
-//                 </MapView> */}
 //                 <MapView
 //                     style={{ flex: 1 }}
 //                     initialRegion={{
@@ -632,7 +512,6 @@
 //                         }}
 //                     />
 //                 </MapView>
-
 
 //                 <View
 //                     style={{
@@ -679,8 +558,6 @@
 //                     </TouchableOpacity>
 //                 </View>
 //             </Modal>
-
-
 //         </Modal>
 //     );
 // }
@@ -884,10 +761,6 @@
 //         alignItems: "center",
 //         marginBottom: 10,
 //     },
-//     actionButtons: {
-//         padding: 20,
-//         paddingBottom: 30,
-//     },
 //     saveButton: {
 //         flexDirection: "row",
 //         alignItems: "center",
@@ -895,7 +768,7 @@
 //         backgroundColor: "#2196F3",
 //         padding: 15,
 //         borderRadius: 10,
-//         marginBottom: 10,
+//         marginTop: 20,
 //     },
 //     saveButtonText: {
 //         color: "#fff",
@@ -909,6 +782,7 @@
 //         borderWidth: 1,
 //         borderColor: "#ddd",
 //         alignItems: "center",
+//         marginTop: 10,
 //     },
 //     cancelButtonText: {
 //         color: "#666",
@@ -933,12 +807,18 @@
 // });
 
 import { FontAwesome5, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import NetInfo from "@react-native-community/netinfo";
+import axios from "axios";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import * as Location from "expo-location";
 import React, { useEffect, useState } from "react";
 import {
+    ActivityIndicator,
     Modal,
+    Platform,
     SafeAreaView,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Text,
     TextInput,
@@ -946,6 +826,7 @@ import {
     View,
 } from "react-native";
 import MapView, { MapPressEvent, Marker } from "react-native-maps";
+import urls from "../urls/urls";
 
 
 const EMPTY_PORTAL_DATA = {
@@ -973,6 +854,8 @@ const EMPTY_PORTAL_DATA = {
 interface Props {
     visible: boolean;
     data: any;
+    accessToken: string | null;
+    qrToken: string | null;
     onClose: () => void;
     onSubmit: (formData: any) => void;
 }
@@ -989,6 +872,8 @@ export default function CaptivePortalScreen({
     data,
     onClose,
     onSubmit,
+    accessToken,
+    qrToken,
 }: Props) {
     const [formData, setFormData] = useState<any>(EMPTY_PORTAL_DATA);
     const [activeSection, setActiveSection] = useState<string>("wifi");
@@ -997,6 +882,51 @@ export default function CaptivePortalScreen({
         latitude: 0,
         longitude: 0,
     });
+    const [scannerVisible, setScannerVisible] = useState(false);
+    const [scanningFor, setScanningFor] = useState<{ type: string; index?: number } | null>(null);
+    const [permission, requestPermission] = useCameraPermissions();
+
+    useEffect(() => {
+        if (!permission) {
+            requestPermission();
+        }
+    }, [permission]);
+
+    const [locationLoading, setLocationLoading] = useState(false); // Add loading state
+    /** DEVICE IP (from QR / backend) */
+    const deviceIp =
+        data?.ip ||
+        data?.device_ip ||
+        data?.payload?.ip ||
+        null;
+
+    useEffect(() => {
+        if (!deviceIp) return;
+
+        console.log("🔄 Waiting for device connectivity:", deviceIp);
+
+        const unsubscribe = NetInfo.addEventListener(async (state) => {
+            if (state.isConnected && state.type === "wifi") {
+                try {
+                    console.log("🔍 Checking device health...");
+
+                    const res = await axios.get(
+                        `http://${deviceIp}/health`,
+                        { timeout: 2000 }
+                    );
+
+                    if (res.data?.status === "online") {
+                        console.log("✅ Device reachable BEFORE WiFi submit");
+                    }
+                } catch {
+                    console.log("⏳ Device not reachable yet");
+                }
+            }
+        });
+
+        return () => unsubscribe();
+    }, [deviceIp]);
+
 
     useEffect(() => {
         if (data) {
@@ -1010,11 +940,204 @@ export default function CaptivePortalScreen({
 
     if (!visible) return null;
 
+    // const handleBarCodeScanned = ({ data }: { data: string }) => {
+    //     setScannerVisible(false);
+    //     if (!scanningFor) return;
+
+    //     let deviceId = data;
+    //     try {
+    //         const parsed = JSON.parse(data);
+    //         deviceId = parsed.device_id || parsed.id || data;
+    //     } catch { }
+
+    //     if (scanningFor.type === "Door_window" && scanningFor.index !== undefined) {
+    //         const updated = [...formData.sensors.Door_window];
+    //         updated[scanningFor.index].id = deviceId;
+    //         setFormData({
+    //             ...formData,
+    //             sensors: { ...formData.sensors, Door_window: updated },
+    //         });
+    //     } 
+    //     else {
+    //         setFormData({
+    //             ...formData,
+    //             sensors: {
+    //                 ...formData.sensors,
+    //                 [scanningFor.type]: {
+    //                     ...formData.sensors[scanningFor.type],
+    //                     id: deviceId,
+    //                 },
+    //             },
+    //         });
+    //     }
+
+
+
+    //     setScanningFor(null);
+    // };
+
+    // -------------------
+    // Handle QR for Sensors
+    // -------------------
+    // const handleSensorScan = (parsedData: any) => {
+    //     console.log("🔹 handleSensorScan called with:", parsedData);
+    //     if (!scanningFor) {
+    //         console.warn("⚠️ No scanningFor set for sensor scan");
+    //         return;
+    //     }
+
+    //     // 🔹 Door/Window sensors
+    //     if (scanningFor.type === "Door_window" && scanningFor.index !== undefined) {
+    //         console.log(`📥 Updating Door_window sensor at index ${scanningFor.index}`);
+    //         const updated = [...formData.sensors.Door_window];
+    //         updated[scanningFor.index].id = parsedData.device_id || parsedData.id || parsedData.raw;
+    //         setFormData({
+    //             ...formData,
+    //             sensors: { ...formData.sensors, Door_window: updated },
+    //         });
+    //         console.log("✅ Door_window sensors updated:", updated);
+    //     }
+    //     // 🔹 Normal sensors
+    //     else if (SENSOR_CONFIGS[scanningFor.type as keyof typeof SENSOR_CONFIGS]) {
+    //         console.log(`📥 Updating normal sensor type: ${scanningFor.type}`);
+    //         setFormData({
+    //             ...formData,
+    //             sensors: {
+    //                 ...formData.sensors,
+    //                 [scanningFor.type]: {
+    //                     ...formData.sensors[scanningFor.type],
+    //                     id: parsedData.device_id || parsedData.id || parsedData.raw,
+    //                 },
+    //             },
+    //         });
+    //         console.log("✅ Normal sensor updated:", formData.sensors[scanningFor.type]);
+    //     } else {
+    //         console.warn(`⚠️ Sensor type not recognized: ${scanningFor.type}`);
+    //     }
+    // };
+
+    // -------------------
+    // Handle QR for Cameras
+    // -------------------
+    const handleCameraScan = (parsedData: any) => {
+        console.log("🔹 handleCameraScan called with:", parsedData);
+        if (!scanningFor) {
+            console.warn("⚠️ No scanningFor set for camera scan");
+            return;
+        }
+
+        setFormData({
+            ...formData,
+            cams: {
+                ...formData.cams,
+                [scanningFor.type]: {
+                    ...formData.cams[scanningFor.type],
+                    id: parsedData.camera_id || parsedData.id || parsedData.device_id || "",
+                    ip_adress: parsedData.ip || parsedData.ip_address || "",
+                },
+            },
+        });
+        console.log(`✅ Camera ${scanningFor.type} updated:`, {
+            id: parsedData.camera_id || parsedData.id || parsedData.device_id || "",
+            ip_adress: parsedData.ip || parsedData.ip_address || "",
+        });
+    };
+
+    // -------------------
+    // Main QR Handler
+    // -------------------
+    // -------------------
+    // Main QR Handler
+    // -------------------
+    const handleBarCodeScanned = ({ data }: { data: string }) => {
+        console.log("📸 QR Scanned:", data);
+        setScannerVisible(false);
+        if (!scanningFor) {
+            console.warn("⚠️ QR scanned but no scanningFor set");
+            return;
+        }
+
+        let parsedData: any = {};
+        try {
+            parsedData = JSON.parse(data);
+            if (typeof parsedData !== "object") {
+                parsedData = { raw: String(parsedData) };
+            }
+            console.log("🧩 Parsed QR Data:", parsedData);
+        } catch {
+            parsedData = { raw: data };
+            console.warn("⚠️ QR data is not JSON, using raw:", parsedData);
+        }
+
+        // Decide which handler to call
+        if (formData.cams[scanningFor.type]) {
+            console.log("➡️ Detected camera scan for:", scanningFor.type);
+            handleCameraScan(parsedData);
+        } else {
+            console.log("➡️ Detected sensor scan for:", scanningFor.type);
+            handleSensorScan(parsedData);
+        }
+
+        setScanningFor(null);
+    };
+
+    // -------------------
+    // Handle QR for Sensors
+    // -------------------
+    const handleSensorScan = (parsedData: any) => {
+        console.log("🔹 handleSensorScan called with:", parsedData);
+        if (!scanningFor) {
+            console.warn("⚠️ No scanningFor set for sensor scan");
+            return;
+        }
+
+        // Door/Window
+        if (scanningFor.type === "Door_window" && scanningFor.index !== undefined) {
+            const updated = [...formData.sensors.Door_window];
+            updated[scanningFor.index].id = parsedData.device_id ?? parsedData.id ?? parsedData.raw;
+            setFormData({
+                ...formData,
+                sensors: { ...formData.sensors, Door_window: updated },
+            });
+            console.log("✅ Door_window sensors updated:", updated);
+        }
+        // Normal sensors
+        else if (SENSOR_CONFIGS[scanningFor.type as keyof typeof SENSOR_CONFIGS]) {
+            const updatedSensorId = parsedData.device_id ?? parsedData.id ?? parsedData.raw;
+            console.log(`📥 Updating normal sensor type: ${scanningFor.type} with ID: ${updatedSensorId}`);
+            setFormData({
+                ...formData,
+                sensors: {
+                    ...formData.sensors,
+                    [scanningFor.type]: {
+                        ...formData.sensors[scanningFor.type],
+                        id: updatedSensorId,
+                    },
+                },
+            });
+            console.log("✅ Normal sensor updated:", {
+                ...formData.sensors[scanningFor.type],
+                id: updatedSensorId,
+            });
+        } else {
+            console.warn(`⚠️ Sensor type not recognized: ${scanningFor.type}`);
+        }
+    };
+
+
+
+
+
+
+
     const openMapPicker = async () => {
         try {
+            setLocationLoading(true); // Start loading
+
             const { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== "granted") {
                 alert("Location permission is required");
+                setLocationLoading(false); // Stop loading
                 return;
             }
 
@@ -1029,6 +1152,8 @@ export default function CaptivePortalScreen({
         } catch (error) {
             console.error("Failed to get current location:", error);
             alert("Unable to get current location.");
+        } finally {
+            setLocationLoading(false); // Always stop loading
         }
     };
 
@@ -1078,6 +1203,9 @@ export default function CaptivePortalScreen({
                         <MaterialIcons name="close" size={24} color="#fff" />
                     </TouchableOpacity>
                 </View>
+
+
+
 
                 <ScrollView style={styles.container}>
                     {/* Navigation Tabs */}
@@ -1139,8 +1267,13 @@ export default function CaptivePortalScreen({
                                     <TouchableOpacity
                                         style={styles.mapBtn}
                                         onPress={openMapPicker}
+                                        disabled={locationLoading} // Disable when loading
                                     >
-                                        <Text style={styles.mapBtnText}>📍 Select Location from Map</Text>
+                                        {locationLoading ? (
+                                            <ActivityIndicator color="#fff" size="small" />
+                                        ) : (
+                                            <Text style={styles.mapBtnText}>📍 Select Location from Map</Text>
+                                        )}
                                     </TouchableOpacity>
 
                                     <View style={styles.row}>
@@ -1232,12 +1365,12 @@ export default function CaptivePortalScreen({
                     )}
 
                     {/* Sensors Section - Separated by Type */}
-                    {(activeSection === "sensors" || activeSection === "") && (
+                    {/* {(activeSection === "sensors" || activeSection === "") && (
                         <View style={styles.sectionCard}>
                             {renderSectionHeader("Security Sensors", "sensors", "sensors")}
                             {activeSection === "sensors" && (
                                 <View style={styles.sectionContent}>
-                                    {/* Individual Sensor Cards */}
+                                   
                                     {Object.entries(SENSOR_CONFIGS).map(([key, config]) => (
                                         <View key={key} style={styles.sensorCard}>
                                             <View style={styles.sensorHeader}>
@@ -1271,7 +1404,6 @@ export default function CaptivePortalScreen({
                                         </View>
                                     ))}
 
-                                    {/* Door/Window Sensors */}
                                     <View style={styles.sensorCard}>
                                         <View style={styles.sensorHeader}>
                                             <FontAwesome5 name="door-closed" size={24} color="#5C6BC0" />
@@ -1326,10 +1458,134 @@ export default function CaptivePortalScreen({
                                 </View>
                             )}
                         </View>
+                    )} */}
+                    {/* Sensors Section - Separated by Type */}
+                    {(activeSection === "sensors" || activeSection === "") && (
+                        <View style={styles.sectionCard}>
+                            {renderSectionHeader("Security Sensors", "sensors", "sensors")}
+                            {activeSection === "sensors" && (
+                                <View style={styles.sectionContent}>
+                                    {/* Individual Sensor Cards */}
+                                    {Object.entries(SENSOR_CONFIGS).map(([key, config]) => (
+                                        <View key={key} style={styles.sensorCard}>
+                                            <View style={styles.sensorHeader}>
+                                                <MaterialCommunityIcons
+                                                    name={config.icon as any}
+                                                    size={24}
+                                                    color={config.color}
+                                                />
+                                                <Text style={styles.sensorTitle}>{config.label}</Text>
+                                            </View>
+
+                                            <View style={styles.sensorInputs}>
+                                                {/* Device ID with QR Scan */}
+                                                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                                    <View style={{ flex: 1 }}>
+                                                        {renderInputField("Device ID", formData.sensors[key]?.id || "", (v) =>
+                                                            setFormData({
+                                                                ...formData,
+                                                                sensors: {
+                                                                    ...formData.sensors,
+                                                                    [key]: { ...formData.sensors[key], id: v },
+                                                                },
+                                                            })
+                                                        )}
+                                                    </View>
+                                                    <TouchableOpacity
+                                                        onPress={() => {
+                                                            setScanningFor({ type: key });
+                                                            setScannerVisible(true);
+                                                        }}
+                                                        style={{ marginLeft: 8 }}
+                                                    >
+                                                        <MaterialIcons name="qr-code-scanner" size={24} color="#5C6BC0" />
+                                                    </TouchableOpacity>
+                                                </View>
+
+                                                {renderInputField("Name/Location", formData.sensors[key]?.name || "", (v) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        sensors: {
+                                                            ...formData.sensors,
+                                                            [key]: { ...formData.sensors[key], name: v },
+                                                        },
+                                                    })
+                                                )}
+                                            </View>
+                                        </View>
+                                    ))}
+
+                                    {/* Door/Window Sensors */}
+                                    <View style={styles.sensorCard}>
+                                        <View style={styles.sensorHeader}>
+                                            <FontAwesome5 name="door-closed" size={24} color="#5C6BC0" />
+                                            <Text style={styles.sensorTitle}>Door/Window Sensors</Text>
+                                        </View>
+
+                                        {formData.sensors.Door_window.map((item: any, index: number) => (
+                                            <View key={index} style={styles.doorSensorRow}>
+                                                <Text style={styles.doorNumber}>Sensor {index + 1}</Text>
+                                                <View style={styles.row}>
+                                                    <View style={[styles.halfInput, { flexDirection: "row", alignItems: "center" }]}>
+                                                        <View style={{ flex: 1 }}>
+                                                            {renderInputField("ID", item.id, (v) => {
+                                                                const updated = [...formData.sensors.Door_window];
+                                                                updated[index].id = v;
+                                                                setFormData({
+                                                                    ...formData,
+                                                                    sensors: { ...formData.sensors, Door_window: updated },
+                                                                });
+                                                            })}
+                                                        </View>
+                                                        <TouchableOpacity
+                                                            onPress={() => {
+                                                                setScanningFor({ type: "Door_window", index });
+                                                                setScannerVisible(true);
+                                                            }}
+                                                            style={{ marginLeft: 6 }}
+                                                        >
+                                                            <MaterialIcons name="qr-code-scanner" size={22} color="#5C6BC0" />
+                                                        </TouchableOpacity>
+                                                    </View>
+
+                                                    <View style={styles.halfInput}>
+                                                        {renderInputField("Location", item.name, (v) => {
+                                                            const updated = [...formData.sensors.Door_window];
+                                                            updated[index].name = v;
+                                                            setFormData({
+                                                                ...formData,
+                                                                sensors: { ...formData.sensors, Door_window: updated },
+                                                            });
+                                                        })}
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        ))}
+
+                                        <TouchableOpacity
+                                            style={styles.addButton}
+                                            onPress={() =>
+                                                setFormData({
+                                                    ...formData,
+                                                    sensors: {
+                                                        ...formData.sensors,
+                                                        Door_window: [...formData.sensors.Door_window, { id: "", name: "" }],
+                                                    },
+                                                })
+                                            }
+                                        >
+                                            <MaterialIcons name="add-circle" size={20} color="#5C6BC0" />
+                                            <Text style={styles.addButtonText}>Add Door/Window Sensor</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            )}
+                        </View>
                     )}
 
+
                     {/* Cameras Section */}
-                    {(activeSection === "cameras" || activeSection === "") && (
+                    {/* {(activeSection === "cameras" || activeSection === "") && (
                         <View style={styles.sectionCard}>
                             {renderSectionHeader("Camera Configuration", "videocam", "cameras")}
                             {activeSection === "cameras" && (
@@ -1369,7 +1625,83 @@ export default function CaptivePortalScreen({
                                 </View>
                             )}
                         </View>
+                    )} */}
+                    {(activeSection === "cameras" || activeSection === "") && (
+                        <View style={styles.sectionCard}>
+                            {renderSectionHeader("Camera Configuration", "videocam", "cameras")}
+                            {activeSection === "cameras" && (
+                                <View style={styles.sectionContent}>
+                                    {Object.entries(formData.cams).map(([camKey, cam]: any) => (
+                                        <View key={camKey} style={styles.cameraCard}>
+                                            <View style={styles.cameraHeader}>
+                                                <MaterialIcons name="videocam" size={20} color="#2196F3" />
+                                                <Text style={styles.cameraTitle}>Camera {camKey.slice(3)}</Text>
+                                            </View>
+
+                                            {/* Camera ID with QR scanner */}
+                                            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                                <View style={{ flex: 1 }}>
+                                                    {renderInputField("Camera ID", cam.id, (v) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            cams: { ...formData.cams, [camKey]: { ...cam, id: v } },
+                                                        })
+                                                    )}
+                                                </View>
+                                                <TouchableOpacity
+                                                    onPress={() => {
+                                                        setScanningFor({ type: camKey });
+                                                        setScannerVisible(true);
+                                                    }}
+                                                    style={{ marginLeft: 8 }}
+                                                >
+                                                    <MaterialIcons name="qr-code-scanner" size={22} color="#2196F3" />
+                                                </TouchableOpacity>
+                                            </View>
+
+                                            {/* Name field */}
+                                            {renderInputField("Name", cam.name, (v) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    cams: { ...formData.cams, [camKey]: { ...cam, name: v } },
+                                                })
+                                            )}
+
+                                            {/* IP Address with QR scanner */}
+                                            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                                <View style={{ flex: 1 }}>
+                                                    {renderInputField("IP Address", cam.ip_adress, (v) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            cams: { ...formData.cams, [camKey]: { ...cam, ip_adress: v } },
+                                                        })
+                                                    )}
+                                                </View>
+                                                <TouchableOpacity
+                                                    onPress={() => {
+                                                        setScanningFor({ type: camKey });
+                                                        setScannerVisible(true);
+                                                    }}
+                                                    style={{ marginLeft: 8 }}
+                                                >
+                                                    <MaterialIcons name="qr-code-scanner" size={22} color="#2196F3" />
+                                                </TouchableOpacity>
+                                            </View>
+
+                                            {/* Uncomment if you want configurations input */}
+                                            {/* {renderInputField("Configurations", cam.configurations, (v) =>
+              setFormData({
+                ...formData,
+                cams: { ...formData.cams, [camKey]: { ...cam, configurations: v } },
+              })
+            )} */}
+                                        </View>
+                                    ))}
+                                </View>
+                            )}
+                        </View>
                     )}
+
 
                     {/* System Controls Section */}
                     {(activeSection === "system" || activeSection === "") && (
@@ -1386,38 +1718,184 @@ export default function CaptivePortalScreen({
                                         </View>
                                         <View style={styles.controlCard}>
                                             <MaterialIcons name="power-settings-new" size={24} color="#4CAF50" />
-                                            {renderInputField("System ON ID", formData.key_on.id, (v) =>
+                                            {renderInputField("Key ON ID", formData.key_on.id, (v) =>
                                                 setFormData({ ...formData, key_on: { id: v } })
                                             )}
                                         </View>
                                         <View style={styles.controlCard}>
                                             <MaterialIcons name="power-off" size={24} color="#F44336" />
-                                            {renderInputField("System OFF ID", formData.key_off.id, (v) =>
+                                            {renderInputField("Key OFF ID", formData.key_off.id, (v) =>
                                                 setFormData({ ...formData, key_off: { id: v } })
                                             )}
                                         </View>
                                     </View>
-                                    
+
                                     {/* Save Configuration Button - ONLY in System section */}
-                                    <TouchableOpacity
+
+                                    {/* <TouchableOpacity
                                         style={styles.saveButton}
-                                        onPress={() => {
-                                            console.log("📤 Captive Portal Final Payload:", formData);
-                                            onSubmit(formData);
+                                        onPress={async () => {
+                                            try {
+                                                const url = urls.save_captive_portal;
+
+                                                const cleanPayload = {
+                                                    wifi: formData.wifi,
+                                                    location: formData.location,
+                                                    phone_number: formData.phone_number,
+                                                    sensors: formData.sensors,
+                                                    cams: formData.cams,
+                                                    bugler: formData.bugler,
+                                                    key_off: formData.key_off,
+                                                    key_on: formData.key_on,
+                                                };
+
+                                                const requestBody = {
+                                                    qr_token: qrToken,
+                                                    payload: cleanPayload,
+                                                };
+
+                                                console.log("📤 ================= CAPTIVE PORTAL REQUEST =================");
+                                                console.log("🔑 QR TOKEN:", qrToken);
+                                                console.log("📦 CLEAN PAYLOAD:", JSON.stringify(cleanPayload, null, 2));
+                                                console.log("📨 FINAL REQUEST BODY:", JSON.stringify(requestBody, null, 2));
+                                                console.log("🌐 API URL:", url);
+                                                console.log("🔐 ACCESS TOKEN:", accessToken);
+                                                console.log("📤 ==========================================================");
+
+                                                const response = await axios.post(url, requestBody, {
+                                                    headers: {
+                                                        Authorization: `Bearer ${accessToken}`,
+                                                        "Content-Type": "application/json",
+                                                    },
+                                                });
+
+                                                console.log("✅ ================= API SUCCESS =================");
+                                                console.log("📥 STATUS:", response.status);
+                                                console.log("📥 RESPONSE:", JSON.stringify(response.data, null, 2));
+                                                console.log("✅ ==============================================");
+
+                                                onSubmit(response.data);
+                                            } catch (error: any) {
+                                                console.log("❌ ================= API ERROR =================");
+
+                                                if (error.response) {
+                                                    console.log("🔴 STATUS:", error.response.status);
+                                                    console.log("🔴 DATA:", JSON.stringify(error.response.data, null, 2));
+                                                } else {
+                                                    console.log("🟡 ERROR:", error.message);
+                                                }
+
+                                                console.log("❌ =============================================");
+
+                                                alert(
+                                                    error?.response?.data?.message ||
+                                                    "Failed to save configuration"
+                                                );
+                                            }
                                         }}
                                     >
+
                                         <MaterialIcons name="save" size={20} color="#fff" />
                                         <Text style={styles.saveButtonText}>Save Configuration</Text>
                                     </TouchableOpacity>
 
                                     <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
                                         <Text style={styles.cancelButtonText}>Cancel</Text>
+                                    </TouchableOpacity> */}
+                                    <TouchableOpacity
+                                        style={styles.saveButton}
+                                        onPress={async () => {
+                                            try {
+                                                console.log("🚀 START CONFIGURATION");
+
+                                                /** ================= STEP 1: SEND WIFI TO DEVICE ================= */
+                                                if (!deviceIp) {
+                                                    alert("Device IP not found in QR data");
+                                                    return;
+                                                }
+
+                                                console.log("📡 Sending WiFi to device:", deviceIp);
+
+                                                await axios.post(
+                                                    `http://${deviceIp}/wifi`,
+                                                    {
+                                                        ssid: formData.wifi.ssid,
+                                                        password: formData.wifi.password,
+                                                    },
+                                                    { timeout: 5000 }
+                                                );
+
+                                                console.log("✅ Device WiFi configured");
+
+                                                /** ================= STEP 2: SEND FULL CONFIG TO BACKEND ================= */
+                                                const cleanPayload = {
+                                                    wifi: formData.wifi,
+                                                    location: formData.location,
+                                                    phone_number: formData.phone_number,
+                                                    sensors: formData.sensors,
+                                                    cams: formData.cams,
+                                                    bugler: formData.bugler,
+                                                    key_off: formData.key_off,
+                                                    key_on: formData.key_on,
+                                                };
+
+                                                const requestBody = {
+                                                    qr_token: qrToken,
+                                                    payload: cleanPayload,
+                                                };
+
+                                                const response = await axios.post(
+                                                    urls.save_captive_portal,
+                                                    requestBody,
+                                                    {
+                                                        headers: {
+                                                            Authorization: `Bearer ${accessToken}`,
+                                                            "Content-Type": "application/json",
+                                                        },
+                                                    }
+                                                );
+
+                                                console.log("✅ Backend saved configuration");
+                                                onSubmit(response.data);
+                                            } catch (error: any) {
+                                                console.log("❌ CONFIG ERROR", error?.message);
+                                                alert("Failed to configure device");
+                                            }
+                                        }}
+                                    >
+                                        <MaterialIcons name="save" size={20} color="#fff" />
+                                        <Text style={{ color: "#fff", marginLeft: 8 }}>Save Configuration</Text>
                                     </TouchableOpacity>
                                 </View>
                             )}
                         </View>
                     )}
                 </ScrollView>
+                {scannerVisible && permission?.granted && (
+                    <View style={StyleSheet.absoluteFillObject}>
+                        <CameraView
+                            style={StyleSheet.absoluteFillObject}
+                            barcodeScannerSettings={{
+                                barcodeTypes: ["qr"],
+                            }}
+                            onBarcodeScanned={handleBarCodeScanned}
+                        />
+                        <TouchableOpacity
+                            style={{
+                                position: "absolute",
+                                bottom: 40,
+                                alignSelf: "center",
+                                backgroundColor: "white",
+                                padding: 12,
+                                borderRadius: 8,
+                            }}
+                            onPress={() => setScannerVisible(false)}
+                        >
+                            <Text>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+
             </SafeAreaView>
 
             {/* Map Modal */}
@@ -1501,13 +1979,27 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#f5f5f5",
     },
+    // header: {
+    //     backgroundColor: "#2196F3",
+    //     flexDirection: "row",
+    //     justifyContent: "space-between",
+    //     alignItems: "center",
+    //     paddingHorizontal: 20,
+    //     paddingVertical: 15,
+    //     paddingTop: 45
+    // },
+
     header: {
         backgroundColor: "#2196F3",
         flexDirection: "row",
         justifyContent: "space-between",
-        alignItems: "center",
+        alignItems: "center", // keep centered so icon doesn't shift weirdly
         paddingHorizontal: 20,
         paddingVertical: 15,
+
+        paddingTop: Platform.OS === "android"
+            ? (StatusBar.currentHeight || 0) + 10
+            : 20, // safe spacing for iOS
     },
     headerTitle: {
         fontSize: 20,

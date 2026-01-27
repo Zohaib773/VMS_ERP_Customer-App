@@ -432,8 +432,6 @@
 
 
 // LoginScreen.tsx
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
 import { router } from "expo-router";
 import React, { useRef, useState } from 'react';
 import {
@@ -450,7 +448,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import urls from "./urls/urls";
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -466,60 +463,60 @@ const LoginScreen: React.FC = () => {
   const emailAnim = useRef(new Animated.Value(0)).current;
   const passwordAnim = useRef(new Animated.Value(0)).current;
 
-  // const handleLogin = () => {
-  //   // if (email && password) {
-  //     router.replace("/Dashboard/Dashboard");
-  //   // }
-  // };
-
-  const handleLogin = async () => {
-    const url = urls.login;
-
-    if (!username || !password) {
-      alert("Please enter both email and password");
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const response = await axios.post(
-        url,
-        { username, password },
-        {
-          headers: { "Content-Type": "application/json" },
-          timeout: 10000,
-        }
-      );
-
-      const { access, refresh, user } = response.data;
-
-      console.log("Login Response:", response.data);
-
-      //  Save tokens
-      await AsyncStorage.setItem("accessToken", access);
-      await AsyncStorage.setItem("refreshToken", refresh);
-
-      //  Save ONLY user object
-      await AsyncStorage.setItem("userData", JSON.stringify(user));
-
-      //  Role-based navigation
-      if (user.role === "customer") {
-        router.replace("/Dashboard/Dashboard");
-      }
-
-    } catch (error) {
-      console.error("Login error:", error);
-
-      if (axios.isAxiosError(error)) {
-        alert(error.response?.data?.message || "Invalid username or password");
-      } else {
-        alert("Something went wrong. Please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
+  const handleLogin = () => {
+    // if (email && password) {
+      router.replace("/Dashboard/Dashboard");
+    // }
   };
+
+  // const handleLogin = async () => {
+  //   const url = urls.login;
+
+  //   if (!username || !password) {
+  //     alert("Please enter both email and password");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+
+  //     const response = await axios.post(
+  //       url,
+  //       { username, password },
+  //       {
+  //         headers: { "Content-Type": "application/json" },
+  //         timeout: 10000,
+  //       }
+  //     );
+
+  //     const { access, refresh, user } = response.data;
+
+  //     console.log("Login Response:", response.data);
+
+  //     //  Save tokens
+  //     await AsyncStorage.setItem("accessToken", access);
+  //     await AsyncStorage.setItem("refreshToken", refresh);
+
+  //     //  Save ONLY user object
+  //     await AsyncStorage.setItem("userData", JSON.stringify(user));
+
+  //     //  Role-based navigation
+  //     if (user.role === "customer") {
+  //       router.replace("/Dashboard/Dashboard");
+  //     }
+
+  //   } catch (error) {
+  //     console.error("Login error:", error);
+
+  //     if (axios.isAxiosError(error)) {
+  //       alert(error.response?.data?.message || "Invalid username or password");
+  //     } else {
+  //       alert("Something went wrong. Please try again.");
+  //     }
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   
   const handleSignUp = () => {
     console.log('Navigate to sign up');

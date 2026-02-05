@@ -16,7 +16,7 @@ type MenuItem = {
 const menuItems: MenuItem[] = [
   { id: 1, title: "Dashboard", icon: "dashboard", route: "/Dashboard/Dashboard", color: "#667eea" },
   { id: 2, title: "My Devices", icon: "shopping-bag", route: "/Dashboard/All_devices", color: "#4CAF50" },
-  { id: 3, title: "My Orders", icon: "receipt", route: "/Customer/Orders", color: "#2196F3" },
+  { id: 3, title: "Cams Management", icon: "receipt", route: "/Dashboard/cams_management", color: "#2196F3" },
   { id: 4, title: "Cart", icon: "shopping-cart", route: "/Customer/Cart", color: "#FF9800" },
   { id: 5, title: "Wishlist", icon: "favorite", route: "/Customer/Wishlist", color: "#E91E63" },
   { id: 6, title: "Profile", icon: "person", route: "/Customer/Profile", color: "#9C27B0" },
@@ -28,11 +28,11 @@ const menuItems: MenuItem[] = [
 type Props = {
   activeTab: string;
   children: React.ReactNode;
-   userData?: any;
+  userData?: any;
 };
 
 export default function CustomerSidebarLayout({ activeTab, children }: Props) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const translateX = React.useRef(new Animated.Value(sidebarOpen ? 0 : -250)).current;
 
   const [loggedInUser, setLoggedInUser] = useState<any>(null);
@@ -82,7 +82,9 @@ export default function CustomerSidebarLayout({ activeTab, children }: Props) {
     router.push(route as any);
   };
 
-  const handleLogout = () => {
+  // const handleLogout = () => {
+  const handleLogout = async () => {
+    await AsyncStorage.clear();
     router.replace("/");
   };
 
@@ -186,13 +188,13 @@ export default function CustomerSidebarLayout({ activeTab, children }: Props) {
 }
 
 const styles = StyleSheet.create({
-  topBar: { 
-    height: 60, 
-    flexDirection: "row", 
-    alignItems: "center", 
-    paddingHorizontal: 15, 
-    backgroundColor: "#fff", 
-    borderBottomWidth: 1, 
+  topBar: {
+    height: 60,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 15,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
     borderBottomColor: "#eee",
     position: 'absolute',
     left: 0,

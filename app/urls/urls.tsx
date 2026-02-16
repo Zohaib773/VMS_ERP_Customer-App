@@ -8,6 +8,7 @@ const urls = {
     customer_register : `${Base_Url}/customer_register/`,
     configure_device : `${Base_Url}/configure_device`,
     save_captive_portal: `${Base_Url}/save_captive_portal`,
-    get_customer_devices: `${Base_Url}/get_customer_devices`
+    get_customer_devices: `${Base_Url}/get_customer_devices`,
+    get_sensor_data: `${Base_Url}/get_sensor_data`,
 }
 export default urls

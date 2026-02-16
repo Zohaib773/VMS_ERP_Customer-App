@@ -6,7 +6,7 @@ import {
     MaterialIcons
 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import mqtt from "mqtt";
 import React, { JSX, useEffect, useRef, useState } from 'react';
 import {
@@ -34,8 +34,21 @@ let mqttClient: mqtt.MqttClient | null = null;
 
 export default function DeviceDetailsScreen() {
     const navigation = useNavigation();
+    const router = useRouter(); // Add this line
+    // const params = useLocalSearchParams();
+    // const device = JSON.parse(params.device as string);
     const params = useLocalSearchParams();
-    const device = JSON.parse(params.device as string);
+
+    const device = React.useMemo(() => {
+        if (!params.device) return null;
+        try {
+            return JSON.parse(params.device as string);
+        } catch (e) {
+            console.error("Failed to parse device param:", e);
+            return null;
+        }
+    }, [params.device]);
+
 
     // MQTT
     // const clientRef = useRef<any>(null);
@@ -51,6 +64,43 @@ export default function DeviceDetailsScreen() {
     const pulseAnim = useRef(new Animated.Value(1)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(0)).current;
+
+    // const navigateToSensorGraph = (sensor: any, sensorType: string, title: string, liveData: any) => {
+    //     router.push({
+    //         pathname: '/component/sensorGraph',
+    //         params: {
+    //             sensor: JSON.stringify(sensor),
+    //             sensorType,
+    //             device: JSON.stringify(device),
+    //             liveData: liveData ? JSON.stringify(liveData) : '',
+    //         },
+    //     });
+    // };
+
+
+    const navigateToSensorGraph = (
+        sensor: any,
+        sensorType: string,
+        liveData: any
+    ) => {
+        router.push({
+            pathname: "/component/sensorGraph",
+            params: {
+                sensorId: String(sensor.id),   // ✅ pass ID
+                sensorType,                    // ✅ pass type
+                deviceId: String(device?.id),  // optional but recommended
+                liveData: liveData ? JSON.stringify(liveData) : ""
+            }
+        });
+    };
+
+
+    useEffect(() => {
+        if (device) {
+            console.log(" Device received in DeviceDetailsScreen:", device);
+        }
+    }, [device]);
+
 
     useEffect(() => {
         if (mqttClient && mqttClient.connected) {
@@ -366,6 +416,75 @@ export default function DeviceDetailsScreen() {
     };
 
     // Render sensor card with live data
+    // const renderSensorCard = (sensor: any, sensorType: string, title: string, icon: JSX.Element, color: string) => {
+    //     const sensorKey = `3/sensor/${sensorType}/${sensor.id}`;
+    //     const liveData = sensorDataMap[sensorKey];
+    //     const sensorValue = liveData?.value;
+    //     const value = sensorValue?.value ?? 0;
+    //     const statusColor = getSensorStatusColor(sensorType, value);
+    //     const statusText = getSensorStatusText(sensorType, value);
+    //     const unit = getSensorUnit(sensorType);
+    //     const lastUpdated = liveData?.receivedAt || "No data";
+
+    //     return (
+    //         <Animated.View
+    //             key={sensorKey}
+    //             style={[
+    //                 styles.sensorCard,
+    //                 {
+    //                     borderLeftColor: color,
+    //                     transform: [{
+    //                         translateX: slideAnim.interpolate({
+    //                             inputRange: [0, 1],
+    //                             outputRange: [0, 10]
+    //                         })
+    //                     }]
+    //                 }
+    //             ]}
+    //         >
+    //             <View style={styles.sensorHeader}>
+    //                 <View style={[styles.sensorIconContainer, { backgroundColor: color + '20' }]}>
+    //                     {icon}
+    //                 </View>
+    //                 <View style={styles.sensorTitleContainer}>
+    //                     <Text style={styles.sensorTitle}>{title}</Text>
+    //                     <Text style={styles.sensorName}>{sensor.name}</Text>
+    //                 </View>
+    //                 <View style={[styles.sensorStatusBadge, { backgroundColor: statusColor + '20' }]}>
+    //                     <View style={[styles.statusDotSmall, { backgroundColor: statusColor }]} />
+    //                     <Text style={[styles.sensorStatusText, { color: statusColor }]}>
+    //                         {statusText}
+    //                     </Text>
+    //                 </View>
+    //             </View>
+
+    //             <View style={styles.sensorDataContainer}>
+    //                 <View style={styles.valueContainer}>
+    //                     <Text style={styles.valueLabel}>Current Value</Text>
+    //                     <View style={styles.valueDisplay}>
+    //                         <Text style={[styles.value, { color: statusColor }]}>
+    //                             {value.toFixed(0)}
+    //                         </Text>
+    //                         <Text style={styles.unit}>{unit}</Text>
+    //                     </View>
+    //                 </View>
+
+    //                 {renderValueGauge(value, getMaxValue(sensorType), statusColor)}
+    //             </View>
+
+    //             <View style={styles.sensorMeta}>
+    //                 <View style={styles.metaItem}>
+    //                     <Feather name="cpu" size={14} color="#6B7280" />
+    //                     <Text style={styles.metaText}>ID: {sensor.id}</Text>
+    //                 </View>
+    //                 <View style={styles.metaItem}>
+    //                     <Feather name="clock" size={14} color="#6B7280" />
+    //                     <Text style={styles.metaText}>{lastUpdated}</Text>
+    //                 </View>
+    //             </View>
+    //         </Animated.View>
+    //     );
+    // };
     const renderSensorCard = (sensor: any, sensorType: string, title: string, icon: JSX.Element, color: string) => {
         const sensorKey = `3/sensor/${sensorType}/${sensor.id}`;
         const liveData = sensorDataMap[sensorKey];
@@ -377,62 +496,76 @@ export default function DeviceDetailsScreen() {
         const lastUpdated = liveData?.receivedAt || "No data";
 
         return (
-            <Animated.View
-                key={sensorKey}
-                style={[
-                    styles.sensorCard,
-                    {
-                        borderLeftColor: color,
-                        transform: [{
-                            translateX: slideAnim.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [0, 10]
-                            })
-                        }]
-                    }
-                ]}
+            <TouchableOpacity
+                activeOpacity={0.7}
+                // onPress={() => navigateToSensorGraph(sensor, sensorType, title, liveData)}
+                onPress={() =>
+                    navigateToSensorGraph(sensor, sensorType, liveData)
+                }
             >
-                <View style={styles.sensorHeader}>
-                    <View style={[styles.sensorIconContainer, { backgroundColor: color + '20' }]}>
-                        {icon}
+                <Animated.View
+                    key={sensorKey}
+                    style={[
+                        styles.sensorCard,
+                        {
+                            borderLeftColor: color,
+                            transform: [{
+                                translateX: slideAnim.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [0, 10]
+                                })
+                            }]
+                        }
+                    ]}
+                >
+                    {/* Add a subtle indicator that it's clickable */}
+                    <View style={styles.clickableIndicator}>
+                        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
                     </View>
-                    <View style={styles.sensorTitleContainer}>
-                        <Text style={styles.sensorTitle}>{title}</Text>
-                        <Text style={styles.sensorName}>{sensor.name}</Text>
-                    </View>
-                    <View style={[styles.sensorStatusBadge, { backgroundColor: statusColor + '20' }]}>
-                        <View style={[styles.statusDotSmall, { backgroundColor: statusColor }]} />
-                        <Text style={[styles.sensorStatusText, { color: statusColor }]}>
-                            {statusText}
-                        </Text>
-                    </View>
-                </View>
 
-                <View style={styles.sensorDataContainer}>
-                    <View style={styles.valueContainer}>
-                        <Text style={styles.valueLabel}>Current Value</Text>
-                        <View style={styles.valueDisplay}>
-                            <Text style={[styles.value, { color: statusColor }]}>
-                                {value.toFixed(0)}
+                    {/* Rest of your existing card content */}
+                    <View style={styles.sensorHeader}>
+                        <View style={[styles.sensorIconContainer, { backgroundColor: color + '20' }]}>
+                            {icon}
+                        </View>
+                        <View style={styles.sensorTitleContainer}>
+                            <Text style={styles.sensorTitle}>{title}</Text>
+                            <Text style={styles.sensorName}>{sensor.name}</Text>
+                        </View>
+                        <View style={[styles.sensorStatusBadge, { backgroundColor: statusColor + '20' }]}>
+                            <View style={[styles.statusDotSmall, { backgroundColor: statusColor }]} />
+                            <Text style={[styles.sensorStatusText, { color: statusColor }]}>
+                                {statusText}
                             </Text>
-                            <Text style={styles.unit}>{unit}</Text>
                         </View>
                     </View>
 
-                    {renderValueGauge(value, getMaxValue(sensorType), statusColor)}
-                </View>
+                    <View style={styles.sensorDataContainer}>
+                        <View style={styles.valueContainer}>
+                            <Text style={styles.valueLabel}>Current Value</Text>
+                            <View style={styles.valueDisplay}>
+                                <Text style={[styles.value, { color: statusColor }]}>
+                                    {value.toFixed(0)}
+                                </Text>
+                                <Text style={styles.unit}>{unit}</Text>
+                            </View>
+                        </View>
 
-                <View style={styles.sensorMeta}>
-                    <View style={styles.metaItem}>
-                        <Feather name="cpu" size={14} color="#6B7280" />
-                        <Text style={styles.metaText}>ID: {sensor.id}</Text>
+                        {renderValueGauge(value, getMaxValue(sensorType), statusColor)}
                     </View>
-                    <View style={styles.metaItem}>
-                        <Feather name="clock" size={14} color="#6B7280" />
-                        <Text style={styles.metaText}>{lastUpdated}</Text>
+
+                    <View style={styles.sensorMeta}>
+                        <View style={styles.metaItem}>
+                            <Feather name="cpu" size={14} color="#6B7280" />
+                            <Text style={styles.metaText}>ID: {sensor.id}</Text>
+                        </View>
+                        <View style={styles.metaItem}>
+                            <Feather name="clock" size={14} color="#6B7280" />
+                            <Text style={styles.metaText}>{lastUpdated}</Text>
+                        </View>
                     </View>
-                </View>
-            </Animated.View>
+                </Animated.View>
+            </TouchableOpacity>
         );
     };
 
@@ -957,11 +1090,18 @@ const styles = StyleSheet.create({
         padding: 16,
         gap: 12,
     },
+    clickableIndicator: {
+        position: 'absolute',
+        right: 16,
+        top: '50%',
+        transform: [{ translateY: -10 }],
+    },
     sensorCard: {
         backgroundColor: '#F9FAFB',
         borderRadius: 12,
         padding: 16,
         borderLeftWidth: 4,
+        position: 'relative',
     },
     sensorHeader: {
         flexDirection: 'row',

@@ -92,6 +92,16 @@ export default function CaptivePortalScreen({
         data?.payload?.ip ||
         null;
 
+    const deviceName =
+        data?.device_name ||
+        data?.payload?.device_name ||
+        "";
+    const normalizedDeviceName = deviceName.toUpperCase();
+    const shouldShowCameras =
+        normalizedDeviceName !== "MC1" &&
+        normalizedDeviceName !== "MC2";
+
+
     useEffect(() => {
         if (!deviceIp) return;
 
@@ -322,7 +332,7 @@ export default function CaptivePortalScreen({
 
                 <ScrollView style={styles.container}>
                     {/* Navigation Tabs */}
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabContainer}>
+                    {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabContainer}>
                         {[
                             { key: "wifi", label: "WiFi", icon: "wifi" },
                             { key: "location", label: "Location", icon: "location-on" },
@@ -330,7 +340,19 @@ export default function CaptivePortalScreen({
                             { key: "sensors", label: "Sensors", icon: "sensors" },
                             { key: "cameras", label: "Cameras", icon: "videocam" },
                             { key: "system", label: "System", icon: "settings" },
+                        ].map((tab) => ( */}
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabContainer}>
+                        {[
+                            { key: "wifi", label: "WiFi", icon: "wifi" },
+                            { key: "location", label: "Location", icon: "location-on" },
+                            { key: "phone", label: "Contacts", icon: "phone" },
+                            { key: "sensors", label: "Sensors", icon: "sensors" },
+                            ...(shouldShowCameras
+                                ? [{ key: "cameras", label: "Cameras", icon: "videocam" }]
+                                : []),
+                            { key: "system", label: "System", icon: "settings" },
                         ].map((tab) => (
+
                             <TouchableOpacity
                                 key={tab.key}
                                 style={[styles.tab, activeSection.startsWith(tab.key) && styles.activeTab]}
@@ -739,7 +761,9 @@ export default function CaptivePortalScreen({
                             )}
                         </View>
                     )} */}
-                    {(activeSection === "cameras" || activeSection === "") && (
+                    {/* {(activeSection === "cameras" || activeSection === "") && (
+                        <View style={styles.sectionCard}> */}
+                    {shouldShowCameras && (activeSection === "cameras" || activeSection === "") && (
                         <View style={styles.sectionCard}>
                             {renderSectionHeader("Camera Configuration", "videocam", "cameras")}
                             {activeSection === "cameras" && (

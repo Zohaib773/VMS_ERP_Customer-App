@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import React, { useEffect, useRef, useState } from "react";
+//import WifiManager from "react-native-wifi-reborn";
 import {
   ActivityIndicator,
   Alert,
@@ -113,192 +114,7 @@ export default function CustomerDashboardScreen() {
   // ----------------------------
   // Handle QR Code scanned
   // ----------------------------
-  // const handleBarCodeScanned = async ({ data, type }: { data: string; type: string }) => {
-  //   if (scanned) return;
-  //   setScanned(true);
-  //   setCameraVisible(false);
-
-  //   console.log("📸 QR SCAN TRIGGERED:", data);
-
-  //   try {
-  //     const parsedData = JSON.parse(data);
-  //     const ssid = parsedData.ssid;
-  //     const password = parsedData.password;
-  //     const qrTokenValue = parsedData.token;
-  //     const deviceIp = parsedData.ip;
-
-  //     if (!ssid || !password || !qrTokenValue || !deviceIp) {
-  //       Alert.alert("Invalid QR", "QR code must contain SSID, password, token, and device IP.");
-  //       return;
-  //     }
-
-  //     console.log("📶 Connecting to Wi-Fi:", ssid);
-
-  //     const hasPermission = await requestLocationPermission();
-  //     if (!hasPermission) {
-  //       Alert.alert("Permission Required", "Cannot connect to Wi-Fi without location permission.");
-  //       return;
-  //     }
-
-  //     // Connect phone to Wi-Fi
-  //     if (Platform.OS === "android") {
-  //       // SSID, password, isWEP=false, isHidden=false
-  //       await WifiManager.connectToProtectedSSID(ssid, password, false, false);
-  //     } else if (Platform.OS === "ios") {
-  //       // SSID, isWEP=false
-  //       await WifiManager.connectToSSID(ssid);
-  //     }
-
-
-  //     Alert.alert("Connected!", `Phone connected to Wi-Fi network: ${ssid}`);
-  //     console.log("✅ Connected to Wi-Fi:", ssid);
-
-  //     // Optional: wait a moment for network to stabilize
-  //     await new Promise((resolve) => setTimeout(resolve, 1500));
-
-  //     // Ping the device
-  //     const deviceOnline = await pingDevice(deviceIp);
-  //     if (!deviceOnline) {
-  //       Alert.alert(
-  //         "Device Not Reachable",
-  //         "Make sure your phone is on the same Wi-Fi network as the device."
-  //       );
-  //       return;
-  //     }
-
-  //     // Call backend API to configure the device
-  //     const response = await axios.post(
-  //       urls.configure_device,
-  //       { qr_token: qrTokenValue, ip: deviceIp },
-  //       { headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" } }
-  //     );
-
-  //     console.log("🚀 Device configured successfully:", response.data);
-
-  //     // Show CaptivePortalScreen
-  //     setPortalData({ ...response.data, device_ip: deviceIp });
-  //     setQrToken(qrTokenValue);
-  //     setPortalVisible(true);
-
-  //   } catch (err: any) {
-  //     console.error("❌ Failed to process QR:", err);
-  //     Alert.alert("Error", "Failed to scan or connect. Check QR code and try again.");
-  //   }
-  // };
-
-  //////////////////////////// new testing ////////////////////////////
-  // const handleBarCodeScanned = async ({ data }: { data: string }) => {
-  //   if (scanned) return;
-  //   setScanned(true);
-
-  //   console.log("📸 QR SCAN TRIGGERED:", data);
-
-  //   let ssid: string | null = null;
-  //   let password: string | null = null;
-  //   let deviceIp: string | null = null;
-  //   let qrToken: string | null = null;
-
-  //   /* -----------------------------------
-  //      1️⃣ PARSE QR (JSON OR PLAIN TEXT)
-  //   ----------------------------------- */
-  //   try {
-  //     // JSON QR
-  //     const parsed = JSON.parse(data);
-  //     ssid = parsed.ssid;
-  //     password = parsed.password;
-  //     deviceIp = parsed.ip || null;
-  //     qrToken = parsed.token || null;
-
-  //     console.log("🧩 QR JSON Parsed:", parsed);
-  //   } catch {
-  //     // Plain text QR: "Vivo 11110000"
-  //     const parts = data.trim().split(" ");
-  //     if (parts.length >= 2) {
-  //       ssid = parts[0];
-  //       password = parts.slice(1).join(" ");
-  //       console.log("⚠️ QR is plain text. SSID:", ssid, "Password:", password);
-  //     }
-  //   }
-
-  //   if (!ssid || !password) {
-  //     Alert.alert("Invalid QR", "SSID or Password missing");
-  //     setScanned(false);
-  //     return;
-  //   }
-
-  //   /* -----------------------------------
-  //      2️⃣ ANDROID PERMISSIONS
-  //   ----------------------------------- */
-  //   if (Platform.OS === "android") {
-  //     const granted = await PermissionsAndroid.request(
-  //       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-  //       {
-  //         title: "Location permission required",
-  //         message: "Location is required to connect to Wi-Fi networks",
-  //         buttonPositive: "ALLOW",
-  //         buttonNegative: "DENY",
-  //       }
-  //     );
-
-  //     if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-  //       Alert.alert("Permission Denied", "Location permission is required");
-  //       setScanned(false);
-  //       return;
-  //     }
-  //   }
-
-  //   /* -----------------------------------
-  //      3️⃣ CONNECT TO WIFI (AUTOMATIC)
-  //   ----------------------------------- */
-  //   try {
-  //     if (!WifiManager) {
-  //       console.log("❌ WifiManager not available");
-  //       Alert.alert(
-  //         "Not Supported",
-  //         "Wi-Fi auto connection requires Dev Client or Release build"
-  //       );
-  //       setScanned(false);
-  //       return;
-  //     }
-
-  //     console.log("📡 Connecting to Wi-Fi:", ssid);
-
-  //     await WifiManager.connectToProtectedSSID(
-  //       ssid,
-  //       password,
-  //       false, // isWEP
-  //       false  // isHidden
-  //     );
-
-  //     console.log("✅ Wi-Fi connected successfully");
-
-  //     // Confirm connection
-  //     const connectedSSID = await WifiManager.getCurrentWifiSSID();
-  //     console.log("📶 Connected SSID:", connectedSSID);
-
-  //     Alert.alert("Connected", `Connected to ${connectedSSID}`);
-
-  //   } catch (error) {
-  //     console.log("❌ Wi-Fi Connection Failed:", error);
-  //     Alert.alert("Connection Failed", "Unable to connect to Wi-Fi");
-  //     setScanned(false);
-  //     return;
-  //   }
-
-  //   /* -----------------------------------
-  //      4️⃣ CONTINUE YOUR EXISTING FLOW
-  //   ----------------------------------- */
-  //   setCameraVisible(false);
-
-  //   if (deviceIp || qrToken) {
-  //     setPortalData({
-  //       device_ip: deviceIp,
-  //     });
-  //     setQrToken(qrToken);
-  //     setPortalVisible(true);
-  //   }
-  // };
-  ////////////////////// NEW TESTING QR ////////////  FINAL WORKING  /////////////////////
+  ////////////////////////////////  FINAL WORKING  /////////////////////
   // const handleBarCodeScanned = async ({ data }: { data: string }) => {
   //   if (scanLock.current) return;
   //   scanLock.current = true;
@@ -428,11 +244,72 @@ export default function CustomerDashboardScreen() {
   //   console.log("========================================");
   // };
 
-  const handleBarCodeScanned = async ({ data }: { data: string }) => {
+  // const handleBarCodeScanned = async ({ data }: { data: string }) => {
           
-      setPortalVisible(true);
-  };
+  //     setPortalVisible(true);
+  // };
 
+////////////////////// NEW TESTING OF QR WITH TOKEN AND DEVICE NAME ///////////////////
+const handleBarCodeScanned = async ({ data }: { data: string }) => {
+  if (scanLock.current) return;
+  scanLock.current = true;
+
+  console.log("========================================");
+  console.log("📸 QR SCAN TRIGGERED:", data);
+
+  let qrToken: string | null = null;
+  let deviceName: string | null = null;
+
+  console.log("🔹 Step 1: Parsing simple QR");
+
+  try {
+    // Split by new lines
+    const lines = data.split("\n");
+
+    lines.forEach(line => {
+      const trimmed = line.trim();
+
+      if (trimmed.toLowerCase().startsWith("qr-token")) {
+        qrToken = trimmed.split(":")[1]?.trim() || null;
+      }
+
+      if (trimmed.toLowerCase().startsWith("device")) {
+        deviceName = trimmed.split(":")[1]?.trim() || null;
+      }
+    });
+
+    console.log("🧩 Parsed QR Data:", { qrToken, deviceName });
+  } catch (err) {
+    console.log("❌ QR Parsing Failed:", err);
+  }
+
+  if (!qrToken || !deviceName) {
+    console.log("❌ Invalid QR: Missing token or device name");
+    Alert.alert("Invalid QR", "QR token or device name missing");
+    scanLock.current = false;
+    return;
+  }
+
+  // 🚫 Wi-Fi logic disabled for testing
+  /*
+  await WifiManager.connectToProtectedSSID(...)
+  await WifiManager.forceWifiUsage(true)
+  */
+
+  console.log("🔹 Step 2: Passing data to portal");
+
+  setCameraVisible(false);
+
+  setPortalData({
+    qr_token: qrToken,
+    device_name: deviceName,
+  });
+
+  setPortalVisible(true);
+
+  console.log("✅ Portal data set successfully");
+  console.log("========================================");
+};
 
 
 

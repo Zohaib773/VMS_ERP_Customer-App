@@ -17,12 +17,12 @@ const menuItems: MenuItem[] = [
   { id: 1, title: "Dashboard", icon: "dashboard", route: "/Dashboard/Dashboard", color: "#667eea" },
   { id: 2, title: "My Devices", icon: "shopping-bag", route: "/Dashboard/All_devices", color: "#4CAF50" },
   { id: 3, title: "Cams Management", icon: "receipt", route: "/Dashboard/cams_management", color: "#2196F3" },
-  { id: 4, title: "Cart", icon: "shopping-cart", route: "/Customer/Cart", color: "#FF9800" },
-  { id: 5, title: "Wishlist", icon: "favorite", route: "/Customer/Wishlist", color: "#E91E63" },
-  { id: 6, title: "Profile", icon: "person", route: "/Customer/Profile", color: "#9C27B0" },
-  { id: 7, title: "Payments", icon: "payment", route: "/Customer/Payments", color: "#00BCD4" },
-  { id: 8, title: "Settings", icon: "settings", route: "/Customer/Settings", color: "#795548" },
-  { id: 9, title: "Help & Support", icon: "help-center", route: "/Customer/Support", color: "#607D8B" },
+  // { id: 4, title: "Cart", icon: "shopping-cart", route: "/Customer/Cart", color: "#FF9800" },
+  // { id: 5, title: "Wishlist", icon: "favorite", route: "/Customer/Wishlist", color: "#E91E63" },
+  // { id: 6, title: "Profile", icon: "person", route: "/Customer/Profile", color: "#9C27B0" },
+  // { id: 7, title: "Payments", icon: "payment", route: "/Customer/Payments", color: "#00BCD4" },
+  // { id: 8, title: "Settings", icon: "settings", route: "/Customer/Settings", color: "#795548" },
+  // { id: 9, title: "Help & Support", icon: "help-center", route: "/Customer/Support", color: "#607D8B" },
 ];
 
 type Props = {
@@ -78,9 +78,23 @@ export default function CustomerSidebarLayout({ activeTab, children }: Props) {
     setSidebarOpen(!sidebarOpen);
   };
 
+  // const navigateTo = (route: string, title: string) => {
+  //   router.push(route as any);
+  // };
   const navigateTo = (route: string, title: string) => {
-    router.push(route as any);
+    if (route === "/Dashboard/Dashboard") {
+      // Already dashboard → just replace
+      router.replace(route as any);
+    } else {
+      // Reset stack to Dashboard first, then push new screen
+      router.replace("/Dashboard/Dashboard" as any); // reset
+      setTimeout(() => {
+        router.push(route as any); // push new screen
+      }, 50); // small delay to ensure stack reset
+    }
   };
+
+
 
   // const handleLogout = () => {
   const handleLogout = async () => {

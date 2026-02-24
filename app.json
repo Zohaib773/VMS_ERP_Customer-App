@@ -4,7 +4,7 @@
     "slug": "Vms_Final_Project",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon-min.png",
+    "icon": "./assets/images/icon-final.png",
     "scheme": "vmsfinalproject",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -14,7 +14,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/icon-min.png",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
@@ -22,7 +22,7 @@
       "predictiveBackGestureEnabled": false,
       "usesCleartextTraffic": true,
       "package": "com.anonymous.vmsfinalproject",
-      "googleServicesFile": "./android/app/google-services.json"
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static",

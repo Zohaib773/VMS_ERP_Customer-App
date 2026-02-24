@@ -601,7 +601,7 @@ export default function Index() {
           const user = JSON.parse(userData);
 
           if (user.role === "customer") {
-            router.replace("/Dashboard/Dashboard");
+            router.replace("/Dashboard/Add_Device_Screen");
           } else {
             router.replace("/login");
           }

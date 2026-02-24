@@ -25,6 +25,57 @@ import {
 } from 'react-native';
 import urls from "./urls/urls";
 
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+
+
+//  How notifications behave when received in foreground
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
+
+// 📲 Register & get FCM/APNs token
+async function registerForPushNotificationsAsync() {
+  if (!Device.isDevice) {
+    console.log(" Must use a physical device for push notifications");
+    return null;
+  }
+
+  // Android requires a notification channel
+  if (Platform.OS === "android") {
+    await Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+    });
+  }
+
+  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  let finalStatus = existingStatus;
+
+  if (existingStatus !== "granted") {
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
+  }
+
+  if (finalStatus !== "granted") {
+    console.log(" Notification permission not granted");
+    return null;
+  }
+
+  const tokenData = await Notifications.getDevicePushTokenAsync();
+  console.log(" DEVICE PUSH TOKEN:", tokenData.data);
+
+  return tokenData.data;
+}
+
+
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [username, setusername] = useState('');
@@ -45,8 +96,57 @@ const LoginScreen: React.FC = () => {
   //   // }
   // };
 
+  // const handleLogin = async () => {
+  //   const url = urls.login;
+
+  //   if (!username || !password) {
+  //     alert("Please enter both email and password");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+
+  //     const response = await axios.post(
+  //       url,
+  //       { username, password },
+  //       {
+  //         headers: { "Content-Type": "application/json" },
+  //         timeout: 10000,
+  //       }
+  //     );
+
+  //     const { access, refresh, user } = response.data;
+
+  //     console.log("Login Response:", response.data);
+
+  //     //  Save tokens
+  //     await AsyncStorage.setItem("accessToken", access);
+  //     await AsyncStorage.setItem("refreshToken", refresh);
+
+  //     //  Save ONLY user object
+  //     await AsyncStorage.setItem("userData", JSON.stringify(user));
+
+  //     //  Role-based navigation
+  //     if (user.role === "customer") {
+  //       router.replace("/Dashboard/Dashboard");
+  //     }
+
+  //   } catch (error) {
+  //     console.error("Login error:", error);
+
+  //     if (axios.isAxiosError(error)) {
+  //       alert(error.response?.data?.message || "Invalid username or password");
+  //     } else {
+  //       alert("Something went wrong. Please try again.");
+  //     }
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const handleLogin = async () => {
     const url = urls.login;
+    const REGISTER_TOKEN_URL = urls.REGISTER_TOKEN_URL
 
     if (!username || !password) {
       alert("Please enter both email and password");
@@ -69,14 +169,38 @@ const LoginScreen: React.FC = () => {
 
       console.log("Login Response:", response.data);
 
-      //  Save tokens
+      // ✅ Save tokens
       await AsyncStorage.setItem("accessToken", access);
       await AsyncStorage.setItem("refreshToken", refresh);
-
-      //  Save ONLY user object
       await AsyncStorage.setItem("userData", JSON.stringify(user));
 
-      //  Role-based navigation
+      // 🔥 STEP 1: Get device push token
+      const deviceToken = await registerForPushNotificationsAsync();
+
+      // 🔥 STEP 2: Send device token to backend
+      if (deviceToken) {
+        try {
+          await axios.post(
+            REGISTER_TOKEN_URL,
+            {
+              user_id: user.id,
+              token: deviceToken,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${access}`, // if your backend requires auth
+              },
+            }
+          );
+
+          console.log("✅ Firebase token registered successfully");
+        } catch (tokenError) {
+          console.error("❌ Error registering Firebase token:", tokenError);
+        }
+      }
+
+      // ✅ Navigate after everything succeeds
       if (user.role === "customer") {
         router.replace("/Dashboard/Dashboard");
       }
@@ -93,7 +217,7 @@ const LoginScreen: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   const handleSignUp = () => {
     console.log('Navigate to sign up');
   };

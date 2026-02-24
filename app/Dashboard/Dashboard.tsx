@@ -18,6 +18,8 @@ import {
   View
 } from "react-native";
 
+import { LinearGradient } from "expo-linear-gradient";
+import { Animated } from "react-native";
 import CustomerSidebar from '../component/sidebarlayout';
 import CaptivePortalScreen from './Captive_portal';
 
@@ -32,6 +34,7 @@ export default function CustomerDashboardScreen() {
   const [portalData, setPortalData] = useState<any>(null);
   const [qrToken, setQrToken] = useState<string | null>(null);
   const [connectingWifi, setConnectingWifi] = useState(false);
+  const manualButtonScale = useRef(new Animated.Value(1)).current;
 
 
   // ----------------------------
@@ -245,71 +248,71 @@ export default function CustomerDashboardScreen() {
   // };
 
   // const handleBarCodeScanned = async ({ data }: { data: string }) => {
-          
+
   //     setPortalVisible(true);
   // };
 
-////////////////////// NEW TESTING OF QR WITH TOKEN AND DEVICE NAME ///////////////////
-const handleBarCodeScanned = async ({ data }: { data: string }) => {
-  if (scanLock.current) return;
-  scanLock.current = true;
+  ////////////////////// NEW TESTING OF QR WITH TOKEN AND DEVICE NAME ///////////////////
+  const handleBarCodeScanned = async ({ data }: { data: string }) => {
+    if (scanLock.current) return;
+    scanLock.current = true;
 
-  console.log("========================================");
-  console.log("📸 QR SCAN TRIGGERED:", data);
+    console.log("========================================");
+    console.log("📸 QR SCAN TRIGGERED:", data);
 
-  let qrToken: string | null = null;
-  let deviceName: string | null = null;
+    let qrToken: string | null = null;
+    let deviceName: string | null = null;
 
-  console.log("🔹 Step 1: Parsing simple QR");
+    console.log("🔹 Step 1: Parsing simple QR");
 
-  try {
-    // Split by new lines
-    const lines = data.split("\n");
+    try {
+      // Split by new lines
+      const lines = data.split("\n");
 
-    lines.forEach(line => {
-      const trimmed = line.trim();
+      lines.forEach(line => {
+        const trimmed = line.trim();
 
-      if (trimmed.toLowerCase().startsWith("qr-token")) {
-        qrToken = trimmed.split(":")[1]?.trim() || null;
-      }
+        if (trimmed.toLowerCase().startsWith("qr-token")) {
+          qrToken = trimmed.split(":")[1]?.trim() || null;
+        }
 
-      if (trimmed.toLowerCase().startsWith("device")) {
-        deviceName = trimmed.split(":")[1]?.trim() || null;
-      }
+        if (trimmed.toLowerCase().startsWith("device")) {
+          deviceName = trimmed.split(":")[1]?.trim() || null;
+        }
+      });
+
+      console.log("🧩 Parsed QR Data:", { qrToken, deviceName });
+    } catch (err) {
+      console.log("❌ QR Parsing Failed:", err);
+    }
+
+    if (!qrToken || !deviceName) {
+      console.log("❌ Invalid QR: Missing token or device name");
+      Alert.alert("Invalid QR", "QR token or device name missing");
+      scanLock.current = false;
+      return;
+    }
+
+    // 🚫 Wi-Fi logic disabled for testing
+    /*
+    await WifiManager.connectToProtectedSSID(...)
+    await WifiManager.forceWifiUsage(true)
+    */
+
+    console.log("🔹 Step 2: Passing data to portal");
+
+    setCameraVisible(false);
+
+    setPortalData({
+      qr_token: qrToken,
+      device_name: deviceName,
     });
 
-    console.log("🧩 Parsed QR Data:", { qrToken, deviceName });
-  } catch (err) {
-    console.log("❌ QR Parsing Failed:", err);
-  }
+    setPortalVisible(true);
 
-  if (!qrToken || !deviceName) {
-    console.log("❌ Invalid QR: Missing token or device name");
-    Alert.alert("Invalid QR", "QR token or device name missing");
-    scanLock.current = false;
-    return;
-  }
-
-  // 🚫 Wi-Fi logic disabled for testing
-  /*
-  await WifiManager.connectToProtectedSSID(...)
-  await WifiManager.forceWifiUsage(true)
-  */
-
-  console.log("🔹 Step 2: Passing data to portal");
-
-  setCameraVisible(false);
-
-  setPortalData({
-    qr_token: qrToken,
-    device_name: deviceName,
-  });
-
-  setPortalVisible(true);
-
-  console.log("✅ Portal data set successfully");
-  console.log("========================================");
-};
+    console.log("✅ Portal data set successfully");
+    console.log("========================================");
+  };
 
 
 
@@ -333,7 +336,7 @@ const handleBarCodeScanned = async ({ data }: { data: string }) => {
         </View>
 
         {/* Stats Cards */}
-        <View style={styles.statsContainer}>
+        {/* <View style={styles.statsContainer}>
           <View style={[styles.statCard, { backgroundColor: '#4CAF50' }]}>
             <MaterialIcons name="shopping-cart" size={30} color="#fff" />
             <Text style={styles.statNumber}>3</Text>
@@ -357,7 +360,7 @@ const handleBarCodeScanned = async ({ data }: { data: string }) => {
             <Text style={styles.statNumber}>245</Text>
             <Text style={styles.statLabel}>Reward Points</Text>
           </View>
-        </View>
+        </View> */}
 
         {/* Scan Device Section */}
         <View style={styles.scanSection}>
@@ -416,6 +419,80 @@ const handleBarCodeScanned = async ({ data }: { data: string }) => {
               </View>
             </View>
           </View>
+
+          {/* Manual Open Captive Portal Button */}
+          {/* <TouchableOpacity
+            style={styles.manualPortalButton}
+            activeOpacity={0.8}
+            onPress={() => {
+              setPortalData(null); // optional
+              setPortalVisible(true);
+            }}
+          >
+            <View style={styles.manualPortalContent}>
+              <View style={styles.manualIconContainer}>
+                <MaterialIcons name="settings-ethernet" size={26} color="#fff" />
+              </View>
+
+              <View style={styles.manualTextContainer}>
+                <Text style={styles.manualPortalTitle}>
+                  Configure Device Manually
+                </Text>
+                <Text style={styles.manualPortalSubtitle}>
+                  Configure device without scanning QR
+                </Text>
+              </View>
+
+              <MaterialIcons name="chevron-right" size={22} color="#4CAF50" />
+            </View>
+          </TouchableOpacity> */}
+          {/* Premium Manual Captive Portal Button */}
+          <Animated.View style={{ transform: [{ scale: manualButtonScale }] }}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPressIn={() => {
+                Animated.spring(manualButtonScale, {
+                  toValue: 0.96,
+                  useNativeDriver: true,
+                }).start();
+              }}
+              onPressOut={() => {
+                Animated.spring(manualButtonScale, {
+                  toValue: 1,
+                  friction: 3,
+                  useNativeDriver: true,
+                }).start();
+              }}
+              onPress={() => {
+                setPortalData(null);
+                setPortalVisible(true);
+              }}
+            >
+              <LinearGradient
+                colors={["#4CAF50", "#2E7D32"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.premiumButton}
+              >
+                <View style={styles.premiumContent}>
+                  <View style={styles.premiumIconWrapper}>
+                    <MaterialIcons name="settings-ethernet" size={26} color="#4CAF50" />
+                  </View>
+
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.premiumTitle}>
+                      Open Captive Portal
+                    </Text>
+                    <Text style={styles.premiumSubtitle}>
+                      Configure device manually
+                    </Text>
+                  </View>
+
+                  <MaterialIcons name="arrow-forward-ios" size={18} color="#fff" />
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          </Animated.View>
         </View>
       </ScrollView>
 
@@ -650,5 +727,88 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#555',
     marginLeft: 8,
+  },
+  // Manual button styles
+  manualPortalButton: {
+    marginTop: 15,
+    backgroundColor: "#E8F5E9",
+    borderRadius: 16,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+
+  manualPortalContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  manualIconContainer: {
+    width: 45,
+    height: 45,
+    borderRadius: 12,
+    backgroundColor: "#4CAF50",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+
+  manualTextContainer: {
+    flex: 1,
+  },
+
+  manualPortalTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#2E7D32",
+  },
+
+  manualPortalSubtitle: {
+    fontSize: 13,
+    color: "#4CAF50",
+    marginTop: 3,
+  },
+  premiumButton: {
+    marginTop: 18,
+    borderRadius: 20,
+    paddingVertical: 18,
+    paddingHorizontal: 18,
+    shadowColor: "#2E7D32",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+
+  premiumContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  premiumIconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: "#ffffff",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 14,
+  },
+
+  premiumTitle: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#ffffff",
+  },
+
+  premiumSubtitle: {
+    fontSize: 13,
+    color: "#E8F5E9",
+    marginTop: 3,
   },
 });

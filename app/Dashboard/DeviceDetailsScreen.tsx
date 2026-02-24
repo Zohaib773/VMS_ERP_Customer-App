@@ -20,6 +20,7 @@ import {
     View
 } from 'react-native';
 import CustomerSidebar from "../component/sidebarlayout";
+import urls from '../urls/urls';
 
 import { Buffer } from "buffer";
 global.Buffer = Buffer;
@@ -65,6 +66,24 @@ export default function DeviceDetailsScreen() {
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(0)).current;
 
+    const [isArmed, setIsArmed] = useState(false);
+    const toggleAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        Animated.timing(toggleAnim, {
+            toValue: isArmed ? 1 : 0,
+            duration: 300,
+            useNativeDriver: false,
+        }).start();
+    }, [isArmed]);
+
+    const toggleBackground = toggleAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ["#DC2626", "#16A34A"], // red → green
+    });
+
+    const toggleText = isArmed ? "SYSTEM ARMED" : "SYSTEM DISARMED";
+
     // const navigateToSensorGraph = (sensor: any, sensorType: string, title: string, liveData: any) => {
     //     router.push({
     //         pathname: '/component/sensorGraph',
@@ -86,9 +105,9 @@ export default function DeviceDetailsScreen() {
         router.push({
             pathname: "/component/sensorGraph",
             params: {
-                sensorId: String(sensor.id),   // ✅ pass ID
-                sensorType,                    // ✅ pass type
-                deviceId: String(device?.id),  // optional but recommended
+                sensorId: String(sensor.id),   //  pass ID
+                sensorType,                    //  pass type
+                deviceId: String(device?.id),  // optional
                 liveData: liveData ? JSON.stringify(liveData) : ""
             }
         });
@@ -192,7 +211,8 @@ export default function DeviceDetailsScreen() {
             return;
         }
 
-        const brokerUrl = "ws://192.168.18.28:9001";
+        // const brokerUrl = "ws://192.168.18.28:9001";
+        const brokerUrl = urls.brokerUrl
         console.log("[MQTT] Attempting to connect to broker:", brokerUrl);
 
         const client = mqtt.connect(brokerUrl, {
@@ -220,13 +240,13 @@ export default function DeviceDetailsScreen() {
         client.on("message", (topic, payload) => {
             try {
                 const payloadStr = payload.toString();
-                console.log("[MQTT] Message received on topic:", topic);
-                console.log("[MQTT] Raw payload:", payloadStr);
+                // console.log("[MQTT] Message received on topic:", topic);
+                // console.log("[MQTT] Raw payload:", payloadStr);
 
                 let data;
                 try {
                     data = JSON.parse(payloadStr);
-                    console.log("[MQTT] Parsed JSON payload:", data);
+                    // console.log("[MQTT] Parsed JSON payload:", data);
                 } catch (e) {
                     data = payloadStr;
                     console.log("[MQTT] Payload is not JSON, using raw string:", data);
@@ -235,7 +255,7 @@ export default function DeviceDetailsScreen() {
                 // Generate a sensor key based on topic
                 const topicParts = topic.split("/");
                 const sensorKey = topicParts.slice(3).join("/");
-                console.log("[MQTT] Sensor key generated:", sensorKey);
+                // console.log("[MQTT] Sensor key generated:", sensorKey);
 
                 setSensorDataMap(prev => {
                     const updated = {
@@ -247,7 +267,7 @@ export default function DeviceDetailsScreen() {
                             receivedAt: new Date().toLocaleTimeString()
                         }
                     };
-                    console.log("[MQTT] Updated sensorDataMap:", updated);
+                    // console.log("[MQTT] Updated sensorDataMap:", updated);
                     return updated;
                 });
 
@@ -295,6 +315,9 @@ export default function DeviceDetailsScreen() {
         });
     };
 
+    useEffect(() => {
+        connectAndSubscribe();
+    }, []);
     // Cleanup on unmount
     // useEffect(() => {
     //     return () => clientRef.current?.end(true);
@@ -390,8 +413,8 @@ export default function DeviceDetailsScreen() {
         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     };
 
-    const getDeviceStatusColor = (device: any) => !device.is_claimed ? "#FFA500" : device.armed ? "#22C55E" : "#EF4444";
-    const getDeviceStatusText = (device: any) => !device.is_claimed ? "Unclaimed" : device.armed ? "Armed" : "Disarmed";
+    // const getDeviceStatusColor = (device: any) => !device.is_claimed ? "#FFA500" : device.armed ? "#22C55E" : "#EF4444";
+    // const getDeviceStatusText = (device: any) => !device.is_claimed ? "Unclaimed" : device.armed ? "Armed" : "Disarmed";
 
     // Render sensor value with gauge
     const renderValueGauge = (value: number, max: number, color: string) => {
@@ -495,6 +518,7 @@ export default function DeviceDetailsScreen() {
         const unit = getSensorUnit(sensorType);
         const lastUpdated = liveData?.receivedAt || "No data";
 
+
         return (
             <TouchableOpacity
                 activeOpacity={0.7}
@@ -523,7 +547,7 @@ export default function DeviceDetailsScreen() {
                         <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
                     </View>
 
-                    {/* Rest of your existing card content */}
+                    {/* Rest existing card content */}
                     <View style={styles.sensorHeader}>
                         <View style={[styles.sensorIconContainer, { backgroundColor: color + '20' }]}>
                             {icon}
@@ -704,10 +728,10 @@ export default function DeviceDetailsScreen() {
                         </TouchableOpacity>
                         <Text style={styles.headerTitle}>Live Sensor Data</Text>
                         <View style={styles.statusBadge}>
-                            <View style={[styles.statusDot, { backgroundColor: getDeviceStatusColor(device) }]} />
-                            <Text style={[styles.statusText, { color: getDeviceStatusColor(device) }]}>
+                            {/* <View style={[styles.statusDot, { backgroundColor: getDeviceStatusColor(device) }]} /> */}
+                            {/* <Text style={[styles.statusText, { color: getDeviceStatusColor(device) }]}>
                                 {getDeviceStatusText(device)}
-                            </Text>
+                            </Text> */}
                         </View>
                     </View>
 
@@ -729,7 +753,7 @@ export default function DeviceDetailsScreen() {
                     <View style={styles.connectionCard}>
                         <View style={styles.connectionHeader}>
                             <MaterialIcons name="wifi" size={24} color={getStatusColor()} />
-                            <Text style={styles.connectionTitle}>MQTT Connection</Text>
+                            <Text style={styles.connectionTitle}>System Connection</Text>
                             <Animated.View
                                 style={[
                                     styles.connectionIndicator,
@@ -742,14 +766,14 @@ export default function DeviceDetailsScreen() {
                             />
                         </View>
 
-                        <View style={styles.connectionDetails}>
+                        {/* <View style={styles.connectionDetails}>
                             <Text style={styles.connectionStatus}>
                                 Status: <Text style={{ color: getStatusColor(), fontWeight: '600' }}>{mqttStatus}</Text>
                             </Text>
                             <Text style={styles.connectionTopic}>Topic: {MQTT_TOPIC}</Text>
-                        </View>
+                        </View> */}
 
-                        <TouchableOpacity
+                        {/* <TouchableOpacity
                             style={[
                                 styles.connectButton,
                                 {
@@ -768,7 +792,102 @@ export default function DeviceDetailsScreen() {
                             <Text style={styles.connectButtonText}>
                                 {connectionStatus.isConnected ? 'Connected' : 'Connect to MQTT'}
                             </Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
+
+                        {/* <View style={styles.armDisarmContainer}>
+                            <TouchableOpacity
+                                style={[styles.securityButton, styles.armButton]}
+                                onPress={() => {
+                                    console.log("🟢 System Armed");
+                                    // call your MQTT publish for ARM here
+                                }}
+                            >
+                                <MaterialIcons name="security" size={20} color="#fff" />
+                                <Text style={styles.securityButtonText}>ARM SYSTEM</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.securityButton, styles.disarmButton]}
+                                onPress={() => {
+                                    console.log("🔴 System Disarmed");
+                                    // call your MQTT publish for DISARM here
+                                }}
+                            >
+                                <MaterialIcons name="lock-open" size={20} color="#fff" />
+                                <Text style={styles.securityButtonText}>DISARM SYSTEM</Text>
+                            </TouchableOpacity>
+                        </View>
+                         */}
+                        <View style={styles.securityContainer}>
+
+                            {/* Status Badge */}
+                            {/* <View style={[
+                                    styles.statusBadge,
+                                    { backgroundColor: isArmed ? "#16A34A" : "#DC2626" }
+                                ]}>
+                                    <Text style={styles.statusBadgeText}>
+                                        {isArmed ? "ARMED" : "DISARMED"}
+                                    </Text>
+                                </View> */}
+
+                            {/* Toggle Button */}
+                            <TouchableOpacity
+                                activeOpacity={0.9}
+                                // onPress={() => {
+                                //     const newState = !isArmed;
+                                //     setIsArmed(newState);
+
+                                //     console.log(newState ? "🟢 Armed" : "🔴 Disarmed");
+
+                                //     // Publish MQTT here
+                                //     // publish(newState ? "ARM" : "DISARM")
+                                // }}
+                                onPress={() => {
+                                    const newState = !isArmed;
+                                    setIsArmed(newState);
+
+                                    const action = newState ? "arm" : "disarm";
+
+                                    console.log(newState ? "🟢 Armed" : "🔴 Disarmed");
+
+                                    if (clientRef.current && clientRef.current.connected) {
+                                        const topic = `hub/${device?.id}/command/security`;
+
+                                        console.log("TOPIC PUBLISH", topic)
+                                        const payload = JSON.stringify({
+                                            action: action
+                                        });
+
+                                        clientRef.current.publish(topic, payload, { qos: 1 }, (err) => {
+                                            if (err) {
+                                                console.log("[MQTT] Publish error:", err);
+                                            } else {
+                                                console.log(`[MQTT] Command sent → ${topic}`, payload);
+                                            }
+                                        });
+                                    } else {
+                                        console.log("[MQTT] Cannot publish, client not connected");
+                                    }
+                                }}
+                            >
+                                <Animated.View
+                                    style={[
+                                        styles.toggleButton,
+                                        { backgroundColor: toggleBackground }
+                                    ]}
+                                >
+                                    <MaterialIcons
+                                        name={isArmed ? "security" : "lock-open"}
+                                        size={22}
+                                        color="#fff"
+                                    />
+                                    <Text style={styles.toggleText}>
+                                        {toggleText}
+                                    </Text>
+                                </Animated.View>
+                            </TouchableOpacity>
+
+                        </View>
                     </View>
 
                     {/* Statistics */}
@@ -1312,5 +1431,75 @@ const styles = StyleSheet.create({
     },
     bottomSpace: {
         height: 40,
+    },
+    //ARM DISARM BUTTONS
+    armDisarmContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginTop: 15,
+        gap: 12,
+    },
+
+    securityButton: {
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 14,
+        borderRadius: 14,
+        elevation: 3,
+    },
+
+    armButton: {
+        backgroundColor: "#16A34A", // professional green
+    },
+
+    disarmButton: {
+        backgroundColor: "#DC2626", // professional red
+    },
+
+    securityButtonText: {
+        color: "#fff",
+        fontWeight: "700",
+        marginLeft: 8,
+        letterSpacing: 0.5,
+        fontSize: 14,
+    },
+    securityContainer: {
+        marginTop: 18,
+        alignItems: "center",
+    },
+
+    // statusBadge: {
+    //     paddingHorizontal: 16,
+    //     paddingVertical: 6,
+    //     borderRadius: 20,
+    //     marginBottom: 12,
+    // },
+
+    statusBadgeText: {
+        color: "#fff",
+        fontWeight: "700",
+        fontSize: 12,
+        letterSpacing: 1,
+    },
+
+    toggleButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 16,
+        paddingHorizontal: 24,
+        borderRadius: 16,
+        width: 260,
+        elevation: 4,
+    },
+
+    toggleText: {
+        color: "#fff",
+        fontSize: 15,
+        fontWeight: "700",
+        marginLeft: 10,
+        letterSpacing: 0.5,
     },
 });

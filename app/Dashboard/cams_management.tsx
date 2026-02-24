@@ -126,20 +126,20 @@
 
 
 import {
-    Feather,
-    Ionicons,
-    MaterialCommunityIcons,
-    MaterialIcons
+  Feather,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons
 } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
-    FlatList,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  FlatList,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomerSidebar from "../component/sidebarlayout";
@@ -164,6 +164,17 @@ export default function CamsManagementScreen() {
     ];
     const colorSet = cameraColors[index % cameraColors.length];
 
+    const handleViewLiveFeed = (camera: any) => {
+      router.push({
+        pathname: "/Dashboard/live-view",
+        params: {
+          cameraId: camera.id,
+          cameraName: camera.name,
+        },
+      });
+    };
+
+
     return (
       <View style={styles.camCard}>
         {/* Camera Header */}
@@ -174,7 +185,7 @@ export default function CamsManagementScreen() {
               <Text style={styles.camBadgeText}>CAM {index + 1}</Text>
             </View>
           </View>
-          
+
           <View style={styles.camInfo}>
             <Text style={styles.camName}>{camera.name}</Text>
             <View style={styles.statusContainer}>
@@ -193,13 +204,13 @@ export default function CamsManagementScreen() {
             <Text style={styles.detailLabel}>Camera ID:</Text>
             <Text style={styles.detailValue}>{camera.id}</Text>
           </View>
-          
+
           <View style={styles.detailRow}>
             <MaterialCommunityIcons name="ip-network" size={18} color="#6B7280" />
             <Text style={styles.detailLabel}>IP Address:</Text>
             <Text style={styles.detailValue}>{camera.ip_adress || 'Not configured'}</Text>
           </View>
-          
+
           {camera.configurations && (
             <View style={styles.detailRow}>
               <MaterialIcons name="settings" size={18} color="#6B7280" />
@@ -213,14 +224,14 @@ export default function CamsManagementScreen() {
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.actionButton, styles.liveButton]}
             onPress={() => handleViewLiveFeed(camera)}
           >
             <Ionicons name="play-circle" size={18} color="white" />
             <Text style={styles.liveButtonText}>Live View</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={[styles.actionButton, styles.moreButton]}>
             <Feather name="more-vertical" size={18} color="#6B7280" />
           </TouchableOpacity>
@@ -239,7 +250,7 @@ export default function CamsManagementScreen() {
         <Text style={styles.statNumber}>{cameras.length}</Text>
         <Text style={styles.statLabel}>Total Cameras</Text>
       </View>
-      
+
       <View style={styles.statItem}>
         <View style={[styles.statIcon, { backgroundColor: '#D1FAE5' }]}>
           <Ionicons name="checkmark-circle" size={20} color="#10B981" />
@@ -266,7 +277,7 @@ export default function CamsManagementScreen() {
                 </Text>
               </View>
             </View>
-            
+
             <StatsOverview />
           </View>
 
@@ -289,7 +300,7 @@ export default function CamsManagementScreen() {
                   <Ionicons name="refresh" size={20} color="#4F46E5" />
                 </TouchableOpacity>
               </View>
-              
+
               <FlatList
                 data={cameras}
                 keyExtractor={(item) => item.id.toString()}
@@ -302,22 +313,22 @@ export default function CamsManagementScreen() {
         </ScrollView>
 
         {/* Modals */}
-       
+
       </SafeAreaView>
     </CustomerSidebar>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: "#F9FAFB" 
+  container: {
+    flex: 1,
+    backgroundColor: "#F9FAFB"
   },
-  header: { 
+  header: {
     padding: 24,
     paddingBottom: 16,
     backgroundColor: 'white',
-    borderBottomWidth: 1, 
+    borderBottomWidth: 1,
     borderColor: "#E5E7EB",
   },
   headerContent: {
@@ -326,15 +337,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  title: { 
-    fontSize: 28, 
-    fontWeight: "bold", 
-    color: "#111827" 
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#111827"
   },
-  subtitle: { 
-    fontSize: 16, 
-    color: "#6B7280", 
-    marginTop: 4 
+  subtitle: {
+    fontSize: 16,
+    color: "#6B7280",
+    marginTop: 4
   },
   deviceNameHighlight: {
     fontWeight: '600',
@@ -440,9 +451,9 @@ const styles = StyleSheet.create({
   camInfo: {
     flex: 1,
   },
-  camName: { 
-    fontSize: 18, 
-    fontWeight: "600", 
+  camName: {
+    fontSize: 18,
+    fontWeight: "600",
     color: "#111827",
     marginBottom: 4,
   },
@@ -456,8 +467,8 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
   },
-  statusText: { 
-    fontSize: 14, 
+  statusText: {
+    fontSize: 14,
   },
   camDetails: {
     marginBottom: 20,
@@ -522,16 +533,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
   },
-  emptyTitle: { 
-    fontSize: 24, 
-    fontWeight: "600", 
-    color: "#111827", 
-    marginBottom: 8 
+  emptyTitle: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 8
   },
-  emptyText: { 
-    fontSize: 16, 
-    color: "#6B7280", 
-    textAlign: 'center', 
+  emptyText: {
+    fontSize: 16,
+    color: "#6B7280",
+    textAlign: 'center',
     lineHeight: 24,
     marginBottom: 24,
     maxWidth: 300,

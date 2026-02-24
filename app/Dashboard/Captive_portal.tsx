@@ -69,6 +69,8 @@ export default function CaptivePortalScreen({
 }: Props) {
     const [formData, setFormData] = useState<any>(EMPTY_PORTAL_DATA);
     const [activeSection, setActiveSection] = useState<string>("wifi");
+    const isManualMode = !data;
+    const [manualDeviceType, setManualDeviceType] = useState<string | null>(null);
     const [mapVisible, setMapVisible] = useState(false);
     const [tempLocation, setTempLocation] = useState<{ latitude: number; longitude: number }>({
         latitude: 0,
@@ -92,15 +94,25 @@ export default function CaptivePortalScreen({
         data?.payload?.ip ||
         null;
 
+    // const deviceName =
+    //     data?.device_name ||
+    //     data?.payload?.device_name ||
+    //     "";
+    // const normalizedDeviceName = deviceName.toUpperCase();
+    // const shouldShowCameras =
+    //     normalizedDeviceName !== "MC1" &&
+    //     normalizedDeviceName !== "MC2";
+
     const deviceName =
         data?.device_name ||
         data?.payload?.device_name ||
+        manualDeviceType ||
         "";
-    const normalizedDeviceName = deviceName.toUpperCase();
-    const shouldShowCameras =
-        normalizedDeviceName !== "MC1" &&
-        normalizedDeviceName !== "MC2";
 
+    const normalizedDeviceName = deviceName.toUpperCase();
+
+    const CAMERA_DISABLED_DEVICES = ["MC1", "MC2"];
+    const shouldShowCameras = !CAMERA_DISABLED_DEVICES.includes(normalizedDeviceName);
 
     useEffect(() => {
         if (!deviceIp) return;
@@ -341,6 +353,39 @@ export default function CaptivePortalScreen({
                             { key: "cameras", label: "Cameras", icon: "videocam" },
                             { key: "system", label: "System", icon: "settings" },
                         ].map((tab) => ( */}
+                    {isManualMode && (
+                        <View style={styles.sectionCard}>
+                            <Text style={{ fontSize: 16, fontWeight: "600", marginBottom: 10 }}>
+                                Select Device Type
+                            </Text>
+
+                            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                                {["MC1", "MC2", "MS1", "MS2"].map((type) => (
+                                    <TouchableOpacity
+                                        key={type}
+                                        onPress={() => setManualDeviceType(type)}
+                                        style={{
+                                            paddingVertical: 10,
+                                            paddingHorizontal: 16,
+                                            borderRadius: 12,
+                                            backgroundColor:
+                                                manualDeviceType === type ? "#2196F3" : "#eee",
+                                        }}
+                                    >
+                                        <Text
+                                            style={{
+                                                color:
+                                                    manualDeviceType === type ? "#fff" : "#333",
+                                                fontWeight: "600",
+                                            }}
+                                        >
+                                            {type}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </View>
+                    )}
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabContainer}>
                         {[
                             { key: "wifi", label: "WiFi", icon: "wifi" },

@@ -10,7 +10,7 @@ import axios from "axios";
 import { router } from "expo-router";
 import React, { useRef, useState } from 'react';
 import {
-  Animated,
+  ActivityIndicator, Animated,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -21,8 +21,8 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-} from 'react-native';
+  View
+} from "react-native";
 import urls from "./urls/urls";
 
 import * as Device from "expo-device";
@@ -169,15 +169,15 @@ const LoginScreen: React.FC = () => {
 
       console.log("Login Response:", response.data);
 
-      // ✅ Save tokens
+      //  Save tokens
       await AsyncStorage.setItem("accessToken", access);
       await AsyncStorage.setItem("refreshToken", refresh);
       await AsyncStorage.setItem("userData", JSON.stringify(user));
 
-      // 🔥 STEP 1: Get device push token
+      //  STEP 1: Get device push token
       const deviceToken = await registerForPushNotificationsAsync();
 
-      // 🔥 STEP 2: Send device token to backend
+      //  STEP 2: Send device token to backend
       if (deviceToken) {
         try {
           await axios.post(
@@ -194,15 +194,22 @@ const LoginScreen: React.FC = () => {
             }
           );
 
-          console.log("✅ Firebase token registered successfully");
+          console.log(" Firebase token registered successfully");
         } catch (tokenError) {
           console.error("❌ Error registering Firebase token:", tokenError);
         }
       }
 
-      // ✅ Navigate after everything succeeds
+      //  Navigate after everything succeeds
+      // if (user.role === "customer") {
+      //   router.replace("/Dashboard/Add_Device_Screen");
+      // }
       if (user.role === "customer") {
-        router.replace("/Dashboard/Dashboard");
+        if (user.devices > 0) {
+          router.replace("/Dashboard/All_devices");
+        } else {
+          router.replace("/Dashboard/Add_Device_Screen");
+        }
       }
 
     } catch (error) {
@@ -440,8 +447,22 @@ const LoginScreen: React.FC = () => {
                 />
               </View>
 
-              <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+              {/* <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                 <Text style={styles.loginButtonText}>Sign In</Text>
+              </TouchableOpacity> */}
+              <TouchableOpacity
+                style={[
+                  styles.loginButton,
+                  loading && { opacity: 0.7 }
+                ]}
+                onPress={handleLogin}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator size="small" color="#007CBA" />
+                ) : (
+                  <Text style={styles.loginButtonText}>Sign In</Text>
+                )}
               </TouchableOpacity>
 
               <View style={styles.signUpContainer}>

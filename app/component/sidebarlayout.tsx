@@ -16,7 +16,7 @@ type MenuItem = {
 const menuItems: MenuItem[] = [
   { id: 1, title: "Dashboard", icon: "dashboard", route: "/Dashboard/Dashboard", color: "#667eea" },
   { id: 2, title: "My Devices", icon: "shopping-bag", route: "/Dashboard/All_devices", color: "#4CAF50" },
-  { id: 3, title: "Cams Management", icon: "receipt", route: "/Dashboard/cams_management", color: "#2196F3" },
+  // { id: 3, title: "Cams Management", icon: "receipt", route: "/Dashboard/cams_management", color: "#2196F3" },
   // { id: 4, title: "Cart", icon: "shopping-cart", route: "/Customer/Cart", color: "#FF9800" },
   // { id: 5, title: "Wishlist", icon: "favorite", route: "/Customer/Wishlist", color: "#E91E63" },
   // { id: 6, title: "Profile", icon: "person", route: "/Customer/Profile", color: "#9C27B0" },

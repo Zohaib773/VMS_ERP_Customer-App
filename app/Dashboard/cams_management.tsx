@@ -126,7 +126,6 @@
 
 
 import {
-  Feather,
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons
@@ -150,9 +149,16 @@ export default function CamsManagementScreen() {
   const [selectedCamera, setSelectedCamera] = useState<any>(null);
   const [cameraStatus, setCameraStatus] = useState<Record<string, boolean>>({});
 
-  const handleViewLiveFeed = (camera: any) => {
-    setSelectedCamera(camera);
-  };
+  
+  const handleViewRecordings = (camera:any) => {
+  router.push({
+    pathname: '/Dashboard/recordings',
+    params: {
+      cameraId: camera.id,
+      cameraName: camera.name,
+    },
+  });
+};
 
   const CameraCard = ({ camera, index }: { camera: any; index: number }) => {
     const isActive = cameraStatus[camera.id] !== false; // Default to true
@@ -164,14 +170,17 @@ export default function CamsManagementScreen() {
     ];
     const colorSet = cameraColors[index % cameraColors.length];
 
+
     const handleViewLiveFeed = (camera: any) => {
       router.push({
         pathname: "/Dashboard/live-view",
         params: {
           cameraId: camera.id,
           cameraName: camera.name,
+          deviceId: deviceId
         },
       });
+      console.log("DEVICEEEEEE", deviceId)
     };
 
 
@@ -232,8 +241,12 @@ export default function CamsManagementScreen() {
             <Text style={styles.liveButtonText}>Live View</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.actionButton, styles.moreButton]}>
-            <Feather name="more-vertical" size={18} color="#6B7280" />
+          <TouchableOpacity
+            style={[styles.actionButton, styles.recordingsButton]}
+            onPress={() => handleViewRecordings(camera)}
+          >
+            <Ionicons name="videocam" size={18} color="white" />
+            <Text style={styles.recordingsButtonText}>Recordings</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -512,11 +525,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 14,
   },
-  moreButton: {
-    backgroundColor: '#F9FAFB',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    flex: 0.5,
+  recordingsButton: {
+    backgroundColor: '#10B981', // nice green
+  },
+
+  recordingsButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 14,
   },
   emptyContainer: {
     alignItems: 'center',

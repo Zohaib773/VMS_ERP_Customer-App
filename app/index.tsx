@@ -600,11 +600,18 @@ export default function Index() {
         if (token && userData) {
           const user = JSON.parse(userData);
 
+          // if (user.role === "customer") {
+          //   router.replace("/Dashboard/Add_Device_Screen");
+          // } else {
+          //   router.replace("/login");
+          // }
           if (user.role === "customer") {
-            router.replace("/Dashboard/Add_Device_Screen");
-          } else {
-            router.replace("/login");
-          }
+                  if (user.devices > 0) {
+                    router.replace("/Dashboard/All_devices");
+                  } else {
+                    router.replace("/Dashboard/Add_Device_Screen");
+                  }
+                }
         } else {
           router.replace("/login");
         }

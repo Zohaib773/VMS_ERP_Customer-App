@@ -479,22 +479,29 @@
 //////////////////////////////////////////////////////
 
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-    Alert,
-    Dimensions,
-    Modal,
-    PanResponder,
-    SafeAreaView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Dimensions,
+  Modal,
+  PanResponder,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import Svg, { Circle, Polygon } from "react-native-svg";
+import Svg, { Circle, G, Polygon, Rect, Text as SvgText } from "react-native-svg";
+import {
+  MediaStream,
+  RTCPeerConnection,
+  RTCView
+} from "react-native-webrtc";
+import urls from "../urls/urls";
 
 const FRAME_WIDTH = 640;
 const FRAME_HEIGHT = 480;
@@ -510,8 +517,19 @@ const DETECTION_OPTIONS = [
 type DetectionType = typeof DETECTION_OPTIONS[number]['id'] | null;
 
 export default function LiveViewScreen() {
-  const { cameraName } = useLocalSearchParams();
+  // const { cameraName } = useLocalSearchParams();
+  const { cameraName, cameraId, deviceId } = useLocalSearchParams();
+  const [ResponseUrl, setUrl] = useState<string | null>(null);
+  const [loggedInUser, setLoggedInUser] = useState<any>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const pc = useRef(null);
+  // const [remoteStream, setRemoteStream] = useState(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
 
+
+  console.log("Device ID:", deviceId);
+  console.log("Camera ID:", cameraId);
+  console.log("Camera Name:", cameraName);
   // ==============================
   // Screen Size
   // ==============================
@@ -522,8 +540,11 @@ export default function LiveViewScreen() {
   // Polygon State
   // ==============================
   const [points, setPoints] = useState<{ x: number; y: number }[]>([]);
+  // const [savedPolygons, setSavedPolygons] = useState<
+  //   { points: { x: number; y: number }[]; type: DetectionType }[]
+  // >([]);
   const [savedPolygons, setSavedPolygons] = useState<
-    { points: { x: number; y: number }[]; type: DetectionType }[]
+    { id: number; points: { x: number; y: number }[]; type: DetectionType }[]
   >([]);
   const [history, setHistory] = useState<{ x: number; y: number }[][]>([]);
 
@@ -601,6 +622,50 @@ export default function LiveViewScreen() {
   };
 
   // ==============================
+  // Delete ROI
+  // ==============================
+  const handleDeletePolygon = async (regionId: number) => {
+    console.log("🗑 Deleting region ID:", regionId);
+
+    try {
+      if (!accessToken) {
+        console.log("❌ No access token found");
+        return;
+      }
+
+      const response = await fetch(
+        `${urls.delete_roi}/${regionId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      console.log("📡 Delete Status:", response.status);
+
+      if (!response.ok) {
+        console.log("❌ Failed to delete region");
+        Alert.alert("Error", "Failed to delete region");
+        return;
+      }
+
+      console.log("✅ Region deleted successfully");
+
+      // Remove from local state
+      setSavedPolygons(prev =>
+        prev.filter(polygon => polygon.id !== regionId)
+      );
+
+      Alert.alert("Success", "Region deleted");
+
+    } catch (error) {
+      console.log("🔥 Delete error:", error);
+    }
+  };
+  // ==============================
   // Select Detection Type
   // ==============================
   const handleSelectType = (type: DetectionType) => {
@@ -609,33 +674,150 @@ export default function LiveViewScreen() {
   };
 
   // ==============================
-  // Save Polygon
+  // Load Save Polygon
   // ==============================
-  const handleSavePolygon = () => {
-    if (points.length < 3 || !selectedType) return;
+  const loadSavedPolygons = async () => {
+    console.log("📥 Loading saved polygons...");
 
-    const selectedOption = DETECTION_OPTIONS.find(opt => opt.id === selectedType);
+    try {
+      if (!accessToken) {
+        console.log("❌ No access token found");
+        return;
+      }
 
-    console.log("Polygon JSON:", JSON.stringify({
-      type: selectedType,
-      points: points
-    }));
+      const response = await fetch(
+        `${urls.get_roi}?device_id=${deviceId}&cam=cam0`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`,
+          },
+        }
+      );
 
-    Alert.alert(
-      "Polygon Saved",
-      `${selectedOption?.label} polygon saved successfully!`,
-      [{ text: "OK" }]
-    );
+      console.log("📡 Load Status:", response.status);
 
-    setSavedPolygons((prev) => [...prev, {
-      points: [...points],
-      type: selectedType
-    }]);
-    setHistory([]);
-    setPoints([]);
-    // setSelectedType(null); // Reset selection after save
+      const result = await response.json();
+      console.log("📦 Full Response:", result);
+
+      if (!response.ok) {
+        console.log("❌ Failed to load polygons");
+        return;
+      }
+
+      // ✅ Extract actual array
+      const regions = result.data;
+
+      if (!Array.isArray(regions)) {
+        console.log("❌ Regions is not an array:", regions);
+        return;
+      }
+
+      console.log("📍 Regions Array:", regions);
+
+      // Convert [[x,y]] → {x,y}
+      const formattedPolygons = regions.map((region: any) => ({
+        id: region.id,
+        type: region.label,
+        camera: region.camera,
+        points: region.points.map((p: number[]) => ({
+          x: p[0],
+          y: p[1],
+        })),
+      }));
+
+      console.log("✅ Formatted Polygons:", formattedPolygons);
+
+      setSavedPolygons(formattedPolygons);
+
+      console.log("🎉 Polygons loaded into state");
+
+    } catch (error) {
+      console.log("🔥 Load polygon error:", error);
+    }
   };
 
+  // ==============================
+  // Save Polygon
+  // ==============================
+  const handleSavePolygon = async () => {
+
+    try {
+      console.log(" Original Points:", points);
+      console.log(" Selected Type:", selectedType);
+      console.log(" Camera ID:", cameraId);
+      console.log(" Device ID:", deviceId);
+
+      // Convert {x,y} → [x,y]
+      const formattedPoints = points.map((p, index) => {
+        const rounded = [Math.round(p.x), Math.round(p.y)];
+        console.log(` Point ${index}:`, rounded);
+        return rounded;
+      });
+
+      const payload = {
+        points: formattedPoints,
+        label: selectedType,
+        camera: Number(0),
+        device: deviceId
+      };
+
+      console.log(" Final Payload:", JSON.stringify(payload, null, 2));
+
+      if (!accessToken) {
+        console.log(" Access token missing!");
+        Alert.alert("Error", "Authentication token missing");
+        return;
+      }
+
+      const response = await fetch(urls.save_roi, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log(" Response Status:", response.status);
+
+      const responseText = await response.text();
+      console.log(" Raw Response:", responseText);
+
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        result = responseText;
+      }
+
+      if (!response.ok) {
+        console.log(" API Error Response:", result);
+        Alert.alert("Error", "Failed to save region");
+        return;
+      }
+
+
+      Alert.alert("Success", "Region saved successfully!");
+      loadSavedPolygons();
+      setSelectedType(null);
+
+      // Save locally after backend success
+      // setSavedPolygons(prev => [
+      //   ...prev,
+      //   { points: [...points], type: selectedType }
+      // ]);
+
+
+      setPoints([]);
+      setHistory([]);
+
+    } catch (error) {
+      console.error(" Save polygon exception:", error);
+      Alert.alert("Error", "Something went wrong");
+    }
+  };
   // ==============================
   // Clear All Polygons
   // ==============================
@@ -649,9 +831,9 @@ export default function LiveViewScreen() {
           {
             text: "Clear All",
             onPress: () => {
-            setSavedPolygons([]);
-            setSelectedType(null);   
-          },
+              setSavedPolygons([]);
+              setSelectedType(null);
+            },
             style: "destructive"
           }
         ]
@@ -663,16 +845,172 @@ export default function LiveViewScreen() {
     router.back();
   };
 
-  // Get color for polygon based on type
-  const getPolygonColor = (type: DetectionType) => {
-    switch (type) {
-      case 'person': return { fill: 'rgba(76, 175, 80, 0.3)', stroke: '#4CAF50' };
-      case 'weapon': return { fill: 'rgba(255, 82, 82, 0.3)', stroke: '#FF5252' };
-      case 'fire': return { fill: 'rgba(255, 167, 38, 0.3)', stroke: '#FFA726' };
-      case 'smoke': return { fill: 'rgba(156, 39, 176, 0.3)', stroke: '#9C27B0' };
-      default: return { fill: 'rgba(255, 255, 255, 0.3)', stroke: '#FFFFFF' };
+
+  useEffect(() => {
+    const fetchAccessToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem("accessToken");
+        if (token) {
+          console.log("✅ Access token retrieved:", token);
+          setAccessToken(token);
+        } else {
+          console.log("❌ No access token found!");
+        }
+      } catch (error) {
+        console.error("Error fetching access token:", error);
+      }
+    };
+
+    fetchAccessToken();
+  }, []); // run once on mount
+
+  // GET THE URLS///
+
+  useEffect(() => {
+    const initStream = async () => {
+      try {
+        //  Fetch the stream URL
+        const apiUrl = urls.get_stream;
+        const response = await fetch(`${apiUrl}/${deviceId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`, // access token from AsyncStorage
+          },
+        });
+
+        if (!response.ok) {
+          // console.error("Failed to fetch stream URL:", response.status, response.statusText);
+          return;
+        }
+
+        const data = await response.json();
+        console.log("Stream URL data:", data);
+
+        //  Only save the actual URL
+        const streamUrl = data.stream_url;
+        setUrl(streamUrl);
+
+        //  Start WebRTC **after URL is ready**
+        if (streamUrl) {
+          startWebRTC(streamUrl); // pass URL to the function
+        }
+      } catch (error) {
+        console.error("Error initializing stream:", error);
+      }
+    };
+
+    initStream();
+    loadSavedPolygons();
+  }, [deviceId, accessToken]); // run when deviceId and accessToken are ready
+
+  // Call getUrl when component mounts or deviceId changes
+  // useEffect(() => {
+  //   if (deviceId) {
+  //     getUrl();
+  //   }
+  // }, [deviceId]);
+
+  // SHOW THE STREAM/////
+  const startWebRTC = async (streamUrl: string) => {
+    console.log("🚀 Starting WebRTC Viewer...");
+    if (!streamUrl) {
+      console.log("❌ Stream URL not ready yet!");
+      return;
+    }
+    console.log("🚀 Starting WebRTC Viewer with URL:", streamUrl);
+
+    try {
+      const peerConnection = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      });
+
+      (pc as any).current = peerConnection;
+
+      console.log("✅ PeerConnection created");
+
+      //  VERY IMPORTANT — request to RECEIVE video
+      peerConnection.addTransceiver("video", { direction: "recvonly" });
+
+      (peerConnection as any).ontrack = (event: any) => {
+        console.log("📺 Track received!");
+        const stream = event.streams[0];
+        setRemoteStream(stream);
+      };
+
+      (peerConnection as any).onconnectionstatechange = () => {
+        console.log("Connection State:", peerConnection.connectionState);
+      };
+
+      (peerConnection as any).onicecandidate = (event: any) => {
+        if (event.candidate) {
+          console.log("ICE candidate gathered");
+        } else {
+          console.log("ICE gathering complete");
+        }
+      };
+
+      console.log("📝 Creating offer...");
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+
+      console.log("⏳ Waiting 2 seconds for ICE...");
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      const finalOffer = peerConnection.localDescription;
+
+      if (!finalOffer?.sdp) {
+        console.log("❌ SDP missing!");
+        return;
+      }
+
+      console.log("SDP Length:", finalOffer.sdp.length);
+
+      //  SEND TO WHEP (NOT WHIP)
+      // const response = await fetch(
+      //   "http://192.168.18.28:8889/cam1/whep",
+      //   {
+      const response = await fetch(streamUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/sdp",
+        },
+        body: finalOffer.sdp,
+      }
+      );
+
+      console.log(" Server status:", response.status);
+
+      const answerSDP = await response.text();
+
+      if (response.status !== 201) {
+        console.log(" Server error:", answerSDP);
+        return;
+      }
+
+      console.log(" Setting remote description...");
+
+      await peerConnection.setRemoteDescription({
+        type: "answer",
+        sdp: answerSDP,
+      });
+
+      console.log(" WebRTC CONNECTED!");
+
+    } catch (err) {
+      console.log(" WebRTC ERROR:", err);
     }
   };
+
+  // useEffect(() => {
+  //   loadSavedPolygons();
+  //   console.log("LOADEDDD-----------")
+  // }, []);
+
+  // useEffect(() => {
+  //   // getUrl();
+  //   startWebRTC(streamUrl);
+  // }, []);
 
   // ==============================
   // UI
@@ -729,7 +1067,7 @@ export default function LiveViewScreen() {
             ]}
           >
             {/* Camera Preview Placeholder */}
-            <LinearGradient
+            {/* <LinearGradient
               colors={['#2a2a4a', '#1a1a3a']}
               style={styles.placeholderGradient}
             >
@@ -742,7 +1080,26 @@ export default function LiveViewScreen() {
                   {cameraName || "Live Feed"}
                 </Text>
               </View>
-            </LinearGradient>
+            </LinearGradient> */}
+            {remoteStream ? (
+              <RTCView
+                streamURL={remoteStream.toURL()}
+                style={{ flex: 1 }}
+                objectFit="cover"
+              />
+            ) : (
+              <LinearGradient
+                colors={['#2a2a4a', '#1a1a3a']}
+                style={styles.placeholderGradient}
+              >
+                <View style={styles.placeholderContent}>
+                  <Ionicons name="camera" size={40} color="#4facfe" />
+                  <Text style={styles.placeholderText}>
+                    Connecting to Stream...
+                  </Text>
+                </View>
+              </LinearGradient>
+            )}
 
             {/* SVG Overlay */}
             <View
@@ -755,20 +1112,8 @@ export default function LiveViewScreen() {
                 viewBox={`0 0 ${FRAME_WIDTH} ${FRAME_HEIGHT}`}
               >
                 {/* Saved Polygons with type-based colors */}
+
                 {/* {savedPolygons.map((poly, index) => {
-                  const colors = getPolygonColor(poly.type);
-                  return (
-                    <Polygon
-                      key={`saved-${index}`}
-                      points={poly.points.map((p) => `${p.x},${p.y}`).join(" ")}
-                      fill={colors.fill}
-                      stroke={colors.stroke}
-                      strokeWidth="2"
-                      strokeDasharray="6,4"
-                    />
-                  );
-                })} */}
-                {savedPolygons.map((poly, index) => {
                   return (
                     <Polygon
                       key={`saved-${index}`}
@@ -778,6 +1123,137 @@ export default function LiveViewScreen() {
                       strokeWidth="2"
                       strokeDasharray="6,4"
                     />
+                  );
+                })} */}
+                {savedPolygons.map((poly) => {
+                  // Calculate center of polygon for label placement
+                  const centerX = poly.points.reduce((sum, p) => sum + p.x, 0) / poly.points.length;
+                  const centerY = poly.points.reduce((sum, p) => sum + p.y, 0) / poly.points.length;
+
+                  // Get colors and icon based on detection type
+                  const getTypeStyles = (type: string) => {
+                    switch (type?.toLowerCase()) {
+                      case 'fire':
+                        return {
+                          bg: 'rgba(255, 69, 0, 0.9)', // Bright orange-red
+                          border: '#ff4500',
+                          text: '#ffffff',
+                          icon: '🔥',
+                          gradient: 'linear-gradient(135deg, #ff4500, #ff8c00)'
+                        };
+                      case 'smoke':
+                        return {
+                          bg: 'rgba(105, 105, 105, 0.9)', // Dim gray
+                          border: '#696969',
+                          text: '#ffffff',
+                          icon: '💨',
+                          gradient: 'linear-gradient(135deg, #696969, #a9a9a9)'
+                        };
+                      case 'person':
+                        return {
+                          bg: 'rgba(30, 144, 255, 0.9)', // Dodger blue
+                          border: '#1e90ff',
+                          text: '#ffffff',
+                          icon: '👤',
+                          gradient: 'linear-gradient(135deg, #1e90ff, #00bfff)'
+                        };
+                      case 'weapon':
+                        return {
+                          bg: 'rgba(220, 20, 60, 0.9)', // Crimson
+                          border: '#dc143c',
+                          text: '#ffffff',
+                          icon: '⚔️',
+                          gradient: 'linear-gradient(135deg, #dc143c, #8b0000)'
+                        };
+                      default:
+                        return {
+                          bg: 'rgba(128, 128, 128, 0.9)',
+                          border: '#808080',
+                          text: '#ffffff',
+                          icon: '📌',
+                          gradient: 'linear-gradient(135deg, #808080, #c0c0c0)'
+                        };
+                    }
+                  };
+
+                  const styles = getTypeStyles(poly.type ? poly.type.toUpperCase() : "");
+
+                  return (
+                    <React.Fragment key={poly.id}>
+                      {/* Polygon Shape */}
+                      <Polygon
+                        points={poly.points.map((p) => `${p.x},${p.y}`).join(" ")}
+                        fill={`${styles.bg.replace('0.9', '0.25')}`} // More transparent fill
+                        stroke={styles.border}
+                        strokeWidth="2.5"
+                        strokeDasharray={poly.type?.toLowerCase() === 'smoke' ? "5,3" : "none"} // Dashed for smoke
+                        onPress={() =>
+                          Alert.alert(
+                            "Delete Detection Region",
+                            `Do you want to delete this ${poly.type} detection region?`,
+                            [
+                              { text: "Cancel", style: "cancel" },
+                              {
+                                text: "Delete",
+                                style: "destructive",
+                                onPress: () => handleDeletePolygon(poly.id),
+                              },
+                            ]
+                          )
+                        }
+                      />
+
+                      {/* Enhanced Type Label with Background */}
+                      {/* Compact Modern Design */}
+                      {/* Badge Style with Color Coding */}
+                      <G>
+                        {/* Colored badge */}
+                        <Rect
+                          x={centerX - 45}
+                          y={centerY - 16}
+                          width={90}
+                          height={32}
+                          fill={styles.bg}
+                          rx="16"
+                          ry="16"
+                        />
+
+                        {/* Left accent color */}
+                        <Rect
+                          x={centerX - 45}
+                          y={centerY - 16}
+                          width={8}
+                          height={32}
+                          fill="white"
+                          rx="16"
+                          ry="16"
+                          opacity="0.3"
+                        />
+
+                        {/* Icon */}
+                        <SvgText
+                          x={centerX - 25}
+                          y={centerY + 6}
+                          fill={styles.text}
+                          fontSize="16"
+                          textAnchor="middle"
+                        >
+                          {styles.icon}
+                        </SvgText>
+
+                        {/* Text */}
+                        <SvgText
+                          x={centerX + 10}
+                          y={centerY + 6}
+                          fill={styles.text}
+                          fontSize="13"
+                          fontWeight="bold"
+                          textAnchor="middle"
+                        >
+                          {poly.type?.toUpperCase()}
+                        </SvgText>
+                      </G>
+                    </React.Fragment>
                   );
                 })}
 
@@ -910,7 +1386,7 @@ export default function LiveViewScreen() {
               </Text>
             </LinearGradient>
           </TouchableOpacity>
-
+          {/* // CLEAR ALL BUTTON *******************************************
           <TouchableOpacity
             style={[styles.toolButton, savedPolygons.length === 0 && styles.disabledButton]}
             onPress={handleClearAll}
@@ -933,8 +1409,11 @@ export default function LiveViewScreen() {
                 Clear All
               </Text>
             </LinearGradient>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
+        {/* <TouchableOpacity onPress={() => handleDeletePolygon(item.id)}>
+          <Text style={{ color: "red" }}>Delete</Text>
+        </TouchableOpacity> */}
 
         {/* Save Button - Enabled only when polygon has 3+ points AND type is selected */}
         {points.length >= 3 && selectedType && (

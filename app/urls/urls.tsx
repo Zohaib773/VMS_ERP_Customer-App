@@ -27,5 +27,8 @@ const urls = {
     get_videos: `${Base_Url}/get_videos/`,
     // TO PLAY VIDEO
     play_video: `${Base_Url}/play_video/`,
+
+    //Captive portal end point 
+    // http://192.168.18.108/config
 }
 export default urls

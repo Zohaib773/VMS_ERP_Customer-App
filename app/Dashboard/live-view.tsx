@@ -1,483 +1,3 @@
-// import { Ionicons } from "@expo/vector-icons";
-// import { router, useLocalSearchParams } from "expo-router";
-// import React, { useEffect, useRef, useState } from "react";
-// import {
-//     ActivityIndicator,
-//     StyleSheet,
-//     Text,
-//     TouchableOpacity,
-//     View,
-// } from "react-native";
-// import {
-//     MediaStream,
-//     RTCPeerConnection,
-//     RTCView,
-// } from "react-native-webrtc";
-
-// export default function LiveViewScreen() {
-//     const { cameraId, cameraName } = useLocalSearchParams();
-
-//     const pcRef = useRef<RTCPeerConnection | null>(null);
-//     const wsRef = useRef<WebSocket | null>(null);
-
-//     const [stream, setStream] = useState<MediaStream | null>(null);
-//     const [loading, setLoading] = useState(true);
-
-//     //   const WS_URL = `ws://192.168.18.28:8000/ws/${cameraId}/`;
-//     const ROOM = "room1234";
-//     // const WS_URL = "ws://192.168.18.28:8000/ws/room1234/";
-//     const WS_URL = (`ws://192.168.18.28:8000/ws/room/${ROOM}/`);
-
-//     useEffect(() => {
-//         startViewing();
-
-//         return () => {
-//             cleanupConnection();
-//         };
-//     }, []);
-
-//     const startViewing = async () => {
-//         const pc = new RTCPeerConnection({
-//             iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-//         });
-
-//         pcRef.current = pc;
-
-//         pc.addTransceiver("video", { direction: "recvonly" });
-//         pc.addTransceiver("audio", { direction: "recvonly" });
-
-//         (pc as any).ontrack = (event: any) => {
-//             const remoteStream: MediaStream = event.streams[0];
-
-//             remoteStream.getTracks().forEach(track => {
-//                 track.enabled = true;
-//             });
-
-//             setStream(remoteStream);
-//             setLoading(false);
-//         };
-
-//         (pc as any).onicecandidate = (event: any) => {
-//             if (event.candidate && wsRef.current) {
-//                 wsRef.current.send(
-//                     JSON.stringify({
-//                         type: "candidate",
-//                         candidate: event.candidate,
-//                     })
-//                 );
-//             }
-//         };
-
-//         const ws = new WebSocket(WS_URL);
-//         wsRef.current = ws;
-
-//         ws.onmessage = async (message) => {
-//             const data = JSON.parse(message.data);
-
-//             if (data.type === "offer") {
-//                 await pc.setRemoteDescription(data.offer);
-
-//                 const answer = await pc.createAnswer();
-//                 await pc.setLocalDescription(answer);
-
-//                 ws.send(
-//                     JSON.stringify({
-//                         type: "answer",
-//                         answer: pc.localDescription,
-//                     })
-//                 );
-//             }
-
-//             if (data.type === "candidate") {
-//                 try {
-//                     await pc.addIceCandidate(data.candidate);
-//                 } catch (err) {
-//                     console.warn("ICE error:", err);
-//                 }
-//             }
-//         };
-//     };
-
-//     const cleanupConnection = () => {
-//         console.log("🛑 Cleaning up connection...");
-
-//         if (wsRef.current) {
-//             wsRef.current.close();
-//             wsRef.current = null;
-//         }
-
-//         if (pcRef.current) {
-//             pcRef.current.close();
-//             pcRef.current = null;
-//         }
-
-//         setStream(null);
-//     };
-
-//     const handleBack = () => {
-//         cleanupConnection();
-//         router.back();
-//     };
-
-//     return (
-//         <View style={styles.container}>
-//             {/* 🔙 Custom Back Button */}
-//             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-//                 <Ionicons name="arrow-back" size={24} color="#fff" />
-//             </TouchableOpacity>
-
-//             <Text style={styles.title}>{cameraName}</Text>
-
-//             {loading && (
-//                 <View style={styles.loaderContainer}>
-//                     <ActivityIndicator size="large" color="#fff" />
-//                     <Text style={styles.loadingText}>Connecting to camera...</Text>
-//                 </View>
-//             )}
-
-//             {stream && (
-//                 <RTCView
-//                     streamURL={stream.toURL()}
-//                     style={styles.video}
-//                     objectFit="cover"
-//                 />
-//             )}
-//         </View>
-//     );
-// }
-
-// const styles = StyleSheet.create({
-//     container: { flex: 1, backgroundColor: "#000" },
-
-//     title: {
-//         color: "#fff",
-//         marginTop: 50,
-//         alignSelf: "center",
-//         fontSize: 18,
-//     },
-
-//     video: { flex: 1 },
-
-//     loaderContainer: {
-//         flex: 1,
-//         justifyContent: "center",
-//         alignItems: "center",
-//     },
-
-//     loadingText: {
-//         color: "#fff",
-//         marginTop: 10,
-//     },
-
-//     backButton: {
-//         position: "absolute",
-//         top: 50,
-//         left: 20,
-//         zIndex: 10,
-//     },
-// });
-
-
-//////////////////////////////////////////////////////////////////////////
-
-
-// import { Ionicons } from "@expo/vector-icons";
-// import { router, useLocalSearchParams } from "expo-router";
-// import React, { useEffect, useRef, useState } from "react";
-// import {
-//     ActivityIndicator,
-//     StyleSheet,
-//     Text,
-//     TouchableOpacity,
-//     View,
-// } from "react-native";
-// import {
-//     MediaStream,
-//     RTCPeerConnection,
-//     RTCView,
-// } from "react-native-webrtc";
-
-// export default function LiveViewScreen() {
-//     const { cameraId, cameraName } = useLocalSearchParams();
-//     const isActiveRef = useRef(true);
-
-
-//     const pcRef = useRef<RTCPeerConnection | null>(null);
-//     const wsRef = useRef<WebSocket | null>(null);
-//     const reconnectTimeout = useRef<any>(null);
-
-//     const [stream, setStream] = useState<MediaStream | null>(null);
-//     const [loading, setLoading] = useState(true);
-//     const [offline, setOffline] = useState(false);
-
-//     const ROOM = "room1234";
-//     const WS_URL = `ws://192.168.18.28:8000/ws/room/${ROOM}/`;
-
-//     useEffect(() => {
-//         console.log("LiveView mounted");
-//         isActiveRef.current = true;
-
-//         startViewing();
-
-//         return () => {
-//             console.log("Component unmounting");
-//             isActiveRef.current = false; // ⛔ mark as inactive
-//             cleanupConnection();
-//         };
-//     }, []);
-
-
-//     // useEffect(() => {
-//     //     console.log(" LiveView mounted");
-//     //     startViewing();
-
-//     //     return () => {
-//     //         console.log("Component unmounting");
-//     //         cleanupConnection();
-//     //     };
-//     // }, []);
-
-//     const startViewing = async () => {
-//         console.log("🚀 Starting WebRTC connection...");
-
-//         setOffline(false);
-//         setLoading(true);
-
-//         const pc = new RTCPeerConnection({
-//             iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-//         });
-
-//         pcRef.current = pc;
-
-//         pc.addTransceiver("video", { direction: "recvonly" });
-//         pc.addTransceiver("audio", { direction: "recvonly" });
-
-//         (pc as any).ontrack = (event: any) => {
-//             console.log(" Remote track received");
-
-//             const remoteStream: MediaStream = event.streams[0];
-//             remoteStream.getTracks().forEach(track => {
-//                 track.enabled = true;
-//             });
-
-//             setStream(remoteStream);
-//             setLoading(false);
-//             setOffline(false);
-//         };
-
-//         (pc as any).onicecandidate = (event: any) => {
-//             if (event.candidate && wsRef.current) {
-//                 console.log(" Sending ICE candidate");
-//                 wsRef.current.send(
-//                     JSON.stringify({
-//                         type: "candidate",
-//                         candidate: event.candidate,
-//                     })
-//                 );
-//             }
-//         };
-
-//         connectWebSocket();
-//     };
-
-//     const connectWebSocket = () => {
-//         console.log(" Connecting WebSocket:", WS_URL);
-
-//         const ws = new WebSocket(WS_URL);
-//         wsRef.current = ws;
-
-//         ws.onopen = () => {
-//             console.log(" WebSocket connected");
-//             setOffline(false);
-//             ws.send(JSON.stringify({ type: "ready" }));
-//         };
-
-//         ws.onmessage = async (message) => {
-//             const data = JSON.parse(message.data);
-//             console.log(" WS Message:", data.type);
-
-//             // if (data.type === "offer") {
-//             //     console.log(" Offer received");
-
-//             //     await pcRef.current?.setRemoteDescription(data.offer);
-
-//             //     const answer = await pcRef.current?.createAnswer();
-//             //     await pcRef.current?.setLocalDescription(answer);
-
-//             //     ws.send(
-//             //         JSON.stringify({
-//             //             type: "answer",
-//             //             answer: pcRef.current?.localDescription,
-//             //         })
-//             //     );
-
-//             //     console.log(" Answer sent");
-//             // }
-//             if (data.type === "offer") {
-//                 console.log("Offer received:", data);
-
-//                 if (!data.sdp || !data.sdpType) {
-//                     console.error("Invalid offer format", data);
-//                     return;
-//                 }
-
-//                 await pcRef.current?.setRemoteDescription({
-//                     type: data.sdpType,
-//                     sdp: data.sdp,
-//                 });
-
-//                 const answer = await pcRef.current?.createAnswer();
-//                 await pcRef.current?.setLocalDescription(answer);
-
-//                 ws.send(JSON.stringify({
-//                     type: "answer",
-//                     sdp: pcRef.current?.localDescription?.sdp,
-//                     sdpType: pcRef.current?.localDescription?.type,
-//                 }));
-
-//                 console.log("Answer sent");
-//             }
-
-
-//             if (data.type === "ice") {
-//                 try {
-//                     console.log(" ICE received");
-//                     await pcRef.current?.addIceCandidate(data.candidate);
-//                 } catch (err) {
-//                     console.warn("ICE error:", err);
-//                 }
-//             }
-//         };
-
-//         ws.onerror = (err) => {
-//             console.log("❌ WebSocket error:", err);
-//         };
-
-//         ws.onclose = () => {
-//             console.log("WebSocket disconnected");
-//             handleReconnect();
-//         };
-//     };
-
-//     const handleReconnect = () => {
-//         console.log(" Attempting reconnect in 3 seconds...");
-
-//         setOffline(true);
-//         setStream(null);
-
-//         reconnectTimeout.current = setTimeout(() => {
-//             console.log(" Reconnecting now...");
-//             cleanupPeerOnly();
-//             startViewing();
-//         }, 3000);
-//     };
-
-//     const cleanupPeerOnly = () => {
-//         if (pcRef.current) {
-//             pcRef.current.close();
-//             pcRef.current = null;
-//         }
-//     };
-
-//     const cleanupConnection = () => {
-//         console.log(" Cleaning up full connection");
-
-//         if (reconnectTimeout.current) {
-//             clearTimeout(reconnectTimeout.current);
-//         }
-
-//         if (wsRef.current) {
-//             wsRef.current.close();
-//             wsRef.current = null;
-//         }
-
-//         if (pcRef.current) {
-//             pcRef.current.close();
-//             pcRef.current = null;
-//         }
-
-//         setStream(null);
-//     };
-
-//     const handleBack = () => {
-//         cleanupConnection();
-//         router.back();
-//     };
-
-//     return (
-//         <View style={styles.container}>
-//             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-//                 <Ionicons name="arrow-back" size={24} color="#fff" />
-//             </TouchableOpacity>
-
-//             <Text style={styles.title}>{cameraName}</Text>
-
-//             {loading && !offline && (
-//                 <View style={styles.loaderContainer}>
-//                     <ActivityIndicator size="large" color="#fff" />
-//                     <Text style={styles.loadingText}>Connecting to camera...</Text>
-//                 </View>
-//             )}
-
-//             {offline && (
-//                 <View style={styles.loaderContainer}>
-//                     <Text style={styles.offlineText}>⚠ Camera Offline</Text>
-//                     <Text style={styles.loadingText}>Reconnecting...</Text>
-//                 </View>
-//             )}
-
-//             {stream && !offline && (
-//                 <RTCView
-//                     streamURL={stream.toURL()}
-//                     style={styles.video}
-//                     objectFit="cover"
-//                 />
-//             )}
-//         </View>
-//     );
-// }
-
-// const styles = StyleSheet.create({
-//     container: { flex: 1, backgroundColor: "#000" },
-
-//     title: {
-//         color: "#fff",
-//         marginTop: 50,
-//         alignSelf: "center",
-//         fontSize: 18,
-//     },
-
-//     video: { flex: 1 },
-
-//     loaderContainer: {
-//         flex: 1,
-//         justifyContent: "center",
-//         alignItems: "center",
-//     },
-
-//     loadingText: {
-//         color: "#fff",
-//         marginTop: 10,
-//     },
-
-//     offlineText: {
-//         color: "#FF4D4D",
-//         fontSize: 18,
-//         fontWeight: "bold",
-//     },
-
-//     backButton: {
-//         position: "absolute",
-//         top: 50,
-//         left: 20,
-//         zIndex: 10,
-//     },
-// });
-
-
-
-//////////////////////////////////////////////////////
-
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from 'expo-linear-gradient';
@@ -629,7 +149,7 @@ export default function LiveViewScreen() {
 
     try {
       if (!accessToken) {
-        console.log("❌ No access token found");
+        console.log(" No access token found");
         return;
       }
 
@@ -644,15 +164,15 @@ export default function LiveViewScreen() {
         }
       );
 
-      console.log("📡 Delete Status:", response.status);
+      console.log(" Delete Status:", response.status);
 
       if (!response.ok) {
-        console.log("❌ Failed to delete region");
+        console.log(" Failed to delete region");
         Alert.alert("Error", "Failed to delete region");
         return;
       }
 
-      console.log("✅ Region deleted successfully");
+      console.log("Region deleted successfully");
 
       // Remove from local state
       setSavedPolygons(prev =>
@@ -662,7 +182,7 @@ export default function LiveViewScreen() {
       Alert.alert("Success", "Region deleted");
 
     } catch (error) {
-      console.log("🔥 Delete error:", error);
+      console.log("Delete error:", error);
     }
   };
   // ==============================
@@ -706,7 +226,7 @@ export default function LiveViewScreen() {
         return;
       }
 
-      // ✅ Extract actual array
+      // Extract actual array
       const regions = result.data;
 
       if (!Array.isArray(regions)) {
@@ -803,13 +323,6 @@ export default function LiveViewScreen() {
       loadSavedPolygons();
       setSelectedType(null);
 
-      // Save locally after backend success
-      // setSavedPolygons(prev => [
-      //   ...prev,
-      //   { points: [...points], type: selectedType }
-      // ]);
-
-
       setPoints([]);
       setHistory([]);
 
@@ -904,12 +417,7 @@ export default function LiveViewScreen() {
     loadSavedPolygons();
   }, [deviceId, accessToken]); // run when deviceId and accessToken are ready
 
-  // Call getUrl when component mounts or deviceId changes
-  // useEffect(() => {
-  //   if (deviceId) {
-  //     getUrl();
-  //   }
-  // }, [deviceId]);
+
 
   // SHOW THE STREAM/////
   const startWebRTC = async (streamUrl: string) => {
@@ -1003,11 +511,6 @@ export default function LiveViewScreen() {
   };
 
   // useEffect(() => {
-  //   loadSavedPolygons();
-  //   console.log("LOADEDDD-----------")
-  // }, []);
-
-  // useEffect(() => {
   //   // getUrl();
   //   startWebRTC(streamUrl);
   // }, []);
@@ -1067,20 +570,6 @@ export default function LiveViewScreen() {
             ]}
           >
             {/* Camera Preview Placeholder */}
-            {/* <LinearGradient
-              colors={['#2a2a4a', '#1a1a3a']}
-              style={styles.placeholderGradient}
-            >
-              <View style={styles.placeholderContent}>
-                <Ionicons name="camera" size={40} color="#4facfe" />
-                <Text style={styles.placeholderText}>
-                  Camera Preview
-                </Text>
-                <Text style={styles.placeholderSubtext}>
-                  {cameraName || "Live Feed"}
-                </Text>
-              </View>
-            </LinearGradient> */}
             {remoteStream ? (
               <RTCView
                 streamURL={remoteStream.toURL()}
@@ -1112,19 +601,6 @@ export default function LiveViewScreen() {
                 viewBox={`0 0 ${FRAME_WIDTH} ${FRAME_HEIGHT}`}
               >
                 {/* Saved Polygons with type-based colors */}
-
-                {/* {savedPolygons.map((poly, index) => {
-                  return (
-                    <Polygon
-                      key={`saved-${index}`}
-                      points={poly.points.map((p) => `${p.x},${p.y}`).join(" ")}
-                      fill="rgba(202, 0, 0, 0.3)"  // Red with opacity
-                      stroke="#ff0000"              // Solid red
-                      strokeWidth="2"
-                      strokeDasharray="6,4"
-                    />
-                  );
-                })} */}
                 {savedPolygons.map((poly) => {
                   // Calculate center of polygon for label placement
                   const centerX = poly.points.reduce((sum, p) => sum + p.x, 0) / poly.points.length;
@@ -1135,7 +611,7 @@ export default function LiveViewScreen() {
                     switch (type?.toLowerCase()) {
                       case 'fire':
                         return {
-                          bg: 'rgba(255, 69, 0, 0.9)', // Bright orange-red
+                          bg: 'rgba(255, 69, 0, 0.9)', 
                           border: '#ff4500',
                           text: '#ffffff',
                           icon: '🔥',
@@ -1143,7 +619,7 @@ export default function LiveViewScreen() {
                         };
                       case 'smoke':
                         return {
-                          bg: 'rgba(105, 105, 105, 0.9)', // Dim gray
+                          bg: 'rgba(105, 105, 105, 0.9)', 
                           border: '#696969',
                           text: '#ffffff',
                           icon: '💨',
@@ -1151,7 +627,7 @@ export default function LiveViewScreen() {
                         };
                       case 'person':
                         return {
-                          bg: 'rgba(30, 144, 255, 0.9)', // Dodger blue
+                          bg: 'rgba(30, 144, 255, 0.9)', 
                           border: '#1e90ff',
                           text: '#ffffff',
                           icon: '👤',
@@ -1159,7 +635,7 @@ export default function LiveViewScreen() {
                         };
                       case 'weapon':
                         return {
-                          bg: 'rgba(220, 20, 60, 0.9)', // Crimson
+                          bg: 'rgba(220, 20, 60, 0.9)', 
                           border: '#dc143c',
                           text: '#ffffff',
                           icon: '⚔️',
@@ -1202,10 +678,6 @@ export default function LiveViewScreen() {
                           )
                         }
                       />
-
-                      {/* Enhanced Type Label with Background */}
-                      {/* Compact Modern Design */}
-                      {/* Badge Style with Color Coding */}
                       <G>
                         {/* Colored badge */}
                         <Rect
@@ -1411,9 +883,6 @@ export default function LiveViewScreen() {
             </LinearGradient>
           </TouchableOpacity> */}
         </View>
-        {/* <TouchableOpacity onPress={() => handleDeletePolygon(item.id)}>
-          <Text style={{ color: "red" }}>Delete</Text>
-        </TouchableOpacity> */}
 
         {/* Save Button - Enabled only when polygon has 3+ points AND type is selected */}
         {points.length >= 3 && selectedType && (

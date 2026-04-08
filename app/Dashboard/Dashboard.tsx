@@ -5,6 +5,7 @@ import axios from "axios";
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import React, { useEffect, useRef, useState } from "react";
 //import WifiManager from "react-native-wifi-reborn";
+
 import {
   ActivityIndicator,
   Alert,
@@ -19,6 +20,7 @@ import {
 } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
+import { router, useLocalSearchParams } from 'expo-router';
 import { Animated } from "react-native";
 import CustomerSidebar from '../component/sidebarlayout';
 import CaptivePortalScreen from './Captive_portal';
@@ -35,6 +37,25 @@ export default function CustomerDashboardScreen() {
   const [qrToken, setQrToken] = useState<string | null>(null);
   const [connectingWifi, setConnectingWifi] = useState(false);
   const manualButtonScale = useRef(new Animated.Value(1)).current;
+  const params = useLocalSearchParams();
+
+  const { manual, ssid, password } = useLocalSearchParams();
+
+  const [handledManual, setHandledManual] = useState(false);
+
+  useEffect(() => {
+    if (manual === "true" && !handledManual) {
+      console.log("📡 Manual config received");
+
+      setPortalData({
+        ssid,
+        password,
+      });
+
+      setPortalVisible(true);
+      setHandledManual(true); // ✅ stop loop
+    }
+  }, [manual, handledManual]);
 
 
   // ----------------------------
@@ -464,8 +485,9 @@ export default function CustomerDashboardScreen() {
                 }).start();
               }}
               onPress={() => {
-                setPortalData(null);
-                setPortalVisible(true);
+                // setPortalData(null);
+                // setPortalVisible(true);
+                router.push('/Dashboard/wifiConfigScreen');
               }}
             >
               <LinearGradient

@@ -18,9 +18,9 @@ import {
 import Svg, { Circle, G, Polygon, Rect, Text as SvgText } from "react-native-svg";
 import {
   MediaStream,
-  RTCPeerConnection,
-  RTCView
+  RTCPeerConnection
 } from "react-native-webrtc";
+import { WebView } from "react-native-webview";
 import urls from "../urls/urls";
 
 const FRAME_WIDTH = 640;
@@ -45,6 +45,7 @@ export default function LiveViewScreen() {
   const pc = useRef(null);
   // const [remoteStream, setRemoteStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const [finalStreamUrl, setFinalStreamUrl] = useState<string | null>(null);
 
 
   console.log("Device ID:", deviceId);
@@ -379,45 +380,64 @@ export default function LiveViewScreen() {
 
   // GET THE URLS///
 
+  // useEffect(() => {
+  //   const initStream = async () => {
+  //     try {
+  //       //  Fetch the stream URL
+  //       const apiUrl = urls.get_stream;
+  //       const response = await fetch(`${apiUrl}/${deviceId}`, {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${accessToken}`, // access token from AsyncStorage
+  //         },
+  //       });
+
+  //       if (!response.ok) {
+  //         // console.error("Failed to fetch stream URL:", response.status, response.statusText);
+  //         return;
+  //       }
+
+  //       const data = await response.json();
+  //       console.log("Stream URL data:", data);
+
+  //       //  Only save the actual URL
+  //       const streamUrl = data.stream_url;
+  //       setUrl(streamUrl);
+
+  //       //  Start WebRTC **after URL is ready**
+  //       if (streamUrl) {
+  //         startWebRTC(streamUrl); // pass URL to the function
+  //       }
+  //     } catch (error) {
+  //       console.error("Error initializing stream:", error);
+  //     }
+  //   };
+
+  //   initStream();
+  //   loadSavedPolygons();
+  // }, [deviceId, accessToken]); // run when deviceId and accessToken are ready
+
+
+
+
+
   useEffect(() => {
-    const initStream = async () => {
-      try {
-        //  Fetch the stream URL
-        const apiUrl = urls.get_stream;
-        const response = await fetch(`${apiUrl}/${deviceId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`, // access token from AsyncStorage
-          },
-        });
+    console.log("🚀 useEffect triggered");
 
-        if (!response.ok) {
-          // console.error("Failed to fetch stream URL:", response.status, response.statusText);
-          return;
-        }
+    try {
+      const jwt_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6Im15LWtleS0xIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ6YWluYWhzYW45MiIsIm1lZGlhbXR4X3Blcm1pc3Npb25zIjpbeyJhY3Rpb24iOiJhcGkifSx7ImFjdGlvbiI6InJlYWQiLCJwYXRoIjoiY2FtMTEifSx7ImFjdGlvbiI6InB1Ymxpc2giLCJwYXRoIjoiY2FtMTEifV0sImV4cCI6MTc3NjE1NDc4NCwiaWF0IjoxNzc2MTQ3NTg0LCJpc3MiOiJkamFuZ28tYXV0aCJ9.BSuB3sQaaEQth6SUTeh0_sbSiJhcYSq_DsoTz700vgs1MLZWIBr5iw6e6TbcOYEEBqqJl01rVf0yQw2sEzwEwMT4HSrG5cPmLSLcfJmY9lFgdhFtYQ-C9SavmdVMnT5u-W41eHasY77KsbRyl5z9pJP6DUYqAcrszEmt8Vo5bGNFQPyTarVPWMK1XtNNx6ohHLiUiUESY2fOmjshpg6l1cgs7dHuCNzgqtUSYgYHevDOSAAlqhg_hLJWTwqmy2Xr7MyRukpyeW4yRUc30MSwEgeQvuzBnrtoOTzraQUP0CLoK68LySSv8xff11SKtrqRDnbPYhOfEnvBgJJDteKioQ";
 
-        const data = await response.json();
-        console.log("Stream URL data:", data);
+      const streamUrl = `http://192.168.18.120:8889/cam11/?jwt=${jwt_token}`;
 
-        //  Only save the actual URL
-        const streamUrl = data.stream_url;
-        setUrl(streamUrl);
+      console.log("🎥 Final Stream URL:", streamUrl);
 
-        //  Start WebRTC **after URL is ready**
-        if (streamUrl) {
-          startWebRTC(streamUrl); // pass URL to the function
-        }
-      } catch (error) {
-        console.error("Error initializing stream:", error);
-      }
-    };
+      setFinalStreamUrl(streamUrl);
 
-    initStream();
-    loadSavedPolygons();
-  }, [deviceId, accessToken]); // run when deviceId and accessToken are ready
-
-
+    } catch (error) {
+      console.log("❌ Error setting stream URL:", error);
+    }
+  }, []);
 
   // SHOW THE STREAM/////
   const startWebRTC = async (streamUrl: string) => {
@@ -570,11 +590,42 @@ export default function LiveViewScreen() {
             ]}
           >
             {/* Camera Preview Placeholder */}
-            {remoteStream ? (
+            {/* {remoteStream ? (
               <RTCView
                 streamURL={remoteStream.toURL()}
                 style={{ flex: 1 }}
                 objectFit="cover"
+              />
+            ) : ( */}
+            {finalStreamUrl ? (
+              <WebView
+                source={{ uri: finalStreamUrl }}
+                style={{ flex: 1 }}
+
+                javaScriptEnabled={true}
+                domStorageEnabled={true}
+                allowsInlineMediaPlayback={true}
+                mediaPlaybackRequiresUserAction={false}
+
+                originWhitelist={["*"]}
+
+                mixedContentMode="always"
+
+                onLoadStart={() => {
+                  console.log("📡 WebView load started");
+                }}
+
+                onLoad={() => {
+                  console.log("✅ WebView loaded");
+                }}
+
+                onError={(e) => {
+                  console.log("❌ WebView error:", e.nativeEvent);
+                }}
+
+                onHttpError={(e) => {
+                  console.log("❌ HTTP error:", e.nativeEvent);
+                }}
               />
             ) : (
               <LinearGradient
@@ -611,7 +662,7 @@ export default function LiveViewScreen() {
                     switch (type?.toLowerCase()) {
                       case 'fire':
                         return {
-                          bg: 'rgba(255, 69, 0, 0.9)', 
+                          bg: 'rgba(255, 69, 0, 0.9)',
                           border: '#ff4500',
                           text: '#ffffff',
                           icon: '🔥',
@@ -619,7 +670,7 @@ export default function LiveViewScreen() {
                         };
                       case 'smoke':
                         return {
-                          bg: 'rgba(105, 105, 105, 0.9)', 
+                          bg: 'rgba(105, 105, 105, 0.9)',
                           border: '#696969',
                           text: '#ffffff',
                           icon: '💨',
@@ -627,7 +678,7 @@ export default function LiveViewScreen() {
                         };
                       case 'person':
                         return {
-                          bg: 'rgba(30, 144, 255, 0.9)', 
+                          bg: 'rgba(30, 144, 255, 0.9)',
                           border: '#1e90ff',
                           text: '#ffffff',
                           icon: '👤',
@@ -635,7 +686,7 @@ export default function LiveViewScreen() {
                         };
                       case 'weapon':
                         return {
-                          bg: 'rgba(220, 20, 60, 0.9)', 
+                          bg: 'rgba(220, 20, 60, 0.9)',
                           border: '#dc143c',
                           text: '#ffffff',
                           icon: '⚔️',

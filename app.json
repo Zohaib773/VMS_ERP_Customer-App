@@ -22,7 +22,17 @@
       "predictiveBackGestureEnabled": false,
       "usesCleartextTraffic": true,
       "package": "com.anonymous.vmsfinalproject",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "INTERNET"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAcp45sEfXq6mT19p51_LC8Goiv4ztUDnQ"
+        }
+      }
     },
     "web": {
       "output": "static",
@@ -42,7 +52,6 @@
           }
         }
       ]
-     
     ],
     "experiments": {
       "typedRoutes": true,

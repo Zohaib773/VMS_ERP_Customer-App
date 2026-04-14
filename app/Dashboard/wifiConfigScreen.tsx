@@ -24,6 +24,9 @@ export default function wifiConfigScreen() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({ ssid: '', password: '' });
+    const [showDeviceModal, setShowDeviceModal] = useState(false);
+    const [deviceName, setDeviceName] = useState('');
+    const [deviceId, setDeviceId] = useState('');
 
     const validateForm = () => {
         const newErrors = { ssid: '', password: '' };
@@ -115,23 +118,15 @@ export default function wifiConfigScreen() {
                 "Connected",
                 `Connected to ${currentSSID || ssid}`
             );
-
             // router.push({
-            //     pathname: '/Dashboard/Captive_portal',
+            //     pathname: "/Dashboard/Dashboard",
             //     params: {
             //         ssid,
             //         password,
-            //         manual: 'true'
-            //     }
+            //         manual: "true",
+            //     },
             // });
-            router.push({
-                pathname: "/Dashboard/Dashboard",
-                params: {
-                    ssid,
-                    password,
-                    manual: "true",
-                },
-            });
+            setShowDeviceModal(true);
 
         } catch (error) {
             console.log("❌ WiFi Connection Failed:", error);
@@ -142,6 +137,25 @@ export default function wifiConfigScreen() {
     };
     const handleScanQRInstead = () => {
         router.back();
+    };
+    const handleDeviceSubmit = () => {
+        if (!deviceName.trim() || !deviceId.trim()) {
+            Alert.alert("Error", "Please fill all fields");
+            return;
+        }
+
+        setShowDeviceModal(false);
+
+        router.push({
+            pathname: "/Dashboard/Dashboard",
+            params: {
+                ssid,
+                password,
+                deviceName,
+                deviceId,
+                manual: "true",
+            },
+        });
     };
 
     return (
@@ -297,7 +311,80 @@ export default function wifiConfigScreen() {
             <MaterialIcons name="qr-code-scanner" size={18} color="#2196F3" />
             <Text style={styles.scanInsteadText}>Scan QR Code Instead</Text>
           </TouchableOpacity> */}
+                    {showDeviceModal && (
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContainer}>
+                                <LinearGradient
+                                    colors={['#4CAF50', '#2E7D32']}
+                                    style={styles.modalHeader}
+                                >
+                                    <MaterialIcons name="devices" size={28} color="#fff" />
+                                    <Text style={styles.modalTitle}>Add Device</Text>
+                                </LinearGradient>
+
+                                <View style={styles.modalContent}>
+                                    {/* Device Name */}
+                                    {/* Device Name */}
+                                    <View style={styles.modalInputContainer}>
+                                        <Text style={styles.modalLabel}>Device Name</Text>
+
+                                        <View style={styles.modalInputWrapper}>
+                                            <MaterialIcons name="drive-file-rename-outline" size={20} color="#4CAF50" />
+
+                                            <TextInput
+                                                placeholder="Enter device name"
+                                                placeholderTextColor="#999"
+                                                value={deviceName}
+                                                onChangeText={setDeviceName}
+                                                style={styles.modalInput}
+                                            />
+                                        </View>
+                                    </View>
+
+                                    {/* Device ID */}
+                                    <View style={styles.modalInputContainer}>
+                                        <Text style={styles.modalLabel}>Device ID</Text>
+
+                                        <View style={styles.modalInputWrapper}>
+                                            <MaterialIcons name="qr-code" size={20} color="#4CAF50" />
+
+                                            <TextInput
+                                                placeholder="Enter device ID"
+                                                placeholderTextColor="#999"
+                                                value={deviceId}
+                                                onChangeText={setDeviceId}
+                                                style={styles.modalInput}
+                                            />
+                                        </View>
+                                    </View>
+
+                                    {/* Buttons */}
+                                    <View style={styles.modalButtons}>
+                                        <TouchableOpacity
+                                            style={styles.cancelBtn}
+                                            onPress={() => setShowDeviceModal(false)}
+                                        >
+                                            <Text style={styles.cancelText}>Cancel</Text>
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity
+                                            style={styles.saveBtn}
+                                            onPress={handleDeviceSubmit}
+                                        >
+                                            <LinearGradient
+                                                colors={['#4CAF50', '#2E7D32']}
+                                                style={styles.saveGradient}
+                                            >
+                                                <Text style={styles.saveText}>Save & Continue</Text>
+                                            </LinearGradient>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </View>
+                        </View>
+                    )}
                 </ScrollView>
+
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
@@ -450,5 +537,118 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#2196F3',
         fontWeight: '500',
+    },
+    modalOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    modalContainer: {
+        width: '85%',
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        overflow: 'hidden',
+        elevation: 10,
+    },
+
+    modalHeader: {
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+
+    modalTitle: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: '700',
+    },
+
+    modalContent: {
+        padding: 20,
+    },
+
+    // modalInputWrapper: {
+    //     flexDirection: 'row',
+    //     alignItems: 'center',
+    //     borderWidth: 1,
+    //     borderColor: '#ddd',
+    //     borderRadius: 12,
+    //     paddingHorizontal: 12,
+    //     marginBottom: 15,
+    //     height: 50,
+    // },
+
+    // modalInput: {
+    //     flex: 1,
+    //     marginLeft: 10,
+    // },
+
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 10,
+    },
+
+    cancelBtn: {
+        padding: 12,
+    },
+
+    cancelText: {
+        color: '#888',
+        fontWeight: '600',
+    },
+
+    saveBtn: {
+        flex: 1,
+        marginLeft: 10,
+        borderRadius: 12,
+        overflow: 'hidden',
+    },
+
+    saveGradient: {
+        padding: 14,
+        alignItems: 'center',
+        borderRadius: 12,
+    },
+
+    saveText: {
+        color: '#fff',
+        fontWeight: '700',
+    },
+    modalInputContainer: {
+        marginBottom: 16,
+    },
+
+    modalLabel: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#333',
+        marginBottom: 6,
+        marginLeft: 4,
+    },
+
+    modalInputWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 12,
+        paddingHorizontal: 12,
+        height: 50,
+        backgroundColor: '#f9f9f9', // 👈 important
+    },
+
+    modalInput: {
+        flex: 1,
+        marginLeft: 10,
+        fontSize: 15,
+        color: '#333',
     },
 });

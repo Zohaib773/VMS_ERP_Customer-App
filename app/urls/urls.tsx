@@ -1,5 +1,6 @@
 const Base_Url = "http://192.168.18.28:8000"
 // const Base_Url = "http://192.168.100.159:8000"
+const Device_Url = "http://192.168.4.1/"
 
 // API'S
 const urls = {
@@ -30,5 +31,7 @@ const urls = {
 
     //Captive portal end point 
     // http://192.168.18.108/config
+    Captive_config: `${Device_Url}/config`,
+    Get_Device_data: `${Device_Url}/get_data`
 }
 export default urls

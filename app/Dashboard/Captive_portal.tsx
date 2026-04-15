@@ -3,6 +3,7 @@ import NetInfo from "@react-native-community/netinfo";
 import axios from "axios";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as Location from "expo-location";
+import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
     ActivityIndicator,
@@ -25,13 +26,18 @@ const EMPTY_PORTAL_DATA = {
     status: "disarm",
     wifi: { ssid: "", password: "" },
     location: { latitude: 0, longitude: 0 },
-    phone_number: { max: 5, numbers: [] as string[] },
+    phone_number: {
+        max: 5,
+        numbers: [
+            { number: "", call: true, message: false }
+        ]
+    },
     sensors: {
-        LPG: { id: "", name: "" },
-        Smoke: { id: "", name: "" },
-        Motion_detection: { id: "", name: "" },
-        Human_appearance: { id: "", name: "" },
-        Door_window: [{ id: "", name: "" }],
+        LPG: { id: "", name: "", status: true },
+        Smoke: { id: "", name: "", status: true },
+        Motion_detection: { id: "", name: "", status: true },
+        Human_appearance: { id: "", name: "", status: true },
+        Door_window: [{ id: "", name: "", status: true }],
     },
     cams: {
         cam1: { id: "", name: "", ip_adress: "", configurations: "" },
@@ -82,6 +88,11 @@ export default function CaptivePortalScreen({
     const [permission, requestPermission] = useCameraPermissions();
     const [loadingText, setLoadingText] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const params = useLocalSearchParams();
+
+    const deviceNameFromRoute = params.deviceName;
+    const deviceIdFromRoute = params.deviceId;
+    const ssidFromRoute = params.ssid;
 
     useEffect(() => {
         if (!permission) {
@@ -159,6 +170,121 @@ export default function CaptivePortalScreen({
         }
         return [styles.tabText];
     };
+
+
+    // Logging the device name and the device id that is written in the form pop-up
+    useEffect(() => {
+        console.log(" Device Name:", deviceNameFromRoute);
+        console.log(" Device ID:", deviceIdFromRoute);
+        console.log(" SSID:", ssidFromRoute);
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            console.log("GET CALLED ________________:",);
+            try {
+                setIsLoading(true);
+                setLoadingText("Fetching device data...");
+
+                const response = await axios.get(
+                    "http://192.168.18.120:8000/get_json/"
+                );
+
+                console.log("📦 API Response:", response.data);
+
+                // setFormData((prev: any) => ({
+                //     ...prev,
+                //     ...response.data,
+                // }));
+                setFormData((prev: any) => ({
+                    ...prev,
+
+                    status: response.data.status || "disarm",
+
+                    wifi: {
+                        ssid: response.data.wifi?.ssid || "",
+                        password: response.data.wifi?.password || "",
+                    },
+
+                    location: {
+                        latitude: response.data.location?.latitude || 0,
+                        longitude: response.data.location?.longitude || 0,
+                        address: response.data.location?.address || "",
+                    },
+
+                    phone_number: {
+                        max: prev.phone_number.max,
+                        numbers: (response.data.phones || []).map((p: any) => ({
+                            number: p.number || "",
+                            call: p.call === true || p.call === "true",
+                            message: p.message === true || p.message === "true",
+                        })),
+                    },
+
+                    sensors: {
+                        ...prev.sensors,
+
+                        LPG: {
+                            id: response.data.metadata?.lpg?.rf_id || "",
+                            name: "",
+                            status: response.data.metadata?.lpg?.status === true || response.data.metadata?.lpg?.status === "true",
+                        },
+
+                        Smoke: {
+                            id: response.data.metadata?.smoke?.id || "",
+                            name: "",
+                            status: response.data.metadata?.smoke?.status === true || response.data.metadata?.smoke?.status === "true",
+                        },
+
+                        Motion_detection: {
+                            id: response.data.metadata?.motion_detection?.id || "",
+                            name: "",
+                            status: response.data.metadata?.motion_detection?.status === true || response.data.metadata?.motion_detection?.status === "true",
+                        },
+
+                        Human_appearance: {
+                            id: response.data.metadata?.human_appearance?.id || "",
+                            name: "",
+                            status: response.data.metadata?.human_appearance?.status === true || response.data.metadata?.human_appearance?.status === "true",
+                        },
+
+                        Door_window: (response.data.metadata?.devices || []).map((d: any) => ({
+                            id: d.id || "",
+                            name: d.name || "",
+                            status: d.status === true || d.status === "true",
+                        })),
+                    },
+
+                    cams: {
+                        cam1: response.data.metadata?.cams?.cam1 || prev.cams.cam1,
+                        cam2: response.data.metadata?.cams?.cam2 || prev.cams.cam2,
+                        cam3: response.data.metadata?.cams?.cam3 || prev.cams.cam3,
+                        cam4: response.data.metadata?.cams?.cam4 || prev.cams.cam4,
+                    },
+
+                    bugler: {
+                        id: response.data.metadata?.burglar?.rf_id || "",
+                    },
+
+                    key_on: {
+                        id: response.data.metadata?.keys?.[0]?.id || "",
+                    },
+
+                    key_off: {
+                        id: response.data.metadata?.keys?.[1]?.id || "",
+                    },
+                }));
+
+            } catch (error) {
+                console.log("❌ Fetch Error:", error);
+            } finally {
+                setIsLoading(false);
+                setLoadingText("");
+            }
+        };
+
+        fetchData();
+    }, []);
 
 
     useEffect(() => {
@@ -381,7 +507,7 @@ export default function CaptivePortalScreen({
         <Modal visible={visible} animationType="slide">
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Device Configuration</Text>
+                    <Text style={styles.headerTitle}>{deviceNameFromRoute} Device Configuration</Text>
                     <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                         <MaterialIcons name="close" size={24} color="#fff" />
                     </TouchableOpacity>
@@ -1082,8 +1208,8 @@ export default function CaptivePortalScreen({
 
                                                 /** ================= STEP 2: TRANSFORM DATA FOR BACKEND ================= */
                                                 const backendPayload = {
-                                                    json_id: "CFG_001",
-                                                    device_id: "ESP32_01",
+                                                    json_id: "",
+                                                    device_id: { deviceIdFromRoute },
 
                                                     status: formData.status || "arm",
 
@@ -1119,6 +1245,11 @@ export default function CaptivePortalScreen({
                                                             rf_id: formData.bugler.id || "",
                                                             status: true,
                                                         },
+                                                        // formData.sensors.Motion_detection?.id && {
+                                                        //         id: formData.sensors.Motion_detection.id,
+                                                        //         name: formData.sensors.Motion_detection.name || "Motion Detector",
+                                                        //         status: true,
+                                                        //     },
 
                                                         lpg: {
                                                             rf_id: formData.sensors.LPG?.id || "",
@@ -1203,7 +1334,7 @@ export default function CaptivePortalScreen({
                                                     }
                                                 );
 
-                                                console.log("✅ Device configured (WiFi may switch)");
+                                                console.log(" Device configured (WiFi may switch)");
 
                                                 /** ================= STEP 4: WAIT FOR INTERNET ================= */
                                                 setLoadingText("Waiting for internet connection..."); // ✅ ADD
@@ -1214,10 +1345,10 @@ export default function CaptivePortalScreen({
                                                             await axios.get("https://clients3.google.com/generate_204", {
                                                                 timeout: 3000,
                                                             });
-                                                            console.log("🌐 Internet connected");
+                                                            console.log(" Internet connected");
                                                             return true;
                                                         } catch {
-                                                            console.log(`🔄 Retry ${i + 1}: still offline`);
+                                                            console.log(` Retry ${i + 1}: still offline`);
                                                             await new Promise(res => setTimeout(res, 2000));
                                                         }
                                                     }
@@ -1227,10 +1358,10 @@ export default function CaptivePortalScreen({
                                                 await waitForInternet();
 
                                                 /** ================= STEP 5: SEND TO CLOUD ================= */
-                                                setLoadingText("Uploading to cloud..."); // ✅ ADD
+                                                setLoadingText("Uploading to cloud..."); //  ADD
 
                                                 const response = await axios.post(
-                                                    urls.save_captive_portal, // ✅ YOUR BACKEND
+                                                    urls.save_captive_portal, // BACKEND
                                                     requestBody,
                                                     {
                                                         headers: {
@@ -1240,7 +1371,7 @@ export default function CaptivePortalScreen({
                                                     }
                                                 );
 
-                                                console.log("✅ Backend saved configuration");
+                                                console.log("Backend saved configuration");
                                                 onSubmit(response.data);
 
                                             } catch (error: any) {
@@ -1249,8 +1380,8 @@ export default function CaptivePortalScreen({
 
                                                 alert("Failed to configure device");
                                             } finally {
-                                                setIsLoading(false); // ✅ ADD
-                                                setLoadingText("");  // ✅ ADD
+                                                setIsLoading(false);
+                                                setLoadingText("");
                                             }
                                         }}
                                     >
@@ -1429,7 +1560,7 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
 
         paddingTop: Platform.OS === "android"
-            ? (StatusBar.currentHeight || 0) + 10
+            ? (StatusBar.currentHeight || 0) + 30
             : 20, // safe spacing for iOS
     },
     headerTitle: {

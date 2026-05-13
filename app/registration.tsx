@@ -838,13 +838,96 @@ const SignUpScreen: React.FC = () => {
     useRef<TextInput>(null),
   ];
 
+  // const handleSignUp = async () => {
+  //   const url = urls.customer_register;
+
+  //   // Combine OTP digits
+  //   const clientCodeString = clientCode.join('');
+
+  //   // Basic validation
+  //   if (
+  //     !firstName ||
+  //     !lastName ||
+  //     !username ||
+  //     !email ||
+  //     !phoneNumber ||
+  //     !address ||
+  //     !clientCodeString ||
+  //     !password ||
+  //     !confirmPassword
+  //   ) {
+  //     console.log("Please fill all fields");
+  //     return;
+  //   }
+
+  //   if (password !== confirmPassword) {
+  //     console.log("Passwords do not match");
+  //     return;
+  //   }
+
+  //   if (!agreeToTerms) {
+  //     console.log("Please agree to terms and conditions");
+  //     return;
+  //   }
+
+  //   try {
+  //     const payload = {
+  //       first_name: firstName,
+  //       last_name: lastName,
+  //       username,
+  //       email,
+  //       phone_number: phoneNumber,
+  //       address,
+  //       client_code: clientCodeString,
+  //       password,
+  //       image: null,
+  //     };
+
+  //     const response = await axios.post(url, payload, {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+
+  //     console.log("Registration success:", response.data);
+
+  //     // Navigate after success
+  //     router.replace("/Dashboard/Dashboard");
+
+  //   } catch (error: any) {
+  //     if (error.response) {
+  //       console.log("API Error:", error.response.data);
+  //     } else {
+  //       console.log("Network Error:", error.message);
+  //     }
+  //   }
+  // };
+
+
   const handleSignUp = async () => {
+    console.log("🚀 [handleSignUp] Sign-up process initiated");
+
     const url = urls.customer_register;
-    
+    console.log("🌐 [handleSignUp] Target URL:", url);
+
     // Combine OTP digits
     const clientCodeString = clientCode.join('');
-    
+    console.log("🔢 [handleSignUp] Client code assembled:", clientCodeString);
+
     // Basic validation
+    const validationFields = {
+      firstName,
+      lastName,
+      username,
+      email,
+      phoneNumber,
+      address,
+      clientCode: clientCodeString,
+      password: password ? "✅ provided" : "❌ missing",
+      confirmPassword: confirmPassword ? "✅ provided" : "❌ missing",
+    };
+    console.log("🔍 [handleSignUp] Validating fields:", validationFields);
+
     if (
       !firstName ||
       !lastName ||
@@ -856,19 +939,40 @@ const SignUpScreen: React.FC = () => {
       !password ||
       !confirmPassword
     ) {
-      console.log("Please fill all fields");
+      const missingFields = Object.entries({
+        firstName,
+        lastName,
+        username,
+        email,
+        phoneNumber,
+        address,
+        clientCode: clientCodeString,
+        password,
+        confirmPassword,
+      })
+        .filter(([_, value]) => !value)
+        .map(([key]) => key);
+
+      console.warn("⚠️ [handleSignUp] Validation failed — missing fields:", missingFields);
       return;
     }
+
+    console.log("✅ [handleSignUp] All fields are present");
 
     if (password !== confirmPassword) {
-      console.log("Passwords do not match");
+      console.warn("⚠️ [handleSignUp] Password mismatch detected");
+      console.log("🔐 [handleSignUp] password length:", password.length, "| confirmPassword length:", confirmPassword.length);
       return;
     }
 
+    console.log("✅ [handleSignUp] Passwords match");
+
     if (!agreeToTerms) {
-      console.log("Please agree to terms and conditions");
+      console.warn("⚠️ [handleSignUp] Terms and conditions not accepted");
       return;
     }
+
+    console.log("✅ [handleSignUp] Terms and conditions accepted");
 
     try {
       const payload = {
@@ -883,26 +987,47 @@ const SignUpScreen: React.FC = () => {
         image: null,
       };
 
+      console.log("📦 [handleSignUp] Payload prepared:", {
+        ...payload,
+        password: "🔒 [HIDDEN]", // Mask sensitive data
+      });
+
+      console.log("📡 [handleSignUp] Sending POST request to:", url);
+      const startTime = Date.now();
+
       const response = await axios.post(url, payload, {
         headers: {
           "Content-Type": "application/json",
         },
       });
 
-      console.log("Registration success:", response.data);
+      const duration = Date.now() - startTime;
+      console.log(`⏱️ [handleSignUp] Request completed in ${duration}ms`);
+      console.log("✅ [handleSignUp] Registration successful!");
+      console.log("📨 [handleSignUp] Response status:", response.status);
+      console.log("📨 [handleSignUp] Response data:", response.data);
 
-      // Navigate after success
+      console.log("🔀 [handleSignUp] Navigating to Dashboard...");
       router.replace("/Dashboard/Dashboard");
 
     } catch (error: any) {
+      console.error("❌ [handleSignUp] Registration failed");
+
       if (error.response) {
-        console.log("API Error:", error.response.data);
+        console.error("🔴 [handleSignUp] API Error — Status:", error.response.status);
+        console.error("🔴 [handleSignUp] API Error — Headers:", error.response.headers);
+        console.error("🔴 [handleSignUp] API Error — Data:", error.response.data);
+      } else if (error.request) {
+        console.error("📭 [handleSignUp] No response received — request was sent but got no reply");
+        console.error("📭 [handleSignUp] Request details:", error.request);
       } else {
-        console.log("Network Error:", error.message);
+        console.error("🌐 [handleSignUp] Network/setup error:", error.message);
+        console.error("🌐 [handleSignUp] Full error:", error);
       }
     }
-  };
 
+    console.log("🏁 [handleSignUp] Sign-up handler execution complete");
+  };
   const handleLogin = () => {
     router.back(); // Or router.replace("/Login");
   };
@@ -919,7 +1044,7 @@ const SignUpScreen: React.FC = () => {
   const handleClientCodeChange = (text: string, index: number) => {
     // Only allow single digit
     const digit = text.slice(0, 1);
-    
+
     // Update the array
     const newCode = [...clientCode];
     newCode[index] = digit;
@@ -936,7 +1061,7 @@ const SignUpScreen: React.FC = () => {
   const handleKeyPress = (e: any, index: number) => {
     if (e.nativeEvent.key === 'Backspace') {
       const newCode = [...clientCode];
-      
+
       // If current field is empty, go to previous field
       if (!clientCode[index] && index > 0) {
         inputRefs[index - 1].current?.focus();
@@ -1245,11 +1370,11 @@ const SignUpScreen: React.FC = () => {
               <View style={styles.clientCodeContainer}>
                 <Text style={styles.clientCodeLabel}>Client Code</Text>
                 <Text style={styles.clientCodeHint}>Enter 6-digit client code</Text>
-                
+
                 <View style={styles.otpContainer}>
                   {clientCode.map((digit, index) => (
-                    <View 
-                      key={index} 
+                    <View
+                      key={index}
                       style={[
                         styles.otpBox,
                         index === activeInputIndex && styles.otpBoxActive,

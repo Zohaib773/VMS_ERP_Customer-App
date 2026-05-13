@@ -920,10 +920,376 @@ export default function CustomerDashboardScreen({ navigation }: any) {
     );
 }
 
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         backgroundColor: '#f5f5f5',
+//     },
+//     mainContent: {
+//         flex: 1,
+//     },
+//     // Splash Screen Styles
+//     splashContainer: {
+//         flex: 1,
+//     },
+//     splashGradient: {
+//         flex: 1,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//     },
+//     splashContent: {
+//         alignItems: 'center',
+//         paddingHorizontal: 30,
+//         zIndex: 2,
+//     },
+//     splashLogoContainer: {
+//         position: 'relative',
+//         marginBottom: 30,
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 10 },
+//         shadowOpacity: 0.3,
+//         shadowRadius: 20,
+//         elevation: 10,
+//     },
+//     splashLogoInner: {
+//         width: 120,
+//         height: 120,
+//         borderRadius: 60,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         backgroundColor: '#fff',
+//     },
+//     splashLogoBadge: {
+//         position: 'absolute',
+//         bottom: 0,
+//         right: 0,
+//         backgroundColor: '#50C878',
+//         borderRadius: 20,
+//         padding: 8,
+//         borderWidth: 3,
+//         borderColor: '#fff',
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.2,
+//         shadowRadius: 4,
+//         elevation: 5,
+//     },
+//     splashTitle: {
+//         fontSize: 36,
+//         fontWeight: '800',
+//         color: '#fff',
+//         marginBottom: 10,
+//         textShadowColor: 'rgba(0, 0, 0, 0.2)',
+//         textShadowOffset: { width: 2, height: 2 },
+//         textShadowRadius: 4,
+//     },
+//     splashSubtitle: {
+//         fontSize: 16,
+//         color: 'rgba(255,255,255,0.9)',
+//         textAlign: 'center',
+//         marginBottom: 40,
+//         letterSpacing: 1,
+//     },
+//     splashLoaderContainer: {
+//         alignItems: 'center',
+//     },
+//     splashLoadingText: {
+//         fontSize: 14,
+//         color: 'rgba(255,255,255,0.8)',
+//         marginTop: 15,
+//     },
+//     waveContainer: {
+//         position: 'absolute',
+//         bottom: 0,
+//         left: 0,
+//         right: 0,
+//         height: 200,
+//         overflow: 'hidden',
+//     },
+//     wave: {
+//         position: 'absolute',
+//         width: width * 2,
+//         height: 200,
+//         backgroundColor: 'rgba(255,255,255,0.1)',
+//         borderRadius: 100,
+//     },
+//     wave1: {
+//         bottom: -50,
+//         left: -width,
+//         transform: [{ rotate: '-5deg' }],
+//     },
+//     wave2: {
+//         bottom: -70,
+//         left: -width * 0.5,
+//         backgroundColor: 'rgba(255,255,255,0.05)',
+//         transform: [{ rotate: '-3deg' }],
+//     },
+//     wave3: {
+//         bottom: -90,
+//         left: 0,
+//         backgroundColor: 'rgba(255,255,255,0.02)',
+//         transform: [{ rotate: '0deg' }],
+//     },
+//     // Header Styles
+//     headerGradient: {
+//         paddingTop: 50,
+//         paddingBottom: 20,
+//         paddingHorizontal: 20,
+//         borderBottomLeftRadius: 30,
+//         borderBottomRightRadius: 30,
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.05,
+//         shadowRadius: 10,
+//         elevation: 5,
+//     },
+//     headerContent: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         alignItems: 'center',
+//     },
+//     greetingText: {
+//         fontSize: 14,
+//         color: '#666',
+//         marginBottom: 4,
+//     },
+//     userName: {
+//         fontSize: 24,
+//         fontWeight: '700',
+//         color: '#333',
+//     },
+//     headerIconContainer: {
+//         width: 45,
+//         height: 45,
+//         borderRadius: 22.5,
+//         backgroundColor: '#f5f5f5',
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         borderWidth: 1,
+//         borderColor: '#e0e0e0',
+//     },
+//     // Slider Section
+//     sliderSection: {
+//         marginTop: 20,
+//     },
+//     sliderHeader: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         alignItems: 'center',
+//         paddingHorizontal: 20,
+//         marginBottom: 15,
+//     },
+//     sliderSectionTitle: {
+//         fontSize: 18,
+//         fontWeight: '700',
+//         color: '#333',
+//     },
+//     seeAllText: {
+//         fontSize: 14,
+//         color: '#667eea',
+//         fontWeight: '600',
+//     },
+//     sliderItem: {
+//         width: width - 40,
+//         marginHorizontal: 20,
+//     },
+//     sliderCard: {
+//         height: 200,
+//         borderRadius: 30,
+//         padding: 25,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         overflow: 'hidden',
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 10 },
+//         shadowOpacity: 0.2,
+//         shadowRadius: 20,
+//         elevation: 10,
+//     },
+//     sliderIconContainer: {
+//         width: 100,
+//         height: 100,
+//         borderRadius: 50,
+//         backgroundColor: 'rgba(255,255,255,0.2)',
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         marginBottom: 15,
+//     },
+//     sliderTitle: {
+//         fontSize: 22,
+//         fontWeight: '700',
+//         color: '#fff',
+//         marginBottom: 8,
+//     },
+//     sliderDescription: {
+//         fontSize: 14,
+//         color: 'rgba(255,255,255,0.9)',
+//         textAlign: 'center',
+//         paddingHorizontal: 20,
+//     },
+//     decorCircle: {
+//         position: 'absolute',
+//         borderRadius: 100,
+//         backgroundColor: 'rgba(255,255,255,0.1)',
+//     },
+//     decorCircle1: {
+//         width: 150,
+//         height: 150,
+//         top: -50,
+//         right: -50,
+//     },
+//     decorCircle2: {
+//         width: 100,
+//         height: 100,
+//         bottom: -30,
+//         left: -30,
+//     },
+//     decorCircle3: {
+//         width: 70,
+//         height: 70,
+//         bottom: 20,
+//         right: 20,
+//     },
+//     paginationContainer: {
+//         flexDirection: 'row',
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         marginTop: 20,
+//     },
+//     paginationDot: {
+//         height: 8,
+//         borderRadius: 4,
+//         marginHorizontal: 4,
+//     },
+//     // Stats Section
+//     statsSection: {
+//         flexDirection: 'row',
+//         backgroundColor: '#fff',
+//         marginHorizontal: 20,
+//         marginTop: 25,
+//         padding: 20,
+//         borderRadius: 25,
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 5 },
+//         shadowOpacity: 0.1,
+//         shadowRadius: 15,
+//         elevation: 8,
+//     },
+//     statItem: {
+//         flex: 1,
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//     },
+//     statIconContainer: {
+//         width: 45,
+//         height: 45,
+//         borderRadius: 15,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         marginRight: 10,
+//     },
+//     statDivider: {
+//         width: 1,
+//         height: 30,
+//         backgroundColor: '#e0e0e0',
+//         marginHorizontal: 10,
+//     },
+//     statNumber: {
+//         fontSize: 18,
+//         fontWeight: '700',
+//         color: '#333',
+//     },
+//     statLabel: {
+//         fontSize: 12,
+//         color: '#666',
+//         marginTop: 2,
+//     },
+//     // Button Container
+//     buttonContainer: {
+//         paddingHorizontal: 20,
+//         paddingVertical: 20,
+//     },
+//     addDeviceButton: {
+//         borderRadius: 25,
+//         paddingVertical: 20,
+//         paddingHorizontal: 20,
+//         shadowColor: "#667eea",
+//         shadowOffset: { width: 0, height: 10 },
+//         shadowOpacity: 0.3,
+//         shadowRadius: 20,
+//         elevation: 10,
+//         marginBottom: 15,
+//     },
+//     addDeviceContent: {
+//         flexDirection: "row",
+//         alignItems: "center",
+//     },
+//     addDeviceIconWrapper: {
+//         width: 55,
+//         height: 55,
+//         borderRadius: 18,
+//         backgroundColor: "#ffffff",
+//         justifyContent: "center",
+//         alignItems: "center",
+//         marginRight: 15,
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.1,
+//         shadowRadius: 5,
+//         elevation: 3,
+//     },
+//     addDeviceTextWrapper: {
+//         flex: 1,
+//     },
+//     addDeviceTitle: {
+//         fontSize: 18,
+//         fontWeight: "700",
+//         color: "#ffffff",
+//         marginBottom: 4,
+//     },
+//     addDeviceSubtitle: {
+//         fontSize: 13,
+//         color: "rgba(255,255,255,0.9)",
+//     },
+//     secondaryButton: {
+//         backgroundColor: '#fff',
+//         borderRadius: 20,
+//         paddingVertical: 15,
+//         paddingHorizontal: 20,
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         borderWidth: 1,
+//         borderColor: '#E0E0E0',
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.05,
+//         shadowRadius: 5,
+//         elevation: 2,
+//     },
+//     secondaryButtonText: {
+//         fontSize: 16,
+//         fontWeight: '500',
+//         color: '#666',
+//         marginRight: 8,
+//     },
+//     // Footer
+//     footer: {
+//         padding: 20,
+//         alignItems: 'center',
+//     },
+//     footerText: {
+//         fontSize: 13,
+//         color: '#999',
+//     },
+// });
+
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#0a0e1a', // Dark background
     },
     mainContent: {
         flex: 1,
@@ -947,7 +1313,7 @@ const styles = StyleSheet.create({
         marginBottom: 30,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.4,
         shadowRadius: 20,
         elevation: 10,
     },
@@ -957,20 +1323,20 @@ const styles = StyleSheet.create({
         borderRadius: 60,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: '#1a1f2e', // Dark card background
     },
     splashLogoBadge: {
         position: 'absolute',
         bottom: 0,
         right: 0,
-        backgroundColor: '#50C878',
+        backgroundColor: '#4CAF50',
         borderRadius: 20,
         padding: 8,
         borderWidth: 3,
-        borderColor: '#fff',
+        borderColor: '#1a1f2e', // Match logo background
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.3,
         shadowRadius: 4,
         elevation: 5,
     },
@@ -979,13 +1345,13 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         color: '#fff',
         marginBottom: 10,
-        textShadowColor: 'rgba(0, 0, 0, 0.2)',
+        textShadowColor: 'rgba(0, 0, 0, 0.3)',
         textShadowOffset: { width: 2, height: 2 },
         textShadowRadius: 4,
     },
     splashSubtitle: {
         fontSize: 16,
-        color: 'rgba(255,255,255,0.9)',
+        color: 'rgba(255,255,255,0.85)',
         textAlign: 'center',
         marginBottom: 40,
         letterSpacing: 1,
@@ -995,7 +1361,7 @@ const styles = StyleSheet.create({
     },
     splashLoadingText: {
         fontSize: 14,
-        color: 'rgba(255,255,255,0.8)',
+        color: 'rgba(255,255,255,0.7)',
         marginTop: 15,
     },
     waveContainer: {
@@ -1010,7 +1376,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         width: width * 2,
         height: 200,
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(255,255,255,0.05)',
         borderRadius: 100,
     },
     wave1: {
@@ -1021,13 +1387,13 @@ const styles = StyleSheet.create({
     wave2: {
         bottom: -70,
         left: -width * 0.5,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(255,255,255,0.03)',
         transform: [{ rotate: '-3deg' }],
     },
     wave3: {
         bottom: -90,
         left: 0,
-        backgroundColor: 'rgba(255,255,255,0.02)',
+        backgroundColor: 'rgba(255,255,255,0.01)',
         transform: [{ rotate: '0deg' }],
     },
     // Header Styles
@@ -1039,7 +1405,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 30,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
+        shadowOpacity: 0.2,
         shadowRadius: 10,
         elevation: 5,
     },
@@ -1050,23 +1416,23 @@ const styles = StyleSheet.create({
     },
     greetingText: {
         fontSize: 14,
-        color: '#666',
+        color: '#9ca3af', // Light gray
         marginBottom: 4,
     },
     userName: {
         fontSize: 24,
         fontWeight: '700',
-        color: '#333',
+        color: '#ffffff', // White text
     },
     headerIconContainer: {
         width: 45,
         height: 45,
         borderRadius: 22.5,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#1a1f2e', // Dark background
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: '#e0e0e0',
+        borderColor: '#2a2f3e', // Dark border
     },
     // Slider Section
     sliderSection: {
@@ -1082,11 +1448,11 @@ const styles = StyleSheet.create({
     sliderSectionTitle: {
         fontSize: 18,
         fontWeight: '700',
-        color: '#333',
+        color: '#ffffff', // White text
     },
     seeAllText: {
         fontSize: 14,
-        color: '#667eea',
+        color: '#4FC3F7', // Lighter blue
         fontWeight: '600',
     },
     sliderItem: {
@@ -1102,7 +1468,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.3,
         shadowRadius: 20,
         elevation: 10,
     },
@@ -1110,7 +1476,7 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        backgroundColor: 'rgba(255,255,255,0.15)',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 15,
@@ -1123,14 +1489,14 @@ const styles = StyleSheet.create({
     },
     sliderDescription: {
         fontSize: 14,
-        color: 'rgba(255,255,255,0.9)',
+        color: 'rgba(255,255,255,0.85)',
         textAlign: 'center',
         paddingHorizontal: 20,
     },
     decorCircle: {
         position: 'absolute',
         borderRadius: 100,
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(255,255,255,0.08)',
     },
     decorCircle1: {
         width: 150,
@@ -1164,16 +1530,18 @@ const styles = StyleSheet.create({
     // Stats Section
     statsSection: {
         flexDirection: 'row',
-        backgroundColor: '#fff',
+        backgroundColor: '#1a1f2e', // Dark card
         marginHorizontal: 20,
         marginTop: 25,
         padding: 20,
         borderRadius: 25,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.2,
         shadowRadius: 15,
         elevation: 8,
+        borderWidth: 1,
+        borderColor: '#2a2f3e', // Dark border
     },
     statItem: {
         flex: 1,
@@ -1192,17 +1560,17 @@ const styles = StyleSheet.create({
     statDivider: {
         width: 1,
         height: 30,
-        backgroundColor: '#e0e0e0',
+        backgroundColor: '#2a2f3e', // Dark divider
         marginHorizontal: 10,
     },
     statNumber: {
         fontSize: 18,
         fontWeight: '700',
-        color: '#333',
+        color: '#ffffff', // White text
     },
     statLabel: {
         fontSize: 12,
-        color: '#666',
+        color: '#9ca3af', // Light gray
         marginTop: 2,
     },
     // Button Container
@@ -1214,7 +1582,7 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         paddingVertical: 20,
         paddingHorizontal: 20,
-        shadowColor: "#667eea",
+        shadowColor: "#1565C0",
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.3,
         shadowRadius: 20,
@@ -1229,13 +1597,13 @@ const styles = StyleSheet.create({
         width: 55,
         height: 55,
         borderRadius: 18,
-        backgroundColor: "#ffffff",
+        backgroundColor: "#1a1f2e", // Dark background
         justifyContent: "center",
         alignItems: "center",
         marginRight: 15,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.2,
         shadowRadius: 5,
         elevation: 3,
     },
@@ -1250,10 +1618,10 @@ const styles = StyleSheet.create({
     },
     addDeviceSubtitle: {
         fontSize: 13,
-        color: "rgba(255,255,255,0.9)",
+        color: "rgba(255,255,255,0.85)",
     },
     secondaryButton: {
-        backgroundColor: '#fff',
+        backgroundColor: '#1a1f2e', // Dark background
         borderRadius: 20,
         paddingVertical: 15,
         paddingHorizontal: 20,
@@ -1261,17 +1629,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
-        borderColor: '#E0E0E0',
+        borderColor: '#2a2f3e', // Dark border
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
+        shadowOpacity: 0.2,
         shadowRadius: 5,
         elevation: 2,
     },
     secondaryButtonText: {
         fontSize: 16,
         fontWeight: '500',
-        color: '#666',
+        color: '#9ca3af', // Light gray
         marginRight: 8,
     },
     // Footer
@@ -1281,6 +1649,6 @@ const styles = StyleSheet.create({
     },
     footerText: {
         fontSize: 13,
-        color: '#999',
+        color: '#6b7280', // Medium gray
     },
 });

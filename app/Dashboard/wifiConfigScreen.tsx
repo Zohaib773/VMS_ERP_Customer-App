@@ -27,6 +27,7 @@ export default function wifiConfigScreen() {
     const [showDeviceModal, setShowDeviceModal] = useState(false);
     const [deviceName, setDeviceName] = useState('');
     const [deviceId, setDeviceId] = useState('');
+    const [Mac, setMac] = useState('');
 
     const validateForm = () => {
         const newErrors = { ssid: '', password: '' };
@@ -139,7 +140,7 @@ export default function wifiConfigScreen() {
         router.back();
     };
     const handleDeviceSubmit = () => {
-        if (!deviceName.trim() || !deviceId.trim()) {
+        if (!deviceName.trim() || !Mac.trim()) {
             Alert.alert("Error", "Please fill all fields");
             return;
         }
@@ -152,7 +153,7 @@ export default function wifiConfigScreen() {
                 ssid,
                 password,
                 deviceName,
-                deviceId,
+                Mac,
                 manual: "true",
             },
         });
@@ -323,8 +324,7 @@ export default function wifiConfigScreen() {
                                 </LinearGradient>
 
                                 <View style={styles.modalContent}>
-                                    {/* Device Name */}
-                                    {/* Device Name */}
+                                   
                                     <View style={styles.modalInputContainer}>
                                         <Text style={styles.modalLabel}>Device Name</Text>
 
@@ -341,24 +341,21 @@ export default function wifiConfigScreen() {
                                         </View>
                                     </View>
 
-                                    {/* Device ID */}
                                     <View style={styles.modalInputContainer}>
-                                        <Text style={styles.modalLabel}>Device ID</Text>
+                                        <Text style={styles.modalLabel}>Mac Address</Text>
 
                                         <View style={styles.modalInputWrapper}>
                                             <MaterialIcons name="qr-code" size={20} color="#4CAF50" />
 
                                             <TextInput
-                                                placeholder="Enter device ID"
+                                                placeholder="Enter Mac Address"
                                                 placeholderTextColor="#999"
-                                                value={deviceId}
-                                                onChangeText={setDeviceId}
+                                                value={Mac}
+                                                onChangeText={setMac}
                                                 style={styles.modalInput}
                                             />
                                         </View>
                                     </View>
-
-                                    {/* Buttons */}
                                     <View style={styles.modalButtons}>
                                         <TouchableOpacity
                                             style={styles.cancelBtn}

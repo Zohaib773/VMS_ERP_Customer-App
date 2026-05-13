@@ -1,27 +1,30 @@
-const Base_Url = "http://192.168.18.28:8000"
+// const Base_Url = "http://192.168.18.120:8000"
+const Base_Url = "http://192.168.18.24:8000"
 // const Base_Url = "http://192.168.100.159:8000"
-const Device_Url = "http://192.168.4.1/"
+// const Device_Url = "http://192.168.4.1/"
+const Device_Url = "http://192.168.18.34:8000/"
 
 // API'S
 const urls = {
 
     Base: `${Base_Url}`,
     /////////////
-    login: `${Base_Url}/login`,
+    login: `${Base_Url}/vms/api/v1/auth/general/login/`,//login`,
     logout: `${Base_Url}/logout`,
-    customer_register : `${Base_Url}/customer_register/`,
-    configure_device : `${Base_Url}/configure_device`,
+    // customer_register : `${Base_Url}/customer_register/`,
+    customer_register: `${Base_Url}/vms/api/v1/client/general/create-customer/`,
+    configure_device: `${Base_Url}/configure_device`,
     save_captive_portal: `${Base_Url}/save_captive_portal`,
-    get_customer_devices: `${Base_Url}/get_customer_devices`,
+    get_customer_devices: `${Base_Url}/vms/api/v1/customer/general/gateways`,//get_customer_devices`,
     get_sensor_data: `${Base_Url}/get_sensor_data`,
     REGISTER_TOKEN_URL: `${Base_Url}/register_firebase_token/`,
     save_roi: `${Base_Url}/save_roi`,
     get_roi: `${Base_Url}/get_roi/`,
     delete_roi: `${Base_Url}/delete_roi`,
 
-
     // Sensor details Mqtt URL WS Device Detail Screen Connect and subscribe
-    brokerUrl: "ws://192.168.18.28:9001",
+    // brokerUrl: "ws://192.168.18.28:9001",
+    brokerUrl: "ws://192.168.18.24:9001",
     // TO GET THE URL FOR STREAM
     get_stream: `${Base_Url}/get_stream`,
     // TO SHOW THE SAVED STREAM
@@ -31,7 +34,11 @@ const urls = {
 
     //Captive portal end point 
     // http://192.168.18.108/config
-    Captive_config: `${Device_Url}/config`,
-    Get_Device_data: `${Device_Url}/get_data`
+    // Captive_config: `${Device_Url}/config`,
+    Captive_config: `${Device_Url}/sync_device/`,
+    Get_Device_data: `${Device_Url}/get_data`,
+    Get_Device_Mac: `${Base_Url}/get_device_mac_imei/`,
 }
 export default urls
+
+

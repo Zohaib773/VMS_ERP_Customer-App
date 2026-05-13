@@ -88,7 +88,7 @@
 //       setLoading(false);
 //     }
 //   };
-  
+
 //   const handleSignUp = () => {
 //     console.log('Navigate to sign up');
 //   };
@@ -511,13 +511,13 @@
 
 ///////////////////////////////////////////
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
-import { useEffect } from "react";
 import { ActivityIndicator, Platform, View } from "react-native";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
+import { router } from "expo-router";
+import { useEffect } from "react";
 
 
 // 🔔 How notifications behave when received in foreground
@@ -605,7 +605,7 @@ export default function Index() {
           // } else {
           //   router.replace("/login");
           // }
-          if (user.role === "customer") {
+          if (user.role === "Customer") {
                   if (user.devices > 0) {
                     router.replace("/Dashboard/All_devices");
                   } else {
@@ -620,7 +620,29 @@ export default function Index() {
         router.replace("/login");
       }
     };
+    // const checkLogin = async () => {
+    //   console.log("🚀 App started — redirecting to login");
 
+    //   //  Auto login disabled
+    //   const token = await AsyncStorage.getItem("accessToken");
+    //   const userData = await AsyncStorage.getItem("userData");
+
+    //   if (token && userData) {
+    //     const user = JSON.parse(userData);
+
+    //     if (user.role === "Customer") {
+    //       if (user.devices > 0) {
+    //         router.replace("/Dashboard/All_devices");
+    //       } else {
+    //         router.replace("/Dashboard/Add_Device_Screen");
+    //       }
+    //     }
+    //   } else {
+    //     router.replace("/login");
+    //   }
+
+    //   router.replace("/login");
+    // };
     checkLogin();
 
     return () => {
@@ -628,6 +650,7 @@ export default function Index() {
       responseListener.remove();
     };
   }, []);
+
 
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>

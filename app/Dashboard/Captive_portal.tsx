@@ -91,8 +91,11 @@ export default function CaptivePortalScreen({
     const params = useLocalSearchParams();
 
     const deviceNameFromRoute = params.deviceName;
-    const deviceIdFromRoute = params.deviceId;
+    const deviceIdFromRoute = params.Mac;
     const ssidFromRoute = params.ssid;
+    const MacAddress = params.Mac;
+
+    console.log("MAC ADDRESS", MacAddress)
 
     useEffect(() => {
         if (!permission) {
@@ -116,7 +119,7 @@ export default function CaptivePortalScreen({
 
     const normalizedDeviceName = deviceName.toUpperCase();
 
-    const CAMERA_DISABLED_DEVICES = ["MC1", "MC2"];
+    const CAMERA_DISABLED_DEVICES = ["MS1", "MS2"];
     const shouldShowCameras = !CAMERA_DISABLED_DEVICES.includes(normalizedDeviceName);
 
     // Helper function to check if a section is filled
@@ -187,7 +190,8 @@ export default function CaptivePortalScreen({
                 setLoadingText("Fetching device data...");
 
                 const response = await axios.get(
-                    "http://192.168.18.120:8000/get_json/"
+                    // "http://192.168.18.120:8000/get_json/"
+                    "http://192.168.4.1/get_json"
                 );
 
                 console.log("📦 API Response:", response.data);
@@ -284,6 +288,21 @@ export default function CaptivePortalScreen({
         };
 
         fetchData();
+    }, []);
+
+    useEffect(() => {
+        const fetchMac = async () => {
+            try {
+                const response = await axios.get(
+                    urls.Get_Device_Mac
+                );
+                console.log("MAC ADDRESS", response.data)
+
+            } catch (error) {
+
+            }
+        }
+        fetchMac();
     }, []);
 
 
@@ -1207,9 +1226,115 @@ export default function CaptivePortalScreen({
                                                 console.log("🟢 CURRENT STATUS:", formData.status);
 
                                                 /** ================= STEP 2: TRANSFORM DATA FOR BACKEND ================= */
+                                                // const backendPayload = {
+                                                //     json_id: "",
+                                                //     // device_id: { deviceIdFromRoute },
+                                                //     device_id: "",
+
+                                                //     status: formData.status || "arm",
+
+                                                //     wifi: {
+                                                //         ssid: formData.wifi?.ssid || "",
+                                                //         password: formData.wifi?.password || "",
+                                                //     },
+
+                                                //     location: {
+                                                //         longitude: String(formData.location.longitude),
+                                                //         latitude: String(formData.location.latitude),
+                                                //         address: formData.location.address,
+                                                //     },
+
+                                                //     phones: formData.phone_number.numbers,
+
+                                                //     metadata: {
+                                                //         devices: [
+                                                //             ...(formData.sensors.Door_window || []).map((d: any, index: number) => ({
+                                                //                 id: d.id || index + 1,
+                                                //                 name: d.name || `Door Sensor ${index + 1}`,
+                                                //                 status: true,
+                                                //             })),
+
+                                                //             formData.sensors.Motion_detection?.id && {
+                                                //                 id: formData.sensors.Motion_detection.id,
+                                                //                 name: formData.sensors.Motion_detection.name || "Motion Detector",
+                                                //                 status: true,
+                                                //             },
+                                                //         ].filter(Boolean),
+
+                                                //         burglar: {
+                                                //             rf_id: formData.bugler.id || "",
+                                                //             status: true,
+                                                //         },
+                                                //         // formData.sensors.Motion_detection?.id && {
+                                                //         //         id: formData.sensors.Motion_detection.id,
+                                                //         //         name: formData.sensors.Motion_detection.name || "Motion Detector",
+                                                //         //         status: true,
+                                                //         //     },
+
+                                                //         lpg: {
+                                                //             rf_id: formData.sensors.LPG?.id || "",
+                                                //             status: formData.sensors.LPG?.status || false,
+                                                //         },
+
+                                                //         smoke: {
+                                                //             id: formData.sensors.Smoke?.id || "",
+                                                //             status: formData.sensors.Smoke?.status || false,
+                                                //         },
+
+                                                //         motion_detection: {
+                                                //             id: formData.sensors.Motion_detection?.id || "",
+                                                //             status: true,
+                                                //         },
+
+                                                //         human_appearance: {
+                                                //             id: formData.sensors.Human_appearance?.id || "",
+                                                //             status: true,
+                                                //         },
+
+                                                //         keys: [
+                                                //             {
+                                                //                 id: formData.key_on?.id || 1,
+                                                //                 name: "Key On",
+                                                //             },
+                                                //             {
+                                                //                 id: formData.key_off?.id || 2,
+                                                //                 name: "Key Off",
+                                                //             },
+                                                //         ],
+
+                                                //         cams: {
+                                                //             cam1: {
+                                                //                 id: formData.cams.cam1.id,
+                                                //                 name: formData.cams.cam1.name,
+                                                //                 ip_address: formData.cams.cam1.ip_adress,
+                                                //                 configurations: formData.cams.cam1.configurations,
+                                                //             },
+                                                //             cam2: {
+                                                //                 id: formData.cams.cam2.id,
+                                                //                 name: formData.cams.cam2.name,
+                                                //                 ip_address: formData.cams.cam2.ip_adress,
+                                                //                 configurations: formData.cams.cam2.configurations,
+                                                //             },
+                                                //             cam3: {
+                                                //                 id: formData.cams.cam3.id,
+                                                //                 name: formData.cams.cam3.name,
+                                                //                 ip_address: formData.cams.cam3.ip_adress,
+                                                //                 configurations: formData.cams.cam3.configurations,
+                                                //             },
+                                                //             cam4: {
+                                                //                 id: formData.cams.cam4.id,
+                                                //                 name: formData.cams.cam4.name,
+                                                //                 ip_address: formData.cams.cam4.ip_adress,
+                                                //                 configurations: formData.cams.cam4.configurations,
+                                                //             },
+                                                //         },
+                                                //     },
+                                                // };
+
                                                 const backendPayload = {
-                                                    json_id: "",
-                                                    device_id: { deviceIdFromRoute },
+                                                    timestamp: new Date().toISOString(),
+
+                                                    mac_address: MacAddress || "",
 
                                                     status: formData.status || "arm",
 
@@ -1219,99 +1344,115 @@ export default function CaptivePortalScreen({
                                                     },
 
                                                     location: {
-                                                        longitude: String(formData.location.longitude),
-                                                        latitude: String(formData.location.latitude),
-                                                        address: formData.location.address,
+                                                        longitude: String(formData.location?.longitude || ""),
+                                                        latitude: String(formData.location?.latitude || ""),
+                                                        address: formData.location?.address || "",
                                                     },
 
-                                                    phones: formData.phone_number.numbers,
+                                                    //  phones must be array of objects (not just numbers)
+                                                    phones: (formData.phone_number?.numbers || []).map((num: any) => ({
+                                                        number: num.number || num,
+                                                        call: num.call ?? true,
+                                                        message: num.message ?? false,
+                                                    })),
 
                                                     metadata: {
-                                                        devices: [
-                                                            ...(formData.sensors.Door_window || []).map((d: any, index: number) => ({
-                                                                id: d.id || index + 1,
-                                                                name: d.name || `Door Sensor ${index + 1}`,
-                                                                status: true,
-                                                            })),
+                                                        // Door/Window sensors
+                                                        DW_sensors: (formData.sensors?.Door_window || []).map((d: any, index: number) => ({
+                                                            rf_id: d.id || index + 1,
+                                                            name: d.name || `Door Sensor ${index + 1}`,
+                                                            status: true,
+                                                        })),
 
-                                                            formData.sensors.Motion_detection?.id && {
-                                                                id: formData.sensors.Motion_detection.id,
-                                                                name: formData.sensors.Motion_detection.name || "Motion Detector",
-                                                                status: true,
-                                                            },
-                                                        ].filter(Boolean),
+                                                        // LPG → must be ARRAY
+                                                        lpg: formData.sensors?.LPG?.id
+                                                            ? [
+                                                                {
+                                                                    rf_id: formData.sensors.LPG.id,
+                                                                    status: formData.sensors.LPG.status ?? false,
+                                                                },
+                                                            ]
+                                                            : [],
 
+                                                        //  Smoke → ARRAY
+                                                        smoke: formData.sensors?.Smoke?.id
+                                                            ? [
+                                                                {
+                                                                    rf_id: formData.sensors.Smoke.id,
+                                                                    status: formData.sensors.Smoke.status ?? false,
+                                                                },
+                                                            ]
+                                                            : [],
+
+                                                        // Motion → ARRAY
+                                                        motion_detection: formData.sensors?.Motion_detection?.id
+                                                            ? [
+                                                                {
+                                                                    rf_id: formData.sensors.Motion_detection.id,
+                                                                    status: true,
+                                                                },
+                                                            ]
+                                                            : [],
+
+                                                        //  Human → ARRAY
+                                                        human_appearance: formData.sensors?.Human_appearance?.id
+                                                            ? [
+                                                                {
+                                                                    rf_id: formData.sensors.Human_appearance.id,
+                                                                    status: true,
+                                                                },
+                                                            ]
+                                                            : [],
+
+                                                        //  Burglar (object)
                                                         burglar: {
-                                                            rf_id: formData.bugler.id || "",
-                                                            status: true,
-                                                        },
-                                                        // formData.sensors.Motion_detection?.id && {
-                                                        //         id: formData.sensors.Motion_detection.id,
-                                                        //         name: formData.sensors.Motion_detection.name || "Motion Detector",
-                                                        //         status: true,
-                                                        //     },
-
-                                                        lpg: {
-                                                            rf_id: formData.sensors.LPG?.id || "",
-                                                            status: formData.sensors.LPG?.status || false,
-                                                        },
-
-                                                        smoke: {
-                                                            id: formData.sensors.Smoke?.id || "",
-                                                            status: formData.sensors.Smoke?.status || false,
-                                                        },
-
-                                                        motion_detection: {
-                                                            id: formData.sensors.Motion_detection?.id || "",
+                                                            rf_id: formData.bugler?.id || "",
                                                             status: true,
                                                         },
 
-                                                        human_appearance: {
-                                                            id: formData.sensors.Human_appearance?.id || "",
-                                                            status: true,
-                                                        },
-
+                                                        //  Keys (rf_id instead of id)
                                                         keys: [
                                                             {
-                                                                id: formData.key_on?.id || 1,
+                                                                rf_id: formData.key_on?.id || 1,
                                                                 name: "Key On",
                                                             },
                                                             {
-                                                                id: formData.key_off?.id || 2,
+                                                                rf_id: formData.key_off?.id || 2,
                                                                 name: "Key Off",
                                                             },
                                                         ],
 
+                                                        // Cameras (rf_id + correct keys)
                                                         cams: {
                                                             cam1: {
-                                                                id: formData.cams.cam1.id,
-                                                                name: formData.cams.cam1.name,
-                                                                ip_address: formData.cams.cam1.ip_adress,
-                                                                configurations: formData.cams.cam1.configurations,
+                                                                rf_id: formData.cams?.cam1?.id || "",
+                                                                name: formData.cams?.cam1?.name || "",
+                                                                ip_address: formData.cams?.cam1?.ip_adress || "",
+                                                                configurations: formData.cams?.cam1?.configurations || "",
                                                             },
                                                             cam2: {
-                                                                id: formData.cams.cam2.id,
-                                                                name: formData.cams.cam2.name,
-                                                                ip_address: formData.cams.cam2.ip_adress,
-                                                                configurations: formData.cams.cam2.configurations,
+                                                                rf_id: formData.cams?.cam2?.id || "",
+                                                                name: formData.cams?.cam2?.name || "",
+                                                                ip_address: formData.cams?.cam2?.ip_adress || "",
+                                                                configurations: formData.cams?.cam2?.configurations || "",
                                                             },
                                                             cam3: {
-                                                                id: formData.cams.cam3.id,
-                                                                name: formData.cams.cam3.name,
-                                                                ip_address: formData.cams.cam3.ip_adress,
-                                                                configurations: formData.cams.cam3.configurations,
+                                                                rf_id: formData.cams?.cam3?.id || "",
+                                                                name: formData.cams?.cam3?.name || "",
+                                                                ip_address: formData.cams?.cam3?.ip_adress || "",
+                                                                configurations: formData.cams?.cam3?.configurations || "",
                                                             },
                                                             cam4: {
-                                                                id: formData.cams.cam4.id,
-                                                                name: formData.cams.cam4.name,
-                                                                ip_address: formData.cams.cam4.ip_adress,
-                                                                configurations: formData.cams.cam4.configurations,
+                                                                rf_id: formData.cams?.cam4?.id || "",
+                                                                name: formData.cams?.cam4?.name || "",
+                                                                ip_address: formData.cams?.cam4?.ip_adress || "",
+                                                                configurations: formData.cams?.cam4?.configurations || "",
                                                             },
                                                         },
                                                     },
                                                 };
-
                                                 const requestBody = backendPayload;
+                                                const config = urls.Captive_config
 
                                                 /** ================= DEBUG LOGS ================= */
                                                 console.log("📦 ORIGINAL FORM DATA:", JSON.stringify(formData, null, 2));
@@ -1323,7 +1464,8 @@ export default function CaptivePortalScreen({
                                                 console.log("📡 Sending to local device...");
 
                                                 await axios.post(
-                                                    "http://192.168.4.1/config",
+                                                    "http://192.168.18.34:8000/sync_device/",
+                                                    // config,
                                                     requestBody,
                                                     {
                                                         headers: {
@@ -1360,19 +1502,63 @@ export default function CaptivePortalScreen({
                                                 /** ================= STEP 5: SEND TO CLOUD ================= */
                                                 setLoadingText("Uploading to cloud..."); //  ADD
 
-                                                const response = await axios.post(
-                                                    urls.save_captive_portal, // BACKEND
-                                                    requestBody,
-                                                    {
-                                                        headers: {
-                                                            Authorization: `Bearer ${accessToken}`,
-                                                            "Content-Type": "application/json",
-                                                        },
-                                                    }
-                                                );
+                                                // const response = await axios.post(
+                                                //     urls.save_captive_portal, // BACKEND
+                                                //     requestBody,
+                                                //     {
+                                                //         headers: {
+                                                //             Authorization: `Bearer ${accessToken}`,
+                                                //             "Content-Type": "application/json",
+                                                //         },
+                                                //     }
+                                                // );
 
-                                                console.log("Backend saved configuration");
-                                                onSubmit(response.data);
+                                                // console.log("Backend saved configuration");
+                                                // onSubmit(response.data);
+                                                /** ================= STEP 5: POLL CLOUD UNTIL DEVICE CONNECTED ================= */
+                                                setLoadingText("Waiting for device to connect to cloud...");
+
+                                                // const waitForDeviceConnected = async (retries = 20, delayMs = 3000) => {
+                                                //     for (let i = 0; i < retries; i++) {
+                                                //         try {
+                                                //             console.log(`🔄 Polling attempt ${i + 1}/${retries}...`);
+
+                                                //             const res = await axios.get(
+                                                //                 `${urls.check_device_connected}?mac_address=${MacAddress}`,
+                                                //                 {
+                                                //                     headers: {
+                                                //                         Authorization: `Bearer ${accessToken}`,
+                                                //                         "Content-Type": "application/json",
+                                                //                     },
+                                                //                     timeout: 5000,
+                                                //                 }
+                                                //             );
+
+                                                //             console.log("📡 Poll response:", res.data);
+
+                                                //             // ✅ Adjust this condition to match your API's response shape
+                                                //             if (res.data?.connected === true || res.data?.status === "connected") {
+                                                //                 console.log("✅ Device confirmed connected to cloud!");
+                                                //                 return res.data;
+                                                //             }
+
+                                                //             console.log(`⏳ Not connected yet, retrying in ${delayMs / 1000}s...`);
+
+                                                //         } catch (err) {
+                                                //             console.log(`❌ Poll error on attempt ${i + 1}:`, err);
+                                                //         }
+
+                                                //         // Wait before next retry
+                                                //         await new Promise(resolve => setTimeout(resolve, delayMs));
+                                                //     }
+
+                                                //     throw new Error("Device did not connect to cloud within timeout");
+                                                // };
+
+                                                // const deviceStatus = await waitForDeviceConnected();
+
+                                                // console.log("🎉 Device connected:", deviceStatus);
+                                                // onSubmit(deviceStatus); // pass the status data up
 
                                             } catch (error: any) {
                                                 console.log("❌ CONFIG ERROR FULL:", error?.response?.data || error);

@@ -35,7 +35,7 @@ let mqttClient: mqtt.MqttClient | null = null;
 
 export default function DeviceDetailsScreen() {
     const navigation = useNavigation();
-    const router = useRouter(); // Add this line
+    const router = useRouter();
     // const params = useLocalSearchParams();
     // const device = JSON.parse(params.device as string);
     const params = useLocalSearchParams();
@@ -49,6 +49,33 @@ export default function DeviceDetailsScreen() {
             return null;
         }
     }, [params.device]);
+
+    useEffect(() => {
+        console.log("=================================");
+        console.log("DEVICE DETAILS SCREEN PARAMS");
+        console.log("=================================");
+
+        console.log("RAW PARAMS:");
+        console.log(params);
+
+        console.log("FULL DEVICE OBJECT:");
+        console.log(JSON.stringify(device, null, 2));
+
+        console.log("DEVICE ID:", device?.id);
+        console.log("GATEWAY ID:", device?.gateway_id);
+        console.log("GATEWAY NAME:", device?.gateway_name);
+
+        console.log("LAST METADATA:");
+        console.log(JSON.stringify(device?.metadata, null, 2));
+
+        console.log("SENSORS:");
+        console.log(JSON.stringify(device?.metadata?.sensors, null, 2));
+
+        console.log("CAMS:");
+        console.log(JSON.stringify(device?.metadata?.cams, null, 2));
+
+        console.log("=================================");
+    }, [device]);
 
 
     // MQTT
@@ -438,81 +465,13 @@ export default function DeviceDetailsScreen() {
         );
     };
 
-    // Render sensor card with live data
-    // const renderSensorCard = (sensor: any, sensorType: string, title: string, icon: JSX.Element, color: string) => {
-    //     const sensorKey = `3/sensor/${sensorType}/${sensor.id}`;
-    //     const liveData = sensorDataMap[sensorKey];
-    //     const sensorValue = liveData?.value;
-    //     const value = sensorValue?.value ?? 0;
-    //     const statusColor = getSensorStatusColor(sensorType, value);
-    //     const statusText = getSensorStatusText(sensorType, value);
-    //     const unit = getSensorUnit(sensorType);
-    //     const lastUpdated = liveData?.receivedAt || "No data";
-
-    //     return (
-    //         <Animated.View
-    //             key={sensorKey}
-    //             style={[
-    //                 styles.sensorCard,
-    //                 {
-    //                     borderLeftColor: color,
-    //                     transform: [{
-    //                         translateX: slideAnim.interpolate({
-    //                             inputRange: [0, 1],
-    //                             outputRange: [0, 10]
-    //                         })
-    //                     }]
-    //                 }
-    //             ]}
-    //         >
-    //             <View style={styles.sensorHeader}>
-    //                 <View style={[styles.sensorIconContainer, { backgroundColor: color + '20' }]}>
-    //                     {icon}
-    //                 </View>
-    //                 <View style={styles.sensorTitleContainer}>
-    //                     <Text style={styles.sensorTitle}>{title}</Text>
-    //                     <Text style={styles.sensorName}>{sensor.name}</Text>
-    //                 </View>
-    //                 <View style={[styles.sensorStatusBadge, { backgroundColor: statusColor + '20' }]}>
-    //                     <View style={[styles.statusDotSmall, { backgroundColor: statusColor }]} />
-    //                     <Text style={[styles.sensorStatusText, { color: statusColor }]}>
-    //                         {statusText}
-    //                     </Text>
-    //                 </View>
-    //             </View>
-
-    //             <View style={styles.sensorDataContainer}>
-    //                 <View style={styles.valueContainer}>
-    //                     <Text style={styles.valueLabel}>Current Value</Text>
-    //                     <View style={styles.valueDisplay}>
-    //                         <Text style={[styles.value, { color: statusColor }]}>
-    //                             {value.toFixed(0)}
-    //                         </Text>
-    //                         <Text style={styles.unit}>{unit}</Text>
-    //                     </View>
-    //                 </View>
-
-    //                 {renderValueGauge(value, getMaxValue(sensorType), statusColor)}
-    //             </View>
-
-    //             <View style={styles.sensorMeta}>
-    //                 <View style={styles.metaItem}>
-    //                     <Feather name="cpu" size={14} color="#6B7280" />
-    //                     <Text style={styles.metaText}>ID: {sensor.id}</Text>
-    //                 </View>
-    //                 <View style={styles.metaItem}>
-    //                     <Feather name="clock" size={14} color="#6B7280" />
-    //                     <Text style={styles.metaText}>{lastUpdated}</Text>
-    //                 </View>
-    //             </View>
-    //         </Animated.View>
-    //     );
-    // };
     const renderSensorCard = (sensor: any, sensorType: string, title: string, icon: JSX.Element, color: string) => {
-        const sensorKey = `3/sensor/${sensorType}/${sensor.id}`;
+        // const sensorKey = `3/sensor/${sensorType}/${sensor.id}`;
+        const sensorKey = `3/sensor/${sensorType}/${sensor.rf_id}`;
         const liveData = sensorDataMap[sensorKey];
         const sensorValue = liveData?.value;
-        const value = sensorValue?.value ?? 0;
+        // const value = sensorValue?.value ?? 0;
+        const value = sensorValue?.Value ?? sensorValue?.value ?? 0;
         const statusColor = getSensorStatusColor(sensorType, value);
         const statusText = getSensorStatusText(sensorType, value);
         const unit = getSensorUnit(sensorType);
@@ -606,7 +565,8 @@ export default function DeviceDetailsScreen() {
 
     // Render door/window sensor
     const renderDoorWindowSensor = (sensor: any) => {
-        const sensorKey = `3/sensor/Door_window/${sensor.id}`;
+        // const sensorKey = `3/sensor/Door_window/${sensor.id}`;
+        const sensorKey = `3/sensor/Door_window/${sensor.rf_id}`;
         const liveData = sensorDataMap[sensorKey];
         const sensorValue = liveData?.value;
         const value = sensorValue?.value ?? 0;
@@ -657,7 +617,7 @@ export default function DeviceDetailsScreen() {
                     <View style={styles.doorWindowMeta}>
                         <View style={styles.metaItem}>
                             <Feather name="cpu" size={14} color="#6B7280" />
-                            <Text style={styles.metaText}>ID: {sensor.id}</Text>
+                            <Text style={styles.metaText}>RF ID: {sensor.rf_id}</Text>
                         </View>
                         <View style={styles.metaItem}>
                             <Feather name="clock" size={14} color="#6B7280" />
@@ -851,7 +811,7 @@ export default function DeviceDetailsScreen() {
                                     console.log(newState ? "🟢 Armed" : "🔴 Disarmed");
 
                                     if (clientRef.current && clientRef.current.connected) {
-                                        const topic = `hub/${device?.id}/command/security`;
+                                        const topic = `hub/${device?.gateway_id}/command/security`;
 
                                         console.log("TOPIC PUBLISH", topic)
                                         const payload = JSON.stringify({
@@ -894,7 +854,7 @@ export default function DeviceDetailsScreen() {
                     {renderStatistics()}
 
                     {/* Sensors Section */}
-                    {device.captive_data?.sensors && (
+                    {device.metadata && (
                         <View style={styles.section}>
                             <View style={styles.sectionHeader}>
                                 <MaterialIcons name="sensors" size={24} color="#4F46E5" />
@@ -906,50 +866,104 @@ export default function DeviceDetailsScreen() {
                                 </View>
                             </View>
 
-                            <View style={styles.sensorsGrid}>
-                                {device.captive_data.sensors.LPG && renderSensorCard(
-                                    device.captive_data.sensors.LPG,
+                            {/* <View style={styles.sensorsGrid}>
+                                {device.metadata.lpg && renderSensorCard(
+                                    device.metadata.lpg,
                                     "LPG",
                                     "LPG Gas Sensor",
                                     <MaterialCommunityIcons name="gas-cylinder" size={24} color="#F59E0B" />,
                                     "#F59E0B"
                                 )}
 
-                                {device.captive_data.sensors.Smoke && renderSensorCard(
-                                    device.captive_data.sensors.Smoke,
+                                {device.metadata.smoke && renderSensorCard(
+                                    device.metadata.smoke,
                                     "Smoke",
                                     "Smoke Detector",
                                     <MaterialCommunityIcons name="smoke-detector" size={24} color="#EF4444" />,
                                     "#EF4444"
                                 )}
 
-                                {device.captive_data.sensors.Motion_detection && renderSensorCard(
-                                    device.captive_data.sensors.Motion_detection,
+                                {device.metadata.motion_detection && renderSensorCard(
+                                    device.metadata.motion_detection,
                                     "Motion_detection",
                                     "Motion Sensor",
                                     <MaterialCommunityIcons name="motion-sensor" size={24} color="#8B5CF6" />,
                                     "#8B5CF6"
                                 )}
 
-                                {device.captive_data.sensors.Human_appearance && renderSensorCard(
-                                    device.captive_data.sensors.Human_appearance,
+                                {device.metadata.human_appearance && renderSensorCard(
+                                    device.metadata.human_appearance,
                                     "Human_appearance",
                                     "Human Detection",
                                     <MaterialCommunityIcons name="human" size={24} color="#3B82F6" />,
                                     "#3B82F6"
                                 )}
+                            </View> */}
+
+                            <View style={styles.sensorsGrid}>
+
+                                {device.metadata?.lpg?.[0] && renderSensorCard(
+                                    device.metadata.lpg[0],
+                                    "LPG",
+                                    "LPG Gas Sensor",
+                                    <MaterialCommunityIcons
+                                        name="gas-cylinder"
+                                        size={24}
+                                        color="#F59E0B"
+                                    />,
+                                    "#F59E0B"
+                                )}
+
+                                {device.metadata?.smoke?.[0] && renderSensorCard(
+                                    device.metadata.smoke[0],
+                                    "Smoke",
+                                    "Smoke Detector",
+                                    <MaterialCommunityIcons
+                                        name="smoke-detector"
+                                        size={24}
+                                        color="#EF4444"
+                                    />,
+                                    "#EF4444"
+                                )}
+
+                                {device.metadata?.motion_detection?.[0] && renderSensorCard(
+                                    device.metadata.motion_detection[0],
+                                    "Motion_detection",
+                                    "Motion Sensor",
+                                    <MaterialCommunityIcons
+                                        name="motion-sensor"
+                                        size={24}
+                                        color="#8B5CF6"
+                                    />,
+                                    "#8B5CF6"
+                                )}
+
+                                {device.metadata?.human_appearance?.[0] && renderSensorCard(
+                                    device.metadata.human_appearance[0],
+                                    "Human_appearance",
+                                    "Human Detection",
+                                    <MaterialCommunityIcons
+                                        name="human"
+                                        size={24}
+                                        color="#3B82F6"
+                                    />,
+                                    "#3B82F6"
+                                )}
+
                             </View>
 
+
                             {/* Door/Window Sensors */}
-                            {device.captive_data.sensors.Door_window &&
-                                device.captive_data.sensors.Door_window.length > 0 && (
+                            {device.metadata.DW_sensors &&
+                                device.metadata.DW_sensors.length > 0 && (
                                     <View style={styles.doorWindowSection}>
                                         <View style={styles.sectionHeader}>
                                             <FontAwesome6 name="door-closed" size={24} color="#8B5CF6" />
                                             <Text style={styles.sectionTitle}>Door & Window Sensors</Text>
                                         </View>
                                         <View style={styles.doorWindowGrid}>
-                                            {device.captive_data.sensors.Door_window.map(renderDoorWindowSensor)}
+                                            {/* {device.last_metadata.sensors.Door_window.map(renderDoorWindowSensor)} */}
+                                            {device.metadata.DW_sensors.map(renderDoorWindowSensor)}
                                         </View>
                                     </View>
                                 )}
@@ -957,7 +971,7 @@ export default function DeviceDetailsScreen() {
                     )}
 
                     {/* Empty State */}
-                    {!device.captive_data && (
+                    {!device.metadata && (
                         <View style={styles.emptyState}>
                             <MaterialIcons name="sensors-off" size={80} color="#D1D5DB" />
                             <Text style={styles.emptyStateTitle}>No Sensors Configured</Text>
@@ -975,19 +989,549 @@ export default function DeviceDetailsScreen() {
     );
 }
 
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         backgroundColor: '#F9FAFB',
+//     },
+//     header: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         paddingHorizontal: 20,
+//         paddingVertical: 16,
+//         backgroundColor: 'white',
+//         borderBottomWidth: 1,
+//         borderBottomColor: '#E5E7EB',
+//     },
+//     backButton: {
+//         padding: 8,
+//         marginRight: 12,
+//     },
+//     headerTitle: {
+//         fontSize: 20,
+//         fontWeight: '600',
+//         color: '#111827',
+//         flex: 1,
+//     },
+//     statusBadge: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         paddingHorizontal: 12,
+//         paddingVertical: 6,
+//         borderRadius: 20,
+//         backgroundColor: '#F3F4F6',
+//         gap: 6,
+//     },
+//     statusDot: {
+//         width: 8,
+//         height: 8,
+//         borderRadius: 4,
+//     },
+//     statusText: {
+//         fontSize: 12,
+//         fontWeight: '600',
+//     },
+//     overviewCard: {
+//         backgroundColor: 'white',
+//         margin: 20,
+//         marginBottom: 16,
+//         borderRadius: 16,
+//         padding: 20,
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.05,
+//         shadowRadius: 8,
+//         elevation: 3,
+//         borderWidth: 1,
+//         borderColor: '#F3F4F6',
+//     },
+//     overviewIcon: {
+//         width: 60,
+//         height: 60,
+//         borderRadius: 12,
+//         backgroundColor: '#EEF2FF',
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         marginRight: 16,
+//     },
+//     overviewInfo: {
+//         flex: 1,
+//     },
+//     deviceName: {
+//         fontSize: 22,
+//         fontWeight: 'bold',
+//         color: '#111827',
+//         marginBottom: 4,
+//     },
+//     deviceMac: {
+//         fontSize: 14,
+//         color: '#6B7280',
+//         fontFamily: 'monospace',
+//         marginBottom: 4,
+//     },
+//     deviceStatus: {
+//         fontSize: 14,
+//         color: '#9CA3AF',
+//     },
+//     connectionCard: {
+//         backgroundColor: 'white',
+//         marginHorizontal: 20,
+//         marginBottom: 16,
+//         borderRadius: 16,
+//         padding: 20,
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.05,
+//         shadowRadius: 8,
+//         elevation: 3,
+//         borderWidth: 1,
+//         borderColor: '#F3F4F6',
+//     },
+//     connectionHeader: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         marginBottom: 12,
+//         gap: 12,
+//     },
+//     connectionTitle: {
+//         fontSize: 18,
+//         fontWeight: '600',
+//         color: '#111827',
+//         flex: 1,
+//     },
+//     connectionIndicator: {
+//         width: 12,
+//         height: 12,
+//         borderRadius: 6,
+//     },
+//     connectionDetails: {
+//         marginBottom: 16,
+//     },
+//     connectionStatus: {
+//         fontSize: 14,
+//         color: '#6B7280',
+//         marginBottom: 4,
+//     },
+//     connectionTopic: {
+//         fontSize: 12,
+//         color: '#9CA3AF',
+//         fontFamily: 'monospace',
+//     },
+//     connectButton: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         paddingVertical: 12,
+//         borderRadius: 12,
+//         gap: 8,
+//     },
+//     connectButtonText: {
+//         color: 'white',
+//         fontSize: 16,
+//         fontWeight: '600',
+//     },
+//     statsCard: {
+//         backgroundColor: 'white',
+//         marginHorizontal: 20,
+//         marginBottom: 16,
+//         borderRadius: 16,
+//         padding: 20,
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.05,
+//         shadowRadius: 8,
+//         elevation: 3,
+//         borderWidth: 1,
+//         borderColor: '#F3F4F6',
+//     },
+//     statsHeader: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         marginBottom: 16,
+//         gap: 12,
+//     },
+//     statsTitle: {
+//         fontSize: 18,
+//         fontWeight: '600',
+//         color: '#111827',
+//     },
+//     statsGrid: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//     },
+//     statItem: {
+//         alignItems: 'center',
+//         flex: 1,
+//     },
+//     statIconContainer: {
+//         width: 48,
+//         height: 48,
+//         borderRadius: 12,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         marginBottom: 8,
+//     },
+//     statValue: {
+//         fontSize: 16,
+//         fontWeight: 'bold',
+//         color: '#111827',
+//         marginBottom: 4,
+//     },
+//     statLabel: {
+//         fontSize: 12,
+//         color: '#6B7280',
+//     },
+//     section: {
+//         backgroundColor: 'white',
+//         marginHorizontal: 20,
+//         marginBottom: 16,
+//         borderRadius: 16,
+//         overflow: 'hidden',
+//         borderWidth: 1,
+//         borderColor: '#F3F4F6',
+//     },
+//     sectionHeader: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         paddingHorizontal: 20,
+//         paddingVertical: 16,
+//         backgroundColor: '#F9FAFB',
+//         borderBottomWidth: 1,
+//         borderBottomColor: '#E5E7EB',
+//         gap: 12,
+//     },
+//     sectionTitle: {
+//         fontSize: 18,
+//         fontWeight: '600',
+//         color: '#111827',
+//         flex: 1,
+//     },
+//     sensorCountBadge: {
+//         backgroundColor: '#EEF2FF',
+//         paddingHorizontal: 12,
+//         paddingVertical: 4,
+//         borderRadius: 12,
+//     },
+//     sensorCountText: {
+//         fontSize: 12,
+//         fontWeight: '600',
+//         color: '#4F46E5',
+//     },
+//     sensorsGrid: {
+//         padding: 16,
+//         gap: 12,
+//     },
+//     clickableIndicator: {
+//         position: 'absolute',
+//         right: 16,
+//         top: '50%',
+//         transform: [{ translateY: -10 }],
+//     },
+//     sensorCard: {
+//         backgroundColor: '#F9FAFB',
+//         borderRadius: 12,
+//         padding: 16,
+//         borderLeftWidth: 4,
+//         position: 'relative',
+//     },
+//     sensorHeader: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         marginBottom: 12,
+//     },
+//     sensorIconContainer: {
+//         width: 48,
+//         height: 48,
+//         borderRadius: 12,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         marginRight: 12,
+//     },
+//     sensorTitleContainer: {
+//         flex: 1,
+//     },
+//     sensorTitle: {
+//         fontSize: 16,
+//         fontWeight: '600',
+//         color: '#111827',
+//     },
+//     sensorName: {
+//         fontSize: 14,
+//         color: '#6B7280',
+//     },
+//     sensorStatusBadge: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         paddingHorizontal: 8,
+//         paddingVertical: 4,
+//         borderRadius: 8,
+//         gap: 4,
+//     },
+//     statusDotSmall: {
+//         width: 6,
+//         height: 6,
+//         borderRadius: 3,
+//     },
+//     sensorStatusText: {
+//         fontSize: 12,
+//         fontWeight: '600',
+//     },
+//     sensorDataContainer: {
+//         marginBottom: 12,
+//     },
+//     valueContainer: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         alignItems: 'flex-end',
+//         marginBottom: 8,
+//     },
+//     valueLabel: {
+//         fontSize: 14,
+//         color: '#6B7280',
+//     },
+//     valueDisplay: {
+//         flexDirection: 'row',
+//         alignItems: 'baseline',
+//         gap: 4,
+//     },
+//     value: {
+//         fontSize: 24,
+//         fontWeight: 'bold',
+//     },
+//     unit: {
+//         fontSize: 14,
+//         color: '#6B7280',
+//     },
+//     gaugeContainer: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         gap: 12,
+//     },
+//     gaugeBackground: {
+//         flex: 1,
+//         height: 8,
+//         backgroundColor: '#E5E7EB',
+//         borderRadius: 4,
+//         overflow: 'hidden',
+//     },
+//     gaugeFill: {
+//         height: '100%',
+//         borderRadius: 4,
+//     },
+//     gaugeValue: {
+//         fontSize: 12,
+//         fontWeight: '600',
+//         color: '#111827',
+//         minWidth: 40,
+//     },
+//     sensorMeta: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         paddingTop: 12,
+//         borderTopWidth: 1,
+//         borderTopColor: '#E5E7EB',
+//     },
+//     metaItem: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         gap: 4,
+//     },
+//     metaText: {
+//         fontSize: 12,
+//         color: '#6B7280',
+//     },
+//     doorWindowSection: {
+//         marginTop: 8,
+//     },
+//     doorWindowGrid: {
+//         padding: 16,
+//         gap: 12,
+//     },
+//     doorWindowCard: {
+//         backgroundColor: '#F9FAFB',
+//         borderRadius: 12,
+//         padding: 16,
+//         borderLeftWidth: 4,
+//     },
+//     doorWindowHeader: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         marginBottom: 12,
+//     },
+//     doorWindowIconContainer: {
+//         width: 48,
+//         height: 48,
+//         borderRadius: 12,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         marginRight: 12,
+//     },
+//     doorWindowInfo: {
+//         flex: 1,
+//     },
+//     doorWindowTitle: {
+//         fontSize: 16,
+//         fontWeight: '600',
+//         color: '#111827',
+//     },
+//     doorWindowType: {
+//         fontSize: 14,
+//         color: '#6B7280',
+//     },
+//     doorWindowStatus: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         paddingHorizontal: 8,
+//         paddingVertical: 4,
+//         borderRadius: 8,
+//         gap: 4,
+//     },
+//     doorWindowStatusText: {
+//         fontSize: 12,
+//         fontWeight: '600',
+//     },
+//     doorWindowData: {},
+//     openingIndicator: {
+//         marginBottom: 12,
+//     },
+//     openingBar: {
+//         height: 8,
+//         backgroundColor: '#E5E7EB',
+//         borderRadius: 4,
+//         overflow: 'hidden',
+//         marginBottom: 4,
+//     },
+//     openingFill: {
+//         height: '100%',
+//         borderRadius: 4,
+//     },
+//     openingPercentage: {
+//         fontSize: 12,
+//         color: '#6B7280',
+//         textAlign: 'center',
+//     },
+//     doorWindowMeta: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         paddingTop: 12,
+//         borderTopWidth: 1,
+//         borderTopColor: '#E5E7EB',
+//     },
+//     emptyState: {
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         padding: 40,
+//         marginHorizontal: 20,
+//         marginVertical: 20,
+//         backgroundColor: 'white',
+//         borderRadius: 16,
+//         borderWidth: 1,
+//         borderColor: '#E5E7EB',
+//     },
+//     emptyStateTitle: {
+//         fontSize: 20,
+//         fontWeight: '600',
+//         color: '#111827',
+//         marginTop: 16,
+//         marginBottom: 8,
+//     },
+//     emptyStateText: {
+//         fontSize: 16,
+//         color: '#6B7280',
+//         textAlign: 'center',
+//         lineHeight: 24,
+//     },
+//     bottomSpace: {
+//         height: 40,
+//     },
+//     //ARM DISARM BUTTONS
+//     armDisarmContainer: {
+//         flexDirection: "row",
+//         justifyContent: "space-between",
+//         marginTop: 15,
+//         gap: 12,
+//     },
+
+//     securityButton: {
+//         flex: 1,
+//         flexDirection: "row",
+//         alignItems: "center",
+//         justifyContent: "center",
+//         paddingVertical: 14,
+//         borderRadius: 14,
+//         elevation: 3,
+//     },
+
+//     armButton: {
+//         backgroundColor: "#16A34A", // professional green
+//     },
+
+//     disarmButton: {
+//         backgroundColor: "#DC2626", // professional red
+//     },
+
+//     securityButtonText: {
+//         color: "#fff",
+//         fontWeight: "700",
+//         marginLeft: 8,
+//         letterSpacing: 0.5,
+//         fontSize: 14,
+//     },
+//     securityContainer: {
+//         marginTop: 18,
+//         alignItems: "center",
+//     },
+
+//     // statusBadge: {
+//     //     paddingHorizontal: 16,
+//     //     paddingVertical: 6,
+//     //     borderRadius: 20,
+//     //     marginBottom: 12,
+//     // },
+
+//     statusBadgeText: {
+//         color: "#fff",
+//         fontWeight: "700",
+//         fontSize: 12,
+//         letterSpacing: 1,
+//     },
+
+//     toggleButton: {
+//         flexDirection: "row",
+//         alignItems: "center",
+//         justifyContent: "center",
+//         paddingVertical: 16,
+//         paddingHorizontal: 24,
+//         borderRadius: 16,
+//         width: 260,
+//         elevation: 4,
+//     },
+
+//     toggleText: {
+//         color: "#fff",
+//         fontSize: 15,
+//         fontWeight: "700",
+//         marginLeft: 10,
+//         letterSpacing: 0.5,
+//     },
+// });
+
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#0a0e1a', // Dark background
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 20,
         paddingVertical: 16,
-        backgroundColor: 'white',
+        backgroundColor: '#131826', // Dark header
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
+        borderBottomColor: '#2a2f3e', // Dark border
     },
     backButton: {
         padding: 8,
@@ -996,7 +1540,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 20,
         fontWeight: '600',
-        color: '#111827',
+        color: '#ffffff', // White text
         flex: 1,
     },
     statusBadge: {
@@ -1005,7 +1549,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 20,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: '#1a1f2e', // Dark background
         gap: 6,
     },
     statusDot: {
@@ -1016,9 +1560,10 @@ const styles = StyleSheet.create({
     statusText: {
         fontSize: 12,
         fontWeight: '600',
+        color: '#e5e7eb', // Light gray
     },
     overviewCard: {
-        backgroundColor: 'white',
+        backgroundColor: '#1a1f2e', // Dark card
         margin: 20,
         marginBottom: 16,
         borderRadius: 16,
@@ -1027,17 +1572,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
+        shadowOpacity: 0.2,
         shadowRadius: 8,
         elevation: 3,
         borderWidth: 1,
-        borderColor: '#F3F4F6',
+        borderColor: '#2a2f3e', // Dark border
     },
     overviewIcon: {
         width: 60,
         height: 60,
         borderRadius: 12,
-        backgroundColor: '#EEF2FF',
+        backgroundColor: '#131826', // Dark background
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 16,
@@ -1048,32 +1593,32 @@ const styles = StyleSheet.create({
     deviceName: {
         fontSize: 22,
         fontWeight: 'bold',
-        color: '#111827',
+        color: '#ffffff', // White text
         marginBottom: 4,
     },
     deviceMac: {
         fontSize: 14,
-        color: '#6B7280',
+        color: '#9ca3af', // Light gray
         fontFamily: 'monospace',
         marginBottom: 4,
     },
     deviceStatus: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#6b7280', // Medium gray
     },
     connectionCard: {
-        backgroundColor: 'white',
+        backgroundColor: '#1a1f2e', // Dark card
         marginHorizontal: 20,
         marginBottom: 16,
         borderRadius: 16,
         padding: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
+        shadowOpacity: 0.2,
         shadowRadius: 8,
         elevation: 3,
         borderWidth: 1,
-        borderColor: '#F3F4F6',
+        borderColor: '#2a2f3e', // Dark border
     },
     connectionHeader: {
         flexDirection: 'row',
@@ -1084,7 +1629,7 @@ const styles = StyleSheet.create({
     connectionTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#111827',
+        color: '#ffffff', // White text
         flex: 1,
     },
     connectionIndicator: {
@@ -1097,12 +1642,12 @@ const styles = StyleSheet.create({
     },
     connectionStatus: {
         fontSize: 14,
-        color: '#6B7280',
+        color: '#9ca3af', // Light gray
         marginBottom: 4,
     },
     connectionTopic: {
         fontSize: 12,
-        color: '#9CA3AF',
+        color: '#6b7280', // Medium gray
         fontFamily: 'monospace',
     },
     connectButton: {
@@ -1119,18 +1664,18 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     statsCard: {
-        backgroundColor: 'white',
+        backgroundColor: '#1a1f2e', // Dark card
         marginHorizontal: 20,
         marginBottom: 16,
         borderRadius: 16,
         padding: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
+        shadowOpacity: 0.2,
         shadowRadius: 8,
         elevation: 3,
         borderWidth: 1,
-        borderColor: '#F3F4F6',
+        borderColor: '#2a2f3e', // Dark border
     },
     statsHeader: {
         flexDirection: 'row',
@@ -1141,7 +1686,7 @@ const styles = StyleSheet.create({
     statsTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#111827',
+        color: '#ffffff', // White text
     },
     statsGrid: {
         flexDirection: 'row',
@@ -1162,40 +1707,40 @@ const styles = StyleSheet.create({
     statValue: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#111827',
+        color: '#4FC3F7', // Lighter blue
         marginBottom: 4,
     },
     statLabel: {
         fontSize: 12,
-        color: '#6B7280',
+        color: '#9ca3af', // Light gray
     },
     section: {
-        backgroundColor: 'white',
+        backgroundColor: '#1a1f2e', // Dark card
         marginHorizontal: 20,
         marginBottom: 16,
         borderRadius: 16,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: '#F3F4F6',
+        borderColor: '#2a2f3e', // Dark border
     },
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 20,
         paddingVertical: 16,
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#131826', // Dark background
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
+        borderBottomColor: '#2a2f3e', // Dark border
         gap: 12,
     },
     sectionTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#111827',
+        color: '#ffffff', // White text
         flex: 1,
     },
     sensorCountBadge: {
-        backgroundColor: '#EEF2FF',
+        backgroundColor: '#131826', // Dark background
         paddingHorizontal: 12,
         paddingVertical: 4,
         borderRadius: 12,
@@ -1203,7 +1748,7 @@ const styles = StyleSheet.create({
     sensorCountText: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#4F46E5',
+        color: '#4FC3F7', // Lighter blue
     },
     sensorsGrid: {
         padding: 16,
@@ -1216,7 +1761,7 @@ const styles = StyleSheet.create({
         transform: [{ translateY: -10 }],
     },
     sensorCard: {
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#131826', // Dark background
         borderRadius: 12,
         padding: 16,
         borderLeftWidth: 4,
@@ -1241,11 +1786,11 @@ const styles = StyleSheet.create({
     sensorTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#111827',
+        color: '#ffffff', // White text
     },
     sensorName: {
         fontSize: 14,
-        color: '#6B7280',
+        color: '#9ca3af', // Light gray
     },
     sensorStatusBadge: {
         flexDirection: 'row',
@@ -1263,6 +1808,7 @@ const styles = StyleSheet.create({
     sensorStatusText: {
         fontSize: 12,
         fontWeight: '600',
+        color: '#e5e7eb',
     },
     sensorDataContainer: {
         marginBottom: 12,
@@ -1275,7 +1821,7 @@ const styles = StyleSheet.create({
     },
     valueLabel: {
         fontSize: 14,
-        color: '#6B7280',
+        color: '#9ca3af', // Light gray
     },
     valueDisplay: {
         flexDirection: 'row',
@@ -1285,10 +1831,11 @@ const styles = StyleSheet.create({
     value: {
         fontSize: 24,
         fontWeight: 'bold',
+        color: '#ffffff', // White text
     },
     unit: {
         fontSize: 14,
-        color: '#6B7280',
+        color: '#6b7280', // Medium gray
     },
     gaugeContainer: {
         flexDirection: 'row',
@@ -1298,7 +1845,7 @@ const styles = StyleSheet.create({
     gaugeBackground: {
         flex: 1,
         height: 8,
-        backgroundColor: '#E5E7EB',
+        backgroundColor: '#2a2f3e', // Dark track
         borderRadius: 4,
         overflow: 'hidden',
     },
@@ -1309,7 +1856,7 @@ const styles = StyleSheet.create({
     gaugeValue: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#111827',
+        color: '#4FC3F7', // Lighter blue
         minWidth: 40,
     },
     sensorMeta: {
@@ -1317,7 +1864,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingTop: 12,
         borderTopWidth: 1,
-        borderTopColor: '#E5E7EB',
+        borderTopColor: '#2a2f3e', // Dark border
     },
     metaItem: {
         flexDirection: 'row',
@@ -1326,7 +1873,7 @@ const styles = StyleSheet.create({
     },
     metaText: {
         fontSize: 12,
-        color: '#6B7280',
+        color: '#9ca3af', // Light gray
     },
     doorWindowSection: {
         marginTop: 8,
@@ -1336,7 +1883,7 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     doorWindowCard: {
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#131826', // Dark background
         borderRadius: 12,
         padding: 16,
         borderLeftWidth: 4,
@@ -1360,11 +1907,11 @@ const styles = StyleSheet.create({
     doorWindowTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#111827',
+        color: '#ffffff', // White text
     },
     doorWindowType: {
         fontSize: 14,
-        color: '#6B7280',
+        color: '#9ca3af', // Light gray
     },
     doorWindowStatus: {
         flexDirection: 'row',
@@ -1377,6 +1924,7 @@ const styles = StyleSheet.create({
     doorWindowStatusText: {
         fontSize: 12,
         fontWeight: '600',
+        color: '#e5e7eb',
     },
     doorWindowData: {},
     openingIndicator: {
@@ -1384,7 +1932,7 @@ const styles = StyleSheet.create({
     },
     openingBar: {
         height: 8,
-        backgroundColor: '#E5E7EB',
+        backgroundColor: '#2a2f3e', // Dark track
         borderRadius: 4,
         overflow: 'hidden',
         marginBottom: 4,
@@ -1395,7 +1943,7 @@ const styles = StyleSheet.create({
     },
     openingPercentage: {
         fontSize: 12,
-        color: '#6B7280',
+        color: '#9ca3af', // Light gray
         textAlign: 'center',
     },
     doorWindowMeta: {
@@ -1403,7 +1951,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingTop: 12,
         borderTopWidth: 1,
-        borderTopColor: '#E5E7EB',
+        borderTopColor: '#2a2f3e', // Dark border
     },
     emptyState: {
         alignItems: 'center',
@@ -1411,35 +1959,34 @@ const styles = StyleSheet.create({
         padding: 40,
         marginHorizontal: 20,
         marginVertical: 20,
-        backgroundColor: 'white',
+        backgroundColor: '#1a1f2e', // Dark card
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: '#E5E7EB',
+        borderColor: '#2a2f3e', // Dark border
     },
     emptyStateTitle: {
         fontSize: 20,
         fontWeight: '600',
-        color: '#111827',
+        color: '#ffffff', // White text
         marginTop: 16,
         marginBottom: 8,
     },
     emptyStateText: {
         fontSize: 16,
-        color: '#6B7280',
+        color: '#9ca3af', // Light gray
         textAlign: 'center',
         lineHeight: 24,
     },
     bottomSpace: {
         height: 40,
     },
-    //ARM DISARM BUTTONS
+    // ARM DISARM BUTTONS
     armDisarmContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
         marginTop: 15,
         gap: 12,
     },
-
     securityButton: {
         flex: 1,
         flexDirection: "row",
@@ -1449,15 +1996,12 @@ const styles = StyleSheet.create({
         borderRadius: 14,
         elevation: 3,
     },
-
     armButton: {
-        backgroundColor: "#16A34A", // professional green
+        backgroundColor: "#2E7D32", // Dark green for dark mode
     },
-
     disarmButton: {
-        backgroundColor: "#DC2626", // professional red
+        backgroundColor: "#C62828", // Dark red for dark mode
     },
-
     securityButtonText: {
         color: "#fff",
         fontWeight: "700",
@@ -1469,21 +2013,12 @@ const styles = StyleSheet.create({
         marginTop: 18,
         alignItems: "center",
     },
-
-    // statusBadge: {
-    //     paddingHorizontal: 16,
-    //     paddingVertical: 6,
-    //     borderRadius: 20,
-    //     marginBottom: 12,
-    // },
-
     statusBadgeText: {
         color: "#fff",
         fontWeight: "700",
         fontSize: 12,
         letterSpacing: 1,
     },
-
     toggleButton: {
         flexDirection: "row",
         alignItems: "center",
@@ -1494,7 +2029,6 @@ const styles = StyleSheet.create({
         width: 260,
         elevation: 4,
     },
-
     toggleText: {
         color: "#fff",
         fontSize: 15,
@@ -1503,3 +2037,4 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
     },
 });
+

@@ -341,45 +341,252 @@ export default function RecordingsScreen() {
   );
 }
 
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#f5f5f5',
+//   },
+//   header: {
+//     backgroundColor: '#fff',
+//     padding: 20,
+//     paddingTop: 60,
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#eee',
+//   },
+//   cameraName: {
+//     fontSize: 24,
+//     fontWeight: 'bold',
+//     color: '#333',
+//   },
+//   cameraId: {
+//     fontSize: 14,
+//     color: '#666',
+//     marginTop: 4,
+//   },
+//   dateSelector: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     backgroundColor: '#fff',
+//     margin: 16,
+//     padding: 16,
+//     borderRadius: 12,
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 4,
+//     elevation: 3,
+//   },
+//   dateText: {
+//     flex: 1,
+//     fontSize: 16,
+//     color: '#333',
+//     marginLeft: 12,
+//   },
+//   videoPlayerContainer: {
+//     backgroundColor: '#000',
+//     margin: 16,
+//     marginTop: 0,
+//     borderRadius: 12,
+//     overflow: 'hidden',
+//   },
+//   videoHeader: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     padding: 12,
+//     backgroundColor: '#111',
+//   },
+//   videoTitle: {
+//     color: '#fff',
+//     fontSize: 16,
+//     fontWeight: '600',
+//   },
+//   video: {
+//     width: '100%',
+//     height: 200,
+//     backgroundColor: '#000',
+//   },
+//   content: {
+//     flex: 1,
+//     paddingHorizontal: 16,
+//   },
+//   listHeader: {
+//     marginBottom: 12,
+//   },
+//   listTitle: {
+//     fontSize: 18,
+//     fontWeight: '600',
+//     color: '#333',
+//   },
+//   listContent: {
+//     paddingBottom: 20,
+//   },
+//   loadingContainer: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   loadingText: {
+//     marginTop: 12,
+//     fontSize: 16,
+//     color: '#666',
+//   },
+//   emptyContainer: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     paddingHorizontal: 32,
+//   },
+//   emptyTitle: {
+//     fontSize: 20,
+//     fontWeight: '600',
+//     color: '#333',
+//     marginTop: 16,
+//   },
+//   emptyText: {
+//     fontSize: 16,
+//     color: '#666',
+//     textAlign: 'center',
+//     marginTop: 8,
+//   },
+//   recordingItem: {
+//     flexDirection: 'row',
+//     backgroundColor: '#fff',
+//     borderRadius: 12,
+//     padding: 16,
+//     marginBottom: 12,
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 4,
+//     elevation: 2,
+//   },
+//   recordingIconContainer: {
+//     width: 48,
+//     height: 48,
+//     borderRadius: 24,
+//     backgroundColor: '#E8F5E9',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     marginRight: 12,
+//   },
+//   recordingInfo: {
+//     flex: 1,
+//   },
+//   recordingName: {
+//     fontSize: 16,
+//     fontWeight: '600',
+//     color: '#333',
+//     marginBottom: 8,
+//   },
+//   recordingMeta: {
+//     flexDirection: 'row',
+//     flexWrap: 'wrap',
+//     gap: 12,
+//   },
+//   metaItem: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     gap: 4,
+//   },
+//   metaText: {
+//     fontSize: 12,
+//     color: '#666',
+//   },
+//   playButtonContainer: {
+//     justifyContent: 'center',
+//     marginLeft: 8,
+//   },
+//   errorText: {
+//     color: '#ff6b6b',
+//     textAlign: 'center',
+//     padding: 12,
+//     fontSize: 14,
+//   },
+//   /////////////////////////
+//   videoHeaderButtons: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     gap: 16,
+//   },
+//   fullscreenButton: {
+//     marginRight: 8,
+//   },
+//   fullscreenContainer: {
+//     flex: 1,
+//     backgroundColor: '#000',
+//   },
+//   fullscreenHeader: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     paddingHorizontal: 20,
+//     paddingTop: 60, 
+//     paddingBottom: 20,
+//     backgroundColor: 'rgba(0,0,0,0.9)', // Semi-transparent background
+//     position: 'absolute',
+//     top: 0,
+//     left: 0,
+//     right: 0,
+//     zIndex: 10, // Ensure header stays above video
+//   },
+//   fullscreenTitle: {
+//     color: '#fff',
+//     fontSize: 20,
+//     fontWeight: '600',
+//   },
+//   fullscreenVideoWrapper: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     backgroundColor: '#000',
+//   },
+//   fullscreenVideo: {
+//     width: width,
+//     height: height,
+//   },
+// });
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#0a0e1a', // Dark background
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#131826', // Dark header
     padding: 20,
     paddingTop: 60,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#2a2f3e', // Dark border
   },
   cameraName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#ffffff', // White text
   },
   cameraId: {
     fontSize: 14,
-    color: '#666',
+    color: '#9ca3af', // Light gray
     marginTop: 4,
   },
   dateSelector: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1f2e', // Dark card
     margin: 16,
     padding: 16,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
   dateText: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: '#e5e7eb', // Off-white
     marginLeft: 12,
   },
   videoPlayerContainer: {
@@ -416,7 +623,7 @@ const styles = StyleSheet.create({
   listTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#ffffff', // White text
   },
   listContent: {
     paddingBottom: 20,
@@ -429,7 +636,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#666',
+    color: '#9ca3af', // Light gray
   },
   emptyContainer: {
     flex: 1,
@@ -440,32 +647,34 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
+    color: '#ffffff', // White text
     marginTop: 16,
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: '#9ca3af', // Light gray
     textAlign: 'center',
     marginTop: 8,
   },
   recordingItem: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1f2e', // Dark card
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#2a2f3e', // Dark border
   },
   recordingIconContainer: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#132a1a', // Dark green tint
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -476,7 +685,7 @@ const styles = StyleSheet.create({
   recordingName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#ffffff', // White text
     marginBottom: 8,
   },
   recordingMeta: {
@@ -491,14 +700,14 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 12,
-    color: '#666',
+    color: '#9ca3af', // Light gray
   },
   playButtonContainer: {
     justifyContent: 'center',
     marginLeft: 8,
   },
   errorText: {
-    color: '#ff6b6b',
+    color: '#EF9A9A', // Light red
     textAlign: 'center',
     padding: 12,
     fontSize: 14,
@@ -523,12 +732,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 60, 
     paddingBottom: 20,
-    backgroundColor: 'rgba(0,0,0,0.9)', // Semi-transparent background
+    backgroundColor: 'rgba(0,0,0,0.9)',
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 10, // Ensure header stays above video
+    zIndex: 10,
   },
   fullscreenTitle: {
     color: '#fff',
@@ -546,3 +755,4 @@ const styles = StyleSheet.create({
     height: height,
   },
 });
+

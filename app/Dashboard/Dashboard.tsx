@@ -43,19 +43,7 @@ export default function CustomerDashboardScreen() {
 
   const [handledManual, setHandledManual] = useState(false);
 
-  useEffect(() => {
-    if (manual === "true" && !handledManual) {
-      console.log("📡 Manual config received");
 
-      setPortalData({
-        ssid,
-        password,
-      });
-
-      setPortalVisible(true);
-      setHandledManual(true); // ✅ stop loop
-    }
-  }, [manual, handledManual]);
 
 
   // ----------------------------
@@ -84,6 +72,35 @@ export default function CustomerDashboardScreen() {
 
     loadAuthData();
   }, []);
+
+  // useEffect(() => {
+  //   if (manual === "true" && !handledManual) {
+  //     console.log("📡 Manual config received");
+
+  //     setPortalData({
+  //       ssid,
+  //       password,
+  //       userId: loggedInUser.id
+  //     });
+
+  //     setPortalVisible(true);
+  //     setHandledManual(true); // stop loop
+  //   }
+  // }, [manual, handledManual]);
+  useEffect(() => {
+    if (manual === "true" && !handledManual && loggedInUser) { // ✅ wait for user
+      console.log("📡 Manual config received");
+
+      setPortalData({
+        ssid,
+        password,
+        userId: loggedInUser.id  // ✅ safe now
+      });
+
+      setPortalVisible(true);
+      setHandledManual(true);
+    }
+  }, [manual, handledManual, loggedInUser]); // ✅ add loggedInUser as dependency
 
   // ----------------------------
   // Request location permission for Android
@@ -356,32 +373,6 @@ export default function CustomerDashboardScreen() {
           <Text style={styles.welcomeSubtitle}>Here's what's happening with your account today</Text>
         </View>
 
-        {/* Stats Cards */}
-        {/* <View style={styles.statsContainer}>
-          <View style={[styles.statCard, { backgroundColor: '#4CAF50' }]}>
-            <MaterialIcons name="shopping-cart" size={30} color="#fff" />
-            <Text style={styles.statNumber}>3</Text>
-            <Text style={styles.statLabel}>Active Orders</Text>
-          </View>
-
-          <View style={[styles.statCard, { backgroundColor: '#2196F3' }]}>
-            <MaterialIcons name="favorite" size={30} color="#fff" />
-            <Text style={styles.statNumber}>12</Text>
-            <Text style={styles.statLabel}>Wishlist Items</Text>
-          </View>
-
-          <View style={[styles.statCard, { backgroundColor: '#FF9800' }]}>
-            <MaterialIcons name="account-balance-wallet" size={30} color="#fff" />
-            <Text style={styles.statNumber}>$125.50</Text>
-            <Text style={styles.statLabel}>Wallet Balance</Text>
-          </View>
-
-          <View style={[styles.statCard, { backgroundColor: '#9C27B0' }]}>
-            <MaterialIcons name="star" size={30} color="#fff" />
-            <Text style={styles.statNumber}>245</Text>
-            <Text style={styles.statLabel}>Reward Points</Text>
-          </View>
-        </View> */}
 
         {/* Scan Device Section */}
         <View style={styles.scanSection}>
@@ -580,26 +571,282 @@ export default function CustomerDashboardScreen() {
     </CustomerSidebar>
   );
 }
+// const styles = StyleSheet.create({
+//   contentContainer: {
+//     flex: 1,
+//     backgroundColor: '#f5f5f5',
+//   },
+//   welcomeSection: {
+//     padding: 20,
+//     backgroundColor: '#fff',
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#e0e0e0',
+//   },
+//   welcomeTitle: {
+//     fontSize: 24,
+//     fontWeight: '700',
+//     color: '#333',
+//     marginBottom: 5,
+//   },
+//   welcomeSubtitle: {
+//     fontSize: 14,
+//     color: '#666',
+//   },
+//   statsContainer: {
+//     flexDirection: 'row',
+//     flexWrap: 'wrap',
+//     justifyContent: 'space-between',
+//     padding: 20,
+//   },
+//   statCard: {
+//     width: '48%',
+//     padding: 15,
+//     borderRadius: 12,
+//     marginBottom: 15,
+//     alignItems: 'center',
+//     elevation: 2,
+//   },
+//   statNumber: {
+//     fontSize: 24,
+//     fontWeight: '700',
+//     color: '#fff',
+//     marginVertical: 8,
+//   },
+//   statLabel: {
+//     fontSize: 12,
+//     color: 'rgba(255,255,255,0.9)',
+//     textAlign: 'center',
+//   },
+//   // Scan Section Styles
+//   scanSection: {
+//     backgroundColor: '#fff',
+//     margin: 20,
+//     borderRadius: 16,
+//     padding: 20,
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 8,
+//     elevation: 4,
+//   },
+//   scanSectionHeader: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     marginBottom: 20,
+//   },
+//   scanSectionTitle: {
+//     fontSize: 18,
+//     fontWeight: '600',
+//     color: '#333',
+//     marginLeft: 10,
+//   },
+//   scanButton: {
+//     backgroundColor: '#F0F8FF',
+//     borderRadius: 16,
+//     padding: 20,
+//     marginBottom: 20,
+//     borderWidth: 1.5,
+//     borderColor: '#E3F2FD',
+//     position: 'relative',
+//     overflow: 'hidden',
+//   },
+//   scanButtonContent: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     justifyContent: 'space-between',
+//   },
+//   scanIconContainer: {
+//     position: 'relative',
+//     width: 60,
+//     height: 60,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   qrCodeIcon: {
+//     position: 'absolute',
+//     bottom: 0,
+//     right: 0,
+//     backgroundColor: '#fff',
+//     borderRadius: 8,
+//     padding: 4,
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 1 },
+//     shadowOpacity: 0.2,
+//     shadowRadius: 2,
+//     elevation: 2,
+//   },
+//   scanButtonTextContainer: {
+//     flex: 1,
+//     marginHorizontal: 16,
+//   },
+//   scanButtonTitle: {
+//     fontSize: 18,
+//     fontWeight: '700',
+//     color: '#2196F3',
+//     marginBottom: 4,
+//   },
+//   scanButtonSubtitle: {
+//     fontSize: 12,
+//     color: '#666',
+//     lineHeight: 16,
+//   },
+//   chevronIcon: {
+//     opacity: 0.8,
+//   },
+//   scanButtonDecoration: {
+//     position: 'absolute',
+//     top: 0,
+//     left: 0,
+//     right: 0,
+//     bottom: 0,
+//     zIndex: -1,
+//   },
+//   decorationCircle: {
+//     position: 'absolute',
+//     borderRadius: 100,
+//     backgroundColor: 'rgba(33, 150, 243, 0.05)',
+//   },
+//   decorationCircle1: {
+//     width: 100,
+//     height: 100,
+//     top: -40,
+//     right: -40,
+//   },
+//   decorationCircle2: {
+//     width: 80,
+//     height: 80,
+//     bottom: -30,
+//     left: -30,
+//   },
+//   scanTipsContainer: {
+//     backgroundColor: '#F9F9F9',
+//     borderRadius: 12,
+//     padding: 16,
+//   },
+//   scanTipsTitle: {
+//     fontSize: 14,
+//     fontWeight: '600',
+//     color: '#333',
+//     marginBottom: 12,
+//   },
+//   scanTips: {
+//     gap: 8,
+//   },
+//   tipItem: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//   },
+//   tipText: {
+//     fontSize: 12,
+//     color: '#555',
+//     marginLeft: 8,
+//   },
+//   // Manual button styles
+//   manualPortalButton: {
+//     marginTop: 15,
+//     backgroundColor: "#E8F5E9",
+//     borderRadius: 16,
+//     paddingVertical: 18,
+//     paddingHorizontal: 16,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 4 },
+//     shadowOpacity: 0.08,
+//     shadowRadius: 6,
+//     elevation: 3,
+//   },
+
+//   manualPortalContent: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     justifyContent: "space-between",
+//   },
+
+//   manualIconContainer: {
+//     width: 45,
+//     height: 45,
+//     borderRadius: 12,
+//     backgroundColor: "#4CAF50",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     marginRight: 12,
+//   },
+
+//   manualTextContainer: {
+//     flex: 1,
+//   },
+
+//   manualPortalTitle: {
+//     fontSize: 16,
+//     fontWeight: "600",
+//     color: "#2E7D32",
+//   },
+
+//   manualPortalSubtitle: {
+//     fontSize: 13,
+//     color: "#4CAF50",
+//     marginTop: 3,
+//   },
+//   premiumButton: {
+//     marginTop: 18,
+//     borderRadius: 20,
+//     paddingVertical: 18,
+//     paddingHorizontal: 18,
+//     shadowColor: "#2E7D32",
+//     shadowOffset: { width: 0, height: 8 },
+//     shadowOpacity: 0.35,
+//     shadowRadius: 12,
+//     elevation: 8,
+//   },
+
+//   premiumContent: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//   },
+
+//   premiumIconWrapper: {
+//     width: 48,
+//     height: 48,
+//     borderRadius: 14,
+//     backgroundColor: "#ffffff",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     marginRight: 14,
+//   },
+
+//   premiumTitle: {
+//     fontSize: 17,
+//     fontWeight: "700",
+//     color: "#ffffff",
+//   },
+
+//   premiumSubtitle: {
+//     fontSize: 13,
+//     color: "#E8F5E9",
+//     marginTop: 3,
+//   },
+// });
+
+
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#0a0e1a', // Dark background
   },
   welcomeSection: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#131826', // Dark header background
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#2a2f3e', // Dark border
   },
   welcomeTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#333',
+    color: '#ffffff', // White text
     marginBottom: 5,
   },
   welcomeSubtitle: {
     fontSize: 14,
-    color: '#666',
+    color: '#9ca3af', // Light gray
   },
   statsContainer: {
     flexDirection: 'row',
@@ -614,6 +861,10 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     alignItems: 'center',
     elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   statNumber: {
     fontSize: 24,
@@ -628,13 +879,13 @@ const styles = StyleSheet.create({
   },
   // Scan Section Styles
   scanSection: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1f2e', // Dark card background
     margin: 20,
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -646,16 +897,16 @@ const styles = StyleSheet.create({
   scanSectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#ffffff', // White text
     marginLeft: 10,
   },
   scanButton: {
-    backgroundColor: '#F0F8FF',
+    backgroundColor: '#131826', // Dark button background
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
     borderWidth: 1.5,
-    borderColor: '#E3F2FD',
+    borderColor: '#2a3e5c', // Darker border
     position: 'relative',
     overflow: 'hidden',
   },
@@ -675,12 +926,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1f2e', // Dark background
     borderRadius: 8,
     padding: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 2,
   },
@@ -691,16 +942,17 @@ const styles = StyleSheet.create({
   scanButtonTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#2196F3',
+    color: '#4FC3F7', // Lighter blue for dark mode
     marginBottom: 4,
   },
   scanButtonSubtitle: {
     fontSize: 12,
-    color: '#666',
+    color: '#9ca3af', // Light gray
     lineHeight: 16,
   },
   chevronIcon: {
     opacity: 0.8,
+    color: '#6b7280', // Medium gray
   },
   scanButtonDecoration: {
     position: 'absolute',
@@ -713,7 +965,7 @@ const styles = StyleSheet.create({
   decorationCircle: {
     position: 'absolute',
     borderRadius: 100,
-    backgroundColor: 'rgba(33, 150, 243, 0.05)',
+    backgroundColor: 'rgba(79, 195, 247, 0.05)', // Subtle blue tint
   },
   decorationCircle1: {
     width: 100,
@@ -728,14 +980,14 @@ const styles = StyleSheet.create({
     left: -30,
   },
   scanTipsContainer: {
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#131826', // Dark background
     borderRadius: 12,
     padding: 16,
   },
   scanTipsTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: '#ffffff', // White text
     marginBottom: 12,
   },
   scanTips: {
@@ -747,52 +999,47 @@ const styles = StyleSheet.create({
   },
   tipText: {
     fontSize: 12,
-    color: '#555',
+    color: '#9ca3af', // Light gray
     marginLeft: 8,
   },
   // Manual button styles
   manualPortalButton: {
     marginTop: 15,
-    backgroundColor: "#E8F5E9",
+    backgroundColor: "#132a1a", // Dark green-tinted background
     borderRadius: 16,
     paddingVertical: 18,
     paddingHorizontal: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 3,
   },
-
   manualPortalContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-
   manualIconContainer: {
     width: 45,
     height: 45,
     borderRadius: 12,
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#2E7D32", // Dark green
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
   },
-
   manualTextContainer: {
     flex: 1,
   },
-
   manualPortalTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#2E7D32",
+    color: "#81C784", // Light green for dark mode
   },
-
   manualPortalSubtitle: {
     fontSize: 13,
-    color: "#4CAF50",
+    color: "#A5D6A7", // Light green
     marginTop: 3,
   },
   premiumButton: {
@@ -802,35 +1049,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     shadowColor: "#2E7D32",
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.4,
     shadowRadius: 12,
     elevation: 8,
   },
-
   premiumContent: {
     flexDirection: "row",
     alignItems: "center",
   },
-
   premiumIconWrapper: {
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#1a1f2e", // Dark background
     justifyContent: "center",
     alignItems: "center",
     marginRight: 14,
   },
-
   premiumTitle: {
     fontSize: 17,
     fontWeight: "700",
     color: "#ffffff",
   },
-
   premiumSubtitle: {
     fontSize: 13,
-    color: "#E8F5E9",
+    color: "#A5D6A7", // Light green tint
     marginTop: 3,
   },
 });

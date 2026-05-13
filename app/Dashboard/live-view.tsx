@@ -6,16 +6,14 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Dimensions,
-  Modal,
   PanResponder,
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import Svg, { Circle, G, Polygon, Rect, Text as SvgText } from "react-native-svg";
 import {
   MediaStream,
   RTCPeerConnection
@@ -38,7 +36,10 @@ type DetectionType = typeof DETECTION_OPTIONS[number]['id'] | null;
 
 export default function LiveViewScreen() {
   // const { cameraName } = useLocalSearchParams();
-  const { cameraName, cameraId, deviceId } = useLocalSearchParams();
+  // const { cameraName, cameraId, deviceId } = useLocalSearchParams();
+  const { cameraId, cameraName, deviceId, mode } = useLocalSearchParams();
+
+  console.log("MODE:", mode);
   const [ResponseUrl, setUrl] = useState<string | null>(null);
   const [loggedInUser, setLoggedInUser] = useState<any>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -381,62 +382,58 @@ export default function LiveViewScreen() {
   // GET THE URLS///
 
   // useEffect(() => {
-  //   const initStream = async () => {
+  //   console.log("useEffect triggered");
+
+  //   const fetchStreamUrl = async () => {
   //     try {
-  //       //  Fetch the stream URL
-  //       const apiUrl = urls.get_stream;
-  //       const response = await fetch(`${apiUrl}/${deviceId}`, {
-  //         method: "GET",
+  //       // const accessToken = "YOUR_ACCESS_TOKEN";
+
+  //        const accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc2NDU2MDM2LCJpYXQiOjE3NzY0MjAwMzYsImp0aSI6IjM3NGMzMzZkZjVmNTQwN2U5MTA3OWVmMDBhNDg2ZWMwIiwidXNlcl9pZCI6MX0.fCc63SBER17MS_GsZTrtwmjnWHzXNF6mDRNb3BM_0ag";
+
+
+
+  //       const response = await axios.get("http://192.168.18.28:8001/get_streams", 
+
+  //         {
   //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${accessToken}`, // access token from AsyncStorage
+  //           Authorization: `Bearer ${accessToken}`,
   //         },
   //       });
 
-  //       if (!response.ok) {
-  //         // console.error("Failed to fetch stream URL:", response.status, response.statusText);
-  //         return;
+  //       console.log(" API Response:", response.data);
+
+  //       const streamUrlFromApi = response.data?.streams?.[0]?.url;
+
+  //       if (!streamUrlFromApi) {
+  //         throw new Error("Stream URL not found in response");
   //       }
 
-  //       const data = await response.json();
-  //       console.log("Stream URL data:", data);
+  //       console.log(" Final Stream URL:", streamUrlFromApi);
 
-  //       //  Only save the actual URL
-  //       const streamUrl = data.stream_url;
-  //       setUrl(streamUrl);
+  //       setFinalStreamUrl(streamUrlFromApi);
 
-  //       //  Start WebRTC **after URL is ready**
-  //       if (streamUrl) {
-  //         startWebRTC(streamUrl); // pass URL to the function
-  //       }
   //     } catch (error) {
-  //       console.error("Error initializing stream:", error);
+  //       console.log(" Error fetching stream URL:", error);
   //     }
   //   };
 
-  //   initStream();
-  //   loadSavedPolygons();
-  // }, [deviceId, accessToken]); // run when deviceId and accessToken are ready
-
-
-
+  //   fetchStreamUrl();
+  // }, []);
 
 
   useEffect(() => {
-    console.log("🚀 useEffect triggered");
+    const streamUrl = "http://streamer:stream123@192.168.18.139:8889/cam1";
 
-    try {
-      const jwt_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6Im15LWtleS0xIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ6YWluYWhzYW45MiIsIm1lZGlhbXR4X3Blcm1pc3Npb25zIjpbeyJhY3Rpb24iOiJhcGkifSx7ImFjdGlvbiI6InJlYWQiLCJwYXRoIjoiY2FtMTEifSx7ImFjdGlvbiI6InB1Ymxpc2giLCJwYXRoIjoiY2FtMTEifV0sImV4cCI6MTc3NjE1NDc4NCwiaWF0IjoxNzc2MTQ3NTg0LCJpc3MiOiJkamFuZ28tYXV0aCJ9.BSuB3sQaaEQth6SUTeh0_sbSiJhcYSq_DsoTz700vgs1MLZWIBr5iw6e6TbcOYEEBqqJl01rVf0yQw2sEzwEwMT4HSrG5cPmLSLcfJmY9lFgdhFtYQ-C9SavmdVMnT5u-W41eHasY77KsbRyl5z9pJP6DUYqAcrszEmt8Vo5bGNFQPyTarVPWMK1XtNNx6ohHLiUiUESY2fOmjshpg6l1cgs7dHuCNzgqtUSYgYHevDOSAAlqhg_hLJWTwqmy2Xr7MyRukpyeW4yRUc30MSwEgeQvuzBnrtoOTzraQUP0CLoK68LySSv8xff11SKtrqRDnbPYhOfEnvBgJJDteKioQ";
+    console.log("=================================");
+    console.log("📡 STREAM DEBUG START");
+    console.log("Mode:", mode);
+    console.log("Device ID:", deviceId);
+    console.log("Camera ID:", cameraId);
+    console.log("Camera Name:", cameraName);
+    console.log("🌐 Stream URL:", streamUrl);
+    console.log("=================================");
 
-      const streamUrl = `http://192.168.18.120:8889/cam11/?jwt=${jwt_token}`;
-
-      console.log("🎥 Final Stream URL:", streamUrl);
-
-      setFinalStreamUrl(streamUrl);
-
-    } catch (error) {
-      console.log("❌ Error setting stream URL:", error);
-    }
+    setFinalStreamUrl(streamUrl);
   }, []);
 
   // SHOW THE STREAM/////
@@ -462,6 +459,7 @@ export default function LiveViewScreen() {
 
       (peerConnection as any).ontrack = (event: any) => {
         console.log("📺 Track received!");
+
         const stream = event.streams[0];
         setRemoteStream(stream);
       };
@@ -571,12 +569,12 @@ export default function LiveViewScreen() {
       {/* Main Content */}
       <View style={styles.content}>
         {/* Instructions */}
-        <View style={styles.instructionsContainer}>
+        {/* <View style={styles.instructionsContainer}>
           <Ionicons name="information-circle" size={20} color="#4facfe" />
           <Text style={styles.instructions}>
             Tap on the preview to draw Region of interest.
           </Text>
-        </View>
+        </View> */}
 
         {/* Video Container */}
         <View style={styles.videoWrapper}>
@@ -598,34 +596,96 @@ export default function LiveViewScreen() {
               />
             ) : ( */}
             {finalStreamUrl ? (
+              // <WebView
+              //   source={{ uri: finalStreamUrl }}
+              //   style={{ flex: 1 }}
+
+              //   javaScriptEnabled={true}
+              //   domStorageEnabled={true}
+              //   allowsInlineMediaPlayback={true}
+              //   mediaPlaybackRequiresUserAction={false}
+
+              //   originWhitelist={["*"]}
+
+              //   mixedContentMode="always"
+
+              //   onLoadStart={() => {
+              //     console.log("📡 WebView load started");
+              //   }}
+
+              //   onLoad={() => {
+              //     console.log("✅ WebView loaded");
+              //   }}
+
+              //   onError={(e) => {
+              //     console.log("❌ WebView error:", e.nativeEvent);
+              //   }}
+
+              //   onHttpError={(e) => {
+              //     console.log("❌ HTTP error:", e.nativeEvent);
+              //   }}
+              // />\
               <WebView
-                source={{ uri: finalStreamUrl }}
+                source={{
+                  uri: finalStreamUrl,
+                }}
                 style={{ flex: 1 }}
 
                 javaScriptEnabled={true}
                 domStorageEnabled={true}
                 allowsInlineMediaPlayback={true}
                 mediaPlaybackRequiresUserAction={false}
-
                 originWhitelist={["*"]}
-
                 mixedContentMode="always"
 
-                onLoadStart={() => {
-                  console.log("📡 WebView load started");
+                // 🔥 DEBUG LOGS
+                onLoadStart={(e) => {
+                  console.log("📡 onLoadStart");
+                  console.log("➡️ URL:", e.nativeEvent.url);
                 }}
 
-                onLoad={() => {
-                  console.log("✅ WebView loaded");
+                onLoadProgress={(e) => {
+                  console.log("⏳ Loading progress:", e.nativeEvent.progress);
+                }}
+
+                onLoad={(e) => {
+                  console.log("✅ onLoad SUCCESS");
+                  console.log("➡️ URL:", e.nativeEvent.url);
+                }}
+
+                onLoadEnd={(e) => {
+                  console.log("🏁 onLoadEnd");
+                  console.log("➡️ URL:", e.nativeEvent.url);
                 }}
 
                 onError={(e) => {
-                  console.log("❌ WebView error:", e.nativeEvent);
+                  console.log("❌ onError TRIGGERED");
+                  console.log("Code:", e.nativeEvent.code);
+                  console.log("Description:", e.nativeEvent.description);
+                  console.log("URL:", e.nativeEvent.url);
                 }}
 
                 onHttpError={(e) => {
-                  console.log("❌ HTTP error:", e.nativeEvent);
+                  console.log("❌ HTTP ERROR");
+                  console.log("Status Code:", e.nativeEvent.statusCode);
+                  console.log("Description:", e.nativeEvent.description);
+                  console.log("URL:", e.nativeEvent.url);
                 }}
+
+                onNavigationStateChange={(navState) => {
+                  console.log("🔁 Navigation Change:");
+                  console.log("➡️ URL:", navState.url);
+                  console.log("➡️ Loading:", navState.loading);
+                  console.log("➡️ CanGoBack:", navState.canGoBack);
+                  console.log("➡️ CanGoForward:", navState.canGoForward);
+                }}
+
+                startInLoadingState={true}
+                renderLoading={() => (
+                  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                    <Text>Loading stream...</Text>
+                  </View>
+                )}
               />
             ) : (
               <LinearGradient
@@ -642,7 +702,7 @@ export default function LiveViewScreen() {
             )}
 
             {/* SVG Overlay */}
-            <View
+            {/* <View
               style={StyleSheet.absoluteFill}
               {...panResponder.panHandlers}
             >
@@ -651,7 +711,6 @@ export default function LiveViewScreen() {
                 height="100%"
                 viewBox={`0 0 ${FRAME_WIDTH} ${FRAME_HEIGHT}`}
               >
-                {/* Saved Polygons with type-based colors */}
                 {savedPolygons.map((poly) => {
                   // Calculate center of polygon for label placement
                   const centerX = poly.points.reduce((sum, p) => sum + p.x, 0) / poly.points.length;
@@ -707,7 +766,7 @@ export default function LiveViewScreen() {
 
                   return (
                     <React.Fragment key={poly.id}>
-                      {/* Polygon Shape */}
+                    
                       <Polygon
                         points={poly.points.map((p) => `${p.x},${p.y}`).join(" ")}
                         fill={`${styles.bg.replace('0.9', '0.25')}`} // More transparent fill
@@ -730,7 +789,7 @@ export default function LiveViewScreen() {
                         }
                       />
                       <G>
-                        {/* Colored badge */}
+                       
                         <Rect
                           x={centerX - 45}
                           y={centerY - 16}
@@ -741,7 +800,7 @@ export default function LiveViewScreen() {
                           ry="16"
                         />
 
-                        {/* Left accent color */}
+                        
                         <Rect
                           x={centerX - 45}
                           y={centerY - 16}
@@ -753,7 +812,7 @@ export default function LiveViewScreen() {
                           opacity="0.3"
                         />
 
-                        {/* Icon */}
+                       
                         <SvgText
                           x={centerX - 25}
                           y={centerY + 6}
@@ -764,7 +823,7 @@ export default function LiveViewScreen() {
                           {styles.icon}
                         </SvgText>
 
-                        {/* Text */}
+                        
                         <SvgText
                           x={centerX + 10}
                           y={centerY + 6}
@@ -780,7 +839,7 @@ export default function LiveViewScreen() {
                   );
                 })}
 
-                {/* Current Drawing */}
+               
                 {points.length >= 2 && (
                   <Polygon
                     points={points.map((p) => `${p.x},${p.y}`).join(" ")}
@@ -790,7 +849,6 @@ export default function LiveViewScreen() {
                   />
                 )}
 
-                {/* Points with glow effect */}
                 {points.map((p, i) => (
                   <React.Fragment key={i}>
                     <Circle
@@ -810,10 +868,10 @@ export default function LiveViewScreen() {
                   </React.Fragment>
                 ))}
               </Svg>
-            </View>
+            </View> */}
           </View>
 
-          {/* Point Counter */}
+         
           {points.length > 0 && (
             <View style={styles.pointCounter}>
               <Ionicons name="location" size={16} color="#4facfe" />
@@ -825,7 +883,7 @@ export default function LiveViewScreen() {
         </View>
 
         {/* Detection Type Dropdown */}
-        <View style={styles.dropdownContainer}>
+        {/* <View style={styles.dropdownContainer}>
           <Text style={styles.dropdownLabel}>Detection Type:</Text>
           <TouchableOpacity
             style={styles.dropdownButton}
@@ -858,10 +916,10 @@ export default function LiveViewScreen() {
               <Ionicons name="chevron-down" size={20} color="#fff" />
             </LinearGradient>
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         {/* Drawing Tools */}
-        <View style={styles.toolsContainer}>
+        {/* <View style={styles.toolsContainer}>
           <TouchableOpacity
             style={[styles.toolButton, points.length === 0 && styles.disabledButton]}
             onPress={handleUndo}
@@ -909,31 +967,7 @@ export default function LiveViewScreen() {
               </Text>
             </LinearGradient>
           </TouchableOpacity>
-          {/* // CLEAR ALL BUTTON *******************************************
-          <TouchableOpacity
-            style={[styles.toolButton, savedPolygons.length === 0 && styles.disabledButton]}
-            onPress={handleClearAll}
-            disabled={savedPolygons.length === 0}
-            activeOpacity={0.7}
-          >
-            <LinearGradient
-              colors={savedPolygons.length === 0 ? ['#4a4a4a', '#3a3a3a'] : ['#EF5350', '#E53935']}
-              style={styles.toolGradient}
-            >
-              <Ionicons
-                name="trash"
-                size={20}
-                color={savedPolygons.length === 0 ? "#888" : "#fff"}
-              />
-              <Text style={[
-                styles.toolButtonText,
-                savedPolygons.length === 0 && styles.disabledText
-              ]}>
-                Clear All
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity> */}
-        </View>
+        </View> */}
 
         {/* Save Button - Enabled only when polygon has 3+ points AND type is selected */}
         {points.length >= 3 && selectedType && (
@@ -978,7 +1012,7 @@ export default function LiveViewScreen() {
       </View>
 
       {/* Dropdown Modal */}
-      <Modal
+      {/* <Modal
         visible={dropdownVisible}
         transparent={true}
         animationType="fade"
@@ -1031,7 +1065,7 @@ export default function LiveViewScreen() {
             </LinearGradient>
           </View>
         </TouchableOpacity>
-      </Modal>
+      </Modal> */}
     </SafeAreaView>
   );
 }
@@ -1045,8 +1079,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 15,
+    paddingTop: 50,
+    paddingBottom: 30,
   },
   backButton: {
     width: 40,

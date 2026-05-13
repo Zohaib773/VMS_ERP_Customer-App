@@ -146,7 +146,16 @@ const LoginScreen: React.FC = () => {
   // };
   const handleLogin = async () => {
     const url = urls.login;
-    const REGISTER_TOKEN_URL = urls.REGISTER_TOKEN_URL
+    const REGISTER_TOKEN_URL = urls.REGISTER_TOKEN_URL;
+
+    // ================= LOGIN PAYLOAD =================
+    const loginPayload = {
+      username,
+      password,
+    };
+
+    console.log("📦 LOGIN PAYLOAD BEING SENT TO BACKEND:");
+    console.log(JSON.stringify(loginPayload, null, 2));
 
     if (!username || !password) {
       alert("Please enter both email and password");
@@ -158,7 +167,7 @@ const LoginScreen: React.FC = () => {
 
       const response = await axios.post(
         url,
-        { username, password },
+        loginPayload,
         {
           headers: { "Content-Type": "application/json" },
           timeout: 10000,
@@ -169,42 +178,47 @@ const LoginScreen: React.FC = () => {
 
       console.log("Login Response:", response.data);
 
-      //  Save tokens
+      // Save tokens
       await AsyncStorage.setItem("accessToken", access);
       await AsyncStorage.setItem("refreshToken", refresh);
       await AsyncStorage.setItem("userData", JSON.stringify(user));
 
-      //  STEP 1: Get device push token
+      // STEP 1: Get device push token
       const deviceToken = await registerForPushNotificationsAsync();
 
-      //  STEP 2: Send device token to backend
-      if (deviceToken) {
-        try {
-          await axios.post(
-            REGISTER_TOKEN_URL,
-            {
-              user_id: user.id,
-              token: deviceToken,
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${access}`, // if your backend requires auth
-              },
-            }
-          );
+      // STEP 2: Send device token to backend
+      // if (deviceToken) {
 
-          console.log(" Firebase token registered successfully");
-        } catch (tokenError) {
-          console.error("❌ Error registering Firebase token:", tokenError);
-        }
-      }
+      //   // ================= TOKEN PAYLOAD =================
+      //   const tokenPayload = {
+      //     user_id: user.id,
+      //     token: deviceToken,
+      //   };
 
-      //  Navigate after everything succeeds
-      // if (user.role === "customer") {
-      //   router.replace("/Dashboard/Add_Device_Screen");
+      //   console.log("📦 FIREBASE TOKEN PAYLOAD:");
+      //   console.log(JSON.stringify(tokenPayload, null, 2));
+
+      //   try {
+      //     await axios.post(
+      //       REGISTER_TOKEN_URL,
+      //       tokenPayload,
+      //       {
+      //         headers: {
+      //           "Content-Type": "application/json",
+      //           Authorization: `Bearer ${access}`,
+      //         },
+      //       }
+      //     );
+
+      //     console.log("✅ Firebase token registered successfully");
+
+      //   } catch (tokenError) {
+      //     console.error("❌ Error registering Firebase token:", tokenError);
+      //   }
       // }
-      if (user.role === "customer") {
+
+      // Navigate after everything succeeds
+      if (user.role === "Customer") {
         if (user.devices > 0) {
           router.replace("/Dashboard/All_devices");
         } else {
@@ -225,6 +239,170 @@ const LoginScreen: React.FC = () => {
     }
   };
 
+  // const handleLogin = async () => {
+  //   const url = urls.login;
+  //   const REGISTER_TOKEN_URL = urls.REGISTER_TOKEN_URL;
+
+  //   console.log("🚀 ================= LOGIN STARTED =================");
+
+  //   console.log("🌐 Login URL:", url);
+  //   console.log("🌐 Register Token URL:", REGISTER_TOKEN_URL);
+
+  //   console.log("📝 User Input:");
+  //   console.log("   Email:", email);
+  //   console.log("   Password:", password ? "✅ Provided" : "❌ Missing");
+
+  //   if (!email || !password) {
+  //     console.warn("⚠️ Validation Failed - Missing email or password");
+  //     alert("Please enter both email and password");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+
+  //     // ================= LOGIN PAYLOAD =================
+  //     const loginPayload = {
+  //       email,
+  //       password,
+  //     };
+
+  //     console.log("📦 LOGIN PAYLOAD:");
+  //     console.log({
+  //       ...loginPayload,
+  //       password: "🔒 HIDDEN",
+  //     });
+
+  //     console.log("📡 Sending Login Request...");
+
+  //     const startTime = Date.now();
+
+  //     const response = await axios.post(
+  //       url,
+  //       loginPayload,
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         timeout: 10000,
+  //       }
+  //     );
+
+  //     const duration = Date.now() - startTime;
+
+  //     console.log(`⏱️ Login API completed in ${duration}ms`);
+
+  //     console.log("✅ LOGIN SUCCESS");
+  //     console.log("📨 Response Status:", response.status);
+  //     console.log("📨 Full Response:", response.data);
+
+  //     const { access, refresh, user } = response.data;
+
+  //     console.log("🔑 Access Token:", access);
+  //     console.log("🔄 Refresh Token:", refresh);
+
+  //     console.log("👤 User Object:");
+  //     console.log(JSON.stringify(user, null, 2));
+
+  //     // ================= SAVE TOKENS =================
+  //     console.log("💾 Saving tokens to AsyncStorage...");
+
+  //     await AsyncStorage.setItem("accessToken", access);
+  //     await AsyncStorage.setItem("refreshToken", refresh);
+  //     await AsyncStorage.setItem("userData", JSON.stringify(user));
+
+  //     console.log("✅ Tokens saved successfully");
+
+  //     // ================= PUSH TOKEN =================
+  //     console.log("📲 Requesting device push token...");
+
+  //     const deviceToken = await registerForPushNotificationsAsync();
+
+  //     console.log("📲 Device Push Token:", deviceToken);
+
+  //     // ================= REGISTER TOKEN =================
+  //     if (deviceToken) {
+  //       try {
+  //         const tokenPayload = {
+  //           user_id: user.id,
+  //           token: deviceToken,
+  //         };
+
+  //         console.log("📦 TOKEN REGISTER PAYLOAD:");
+  //         console.log(tokenPayload);
+
+  //         console.log("📡 Sending token registration request...");
+
+  //         const tokenResponse = await axios.post(
+  //           REGISTER_TOKEN_URL,
+  //           tokenPayload,
+  //           {
+  //             headers: {
+  //               "Content-Type": "application/json",
+  //               Authorization: `Bearer ${access}`,
+  //             },
+  //           }
+  //         );
+
+  //         console.log("✅ Firebase token registered successfully");
+  //         console.log("📨 Token API Response:", tokenResponse.data);
+
+  //       } catch (tokenError: any) {
+  //         console.error("❌ Error registering Firebase token");
+
+  //         if (tokenError.response) {
+  //           console.error("🔴 Status:", tokenError.response.status);
+  //           console.error("🔴 Data:", tokenError.response.data);
+  //         } else {
+  //           console.error("🔴 Error:", tokenError.message);
+  //         }
+  //       }
+  //     } else {
+  //       console.warn("⚠️ No device token received");
+  //     }
+
+  //     // ================= NAVIGATION =================
+  //     console.log("🧭 Checking user role and devices...");
+  //     console.log("👤 Role:", user.role);
+  //     console.log("📱 Devices Count:", user.devices);
+
+  //     if (user.role === "customer") {
+  //       if (user.devices > 0) {
+  //         console.log("➡️ Navigating to All Devices");
+  //         router.replace("/Dashboard/All_devices");
+  //       } else {
+  //         console.log("➡️ Navigating to Add Device Screen");
+  //         router.replace("/Dashboard/Add_Device_Screen");
+  //       }
+  //     }
+
+  //   } catch (error: any) {
+  //     console.error("❌ ================= LOGIN FAILED =================");
+
+  //     if (axios.isAxiosError(error)) {
+  //       console.error("🔴 Axios Error Message:", error.message);
+
+  //       if (error.response) {
+  //         console.error("🔴 Response Status:", error.response.status);
+  //         console.error("🔴 Response Headers:", error.response.headers);
+  //         console.error("🔴 Response Data:", error.response.data);
+  //       }
+
+  //       if (error.request) {
+  //         console.error("📭 Request Sent But No Response:", error.request);
+  //       }
+
+  //       alert(error.response?.data?.message || "Invalid username or password");
+  //     } else {
+  //       console.error("🌐 Unknown Error:", error);
+  //       alert("Something went wrong. Please try again.");
+  //     }
+
+  //   } finally {
+  //     console.log("🏁 ================= LOGIN FINISHED =================");
+  //     setLoading(false);
+  //   }
+  // };
   const handleSignUp = () => {
     console.log('Navigate to sign up');
   };
